@@ -17,7 +17,9 @@ html.dark{--paper:#0f1a30;--paper2:#14203a;--paper3:#1b2a49;--ink:#e8e0c8;--ink2
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--deep);color:var(--ink);font-family:"Noto Serif SC","Source Han Serif SC","STZhongsong","Songti SC","SimSun",serif;line-height:1.9;font-size:17px;}
 #progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#8a6a2f,var(--gold2),#8a6a2f);z-index:99;}
-header.hero{position:relative;background:linear-gradient(180deg,rgba(11,20,36,.45) 0%,rgba(11,20,36,.82) 62%,var(--deep) 100%),url('cover.jpg') center 30%/cover no-repeat;padding:96px 20px 120px;text-align:center;color:#f2ead8;}
+header.hero{padding:44px 20px 120px;text-align:center;color:#f2ead8;background:radial-gradient(ellipse at 50% -10%,rgba(201,164,92,.10),transparent 55%);}
+header.hero .coverwrap{max-width:880px;margin:0 auto 40px;border-radius:16px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.45);}
+header.hero .coverwrap img{display:block;width:100%;height:auto;}
 header.hero h1{margin:0 0 10px;font-size:52px;letter-spacing:.18em;color:var(--gold2);font-weight:600;text-shadow:0 2px 18px rgba(0,0,0,.55);}
 header.hero .seal{display:inline-block;margin-left:14px;vertical-align:6px;width:46px;height:46px;border-radius:8px;background:linear-gradient(160deg,#c24430,#93291b);color:#fff5e0;font-size:15px;line-height:23px;text-align:center;padding-top:1px;letter-spacing:0;box-shadow:0 2px 8px rgba(0,0,0,.4);font-family:"KaiTi","STKaiti",serif;}
 header.hero .sub{margin:6px 0 0;color:#cbbd9c;font-size:16px;letter-spacing:.28em;}
@@ -33,7 +35,19 @@ html.dark .paper{background-image:radial-gradient(rgba(255,255,255,.04) 1px,tran
 .toc li::before{content:"▪";position:absolute;left:0;top:1px;color:var(--cin);font-size:13px;}
 .toc a{color:var(--ink);text-decoration:none;font-size:15px;}
 .toc a:hover{color:var(--cin);}
+.toc a.done{color:var(--ink2);}
+.toc a.done::after{content:" ✓";color:var(--cin);font-size:12px;}
+.toc a.here{color:var(--cin);font-weight:600;}
 .wrap h2{color:var(--ink);font-size:28px;margin:72px 0 18px;padding:0 0 12px 18px;border-bottom:1px solid var(--line);border-left:5px solid var(--cin);line-height:1.5;letter-spacing:.04em;}
+.entry{margin:30px 0;border:1px solid var(--line);border-radius:14px;background:var(--paper2);overflow:hidden;box-shadow:0 2px 10px rgba(140,120,80,.08);}
+.entry summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:14px;padding:18px 24px;}
+.entry summary::-webkit-details-marker{display:none;}
+.entry summary h2{margin:0;padding:0;border:none;font-size:20px;flex:1;color:var(--ink);line-height:1.6;}
+.entry summary::before{content:"＋";color:var(--cin);font-size:19px;flex:none;}
+.entry[open] summary::before{content:"－";}
+.entry summary .date{color:var(--ink2);font-size:13px;flex:none;white-space:nowrap;}
+.entry-body{padding:6px 26px 28px;border-top:1px dashed var(--line);}
+.entry-body h3{color:var(--cin);font-size:21px;margin:34px 0 14px;letter-spacing:.05em;}
 .wrap h3{color:var(--cin);font-size:21px;margin:40px 0 14px;letter-spacing:.05em;}
 .wrap h4{color:var(--ink);font-size:18px;margin:30px 0 10px;}
 .wrap p{margin:15px 0;}
@@ -61,6 +75,7 @@ footer .goldline{width:120px;height:1px;background:linear-gradient(90deg,transpa
 <body id="top">
 <div id="progress"></div>
 <header class="hero">
+  <div class="coverwrap"><img src="cover.jpg" alt="归海录封面"></div>
   <h1>归海录<span class="seal">歸海<br>之錄</span></h1>
   <div class="sub">归海2026 · 师父志远行空的开示合集</div>
   <div class="intro">本合集收录师父在「归海2026」群中的日常开示与 YouTube 视频讲法。每一段语音，一个故事，一个道理，润物无声。此合集按时间倒序整理，持续更新。欢迎随手转发、复制分享——让智慧流到更多人那里。</div>
@@ -157,12 +172,9 @@ href="#sec-28">念《地藏经》有三大禁忌，尤其是晚上！揭秘“�
 <li><a href="#sec-43">破万法思维模型</a></li>
 </ul>
 </div>
-<h2 id="sec-01">决定你命运走向的人，很可能只是不起眼的NPC——China
-GT赛场上的生命，到底该由谁负责？</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>2026-09-13 · 师父志远行空 YouTube 视频</strong></p>
-</blockquote>
+<details class="entry" id="sec-01"><summary><h2>决定你命运走向的人，很可能只是不起眼的NPC——China
+GT赛场上的生命，到底该由谁负责？</h2><span class="date">📌</p>
+<p><strong>2026-09-13 · 师父志远行空 YouTube 视频</strong></span></summary><div class="entry-body">
 <blockquote>
 <p>💡</p>
 <p>一场赛车起火事故，师父从”人间责任”讲到”天道因果”：决定命运走向的人，很可能只是不起眼的
@@ -332,11 +344,8 @@ id="收尾修到最后不过修一场众生善缘">收尾：修到最后，不�
 <blockquote>
 <p>而最后的最后，我们不过就是落到一句话：修行在人世间、在六道内、甚至在六道外——我们修的到底是什么？修到最后，不过就是修一场众生善缘。</p>
 </blockquote>
-<h2 id="sec-02">你遇到的鬼，最多只是”高启强”——认知层级与法界资源</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>2026-09-12 · 归海群师父分享（Lark 语音转化文字）</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-02"><summary><h2>你遇到的鬼，最多只是”高启强”——认知层级与法界资源</h2><span class="date">📌</p>
+<p><strong>2026-09-12 · 归海群师父分享（Lark 语音转化文字）</strong></span></summary><div class="entry-body">
 <blockquote>
 <p>💡</p>
 <p>一位同学被”鬼侵扰”惶惶不可终日，师父借此讲透：法界问题拼的不是鬼有多厉害，而是你的认知层级与能调动的资源层级。</p>
@@ -585,11 +594,8 @@ id="十总结天道思维还是人间算计">十、总结：天道思维，还�
 非老师原文</strong><strong>荷马《奥德赛》</strong>：古希腊史诗，讲述特洛伊战争后奥德修斯十年漂泊返乡的故事，本片与上集均取材于此。
 <strong>“杀人者，打虎武松也”</strong>：出自《水浒传》第三十一回，武松血溅鸳鸯楼后在墙上留字。<strong>马三立《逗你玩》</strong>：单口相声名段。<strong>人名对照</strong>：波吕斐摩斯（独眼巨人）、喀耳刻（女巫）、忒瑞西阿斯（冥界先知）、塞壬（海妖）、斯库拉与卡律布狄斯（海怪与漩涡）、卡吕普索（海之女神）、忒勒马科斯（奥德修斯之子）、佩涅洛佩（奥德修斯之妻）。</p>
 </blockquote>
-<h2 id="sec-04">天机不可泄，机缘要当下：一次录制被下架的启示</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>2026-09-11 · 归海群师父语音（9 段，约 9.8 分钟）</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-04"><summary><h2>天机不可泄，机缘要当下：一次录制被下架的启示</h2><span class="date">📌</p>
+<p><strong>2026-09-11 · 归海群师父语音（9 段，约 9.8 分钟）</strong></span></summary><div class="entry-body">
 <blockquote>
 <p>💡</p>
 <p>昨天直播的录制文件被删了——表面上是机器审核，实际上触及了法界的禁忌。师父借此讲了两层：天机不可泄，机缘要当下。</p>
@@ -889,11 +895,8 @@ id="sec-05">邹市明夫妇7年亏掉2亿：当认知配不上福报，错误只
 <strong>“时来天地皆同力，运去英雄不自由”</strong>：出自唐·罗隐《筹笔驿》，咏诸葛亮之事，叹时运之力。
 <strong>“不是一家人，不进一家门”</strong>：民间俗语，指能走到一起的人总有相似之处。</p>
 </blockquote>
-<h2 id="sec-06">男女关系避雷：恋爱脑、婚外情与择偶红线</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>2026-09-04 · 讯飞办公本录音转录（师父志远行空）</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-06"><summary><h2>男女关系避雷：恋爱脑、婚外情与择偶红线</h2><span class="date">📌</p>
+<p><strong>2026-09-04 · 讯飞办公本录音转录（师父志远行空）</strong></span></summary><div class="entry-body">
 <h3 id="开场借孙哥事件讲男女关系的雷">💡
 开场：借孙哥事件，讲男女关系的雷</h3>
 <blockquote>
@@ -1181,12 +1184,9 @@ id="七主神支持你不等于你有无限开火权">七、主神支持你，�
 <li><strong>波提切利《维纳斯的诞生》</strong>：文艺复兴名画，描绘维纳斯（阿佛洛狄忒）从海中诞生的场景</li>
 <li><strong>年羹尧血洗江夏镇</strong>：《雍正王朝》中经典情节，年羹尧屠灭江夏镇后以”主子”授意为托词——常被引作”执行者越界不能全推给上级”的典故</li>
 </ul>
-<h2 id="sec-08">肉身不扛造，能量级别却不低</h2>
-<blockquote>
-<p>📌</p>
+</div></details><details class="entry" id="sec-08"><summary><h2>肉身不扛造，能量级别却不低</h2><span class="date">📌</p>
 <p><strong>2026-09-01 · 师父志远行空 归海群语音分享</strong>（5
-段语音，时长约 6 分 10 秒）</p>
-</blockquote>
+段语音，时长约 6 分 10 秒）</span></summary><div class="entry-body">
 <hr />
 <h3 id="开场嗓子恢复先说一个概念">💡 开场：嗓子恢复，先说一个概念</h3>
 <p>今天嗓子稍微好一点。过去几天不知道是流感还是怎么回事，嗓子哑了、也不能讲话了；到今天炎症基本消了，还有一点点，但不太耽误讲话。</p>
@@ -1264,12 +1264,9 @@ id="四炼体与长生这不是这个世界的事">四、炼体与长生：这�
 </ul>
 <h3 id="师父志远行空-youtube-视频-1">2026-08-31 · 师父志远行空 YouTube
 视频</h3>
-<h2 id="sec-09">景甜与孙宇晨：一个不知彼，一个不敬畏</h2>
-<blockquote>
-<p>📌</p>
+</div></details><details class="entry" id="sec-09"><summary><h2>景甜与孙宇晨：一个不知彼，一个不敬畏</h2><span class="date">📌</p>
 <p><strong>2026-08-31 · 师父志远行空 YouTube 视频</strong>（时长
-27:19）</p>
-</blockquote>
+27:19）</span></summary><div class="entry-body">
 <h3 id="开场借公共事件拆解命运">💡 开场：借公共事件，拆解命运</h3>
 <blockquote>
 <p>通过这样一个公共事件，拆解别人的命运，从而点亮我们自己的。</p>
@@ -2210,8 +2207,7 @@ AI、也有很多毁灭性的武器，但人性的贪嗔痴慢疑五毒，到底
 <h3 id="师父志远行空群内语音分享">2026-08-09 ·
 师父志远行空群内语音分享</h3>
 <p>主题：别做自己人生的”臭棋篓子” · 人生如棋，速度决定输赢</p>
-<h2 id="sec-14">别做自己人生的”臭棋篓子”</h2>
-<blockquote>
+</div></details><details class="entry" id="sec-14"><summary><h2>别做自己人生的”臭棋篓子”</h2></summary><div class="entry-body"><blockquote>
 <p>💡</p>
 <p><strong>核心：人类说明书 =
 棋谱。看过棋谱的人开局就知道怎么走；没看过棋谱的人以吃子为乐，漏招一大堆。别做自己人生的”臭棋篓子”。</strong></p>
@@ -2624,12 +2620,9 @@ vs 新版理论精炼 · 对比与总结</strong></p>
 <hr />
 <h3 id="师父志远行空-youtube-视频-6">2026-06-09 · 师父志远行空 YouTube
 视频</h3>
-<h2 id="sec-19">EP04 因果故事会 · 照见你因果</h2>
-<blockquote>
-<p>📌</p>
+</div></details><details class="entry" id="sec-19"><summary><h2>EP04 因果故事会 · 照见你因果</h2><span class="date">📌</p>
 <p><strong>2026-06-09 · 师父志远行空 YouTube
-视频</strong>（2:02:49）</p>
-</blockquote>
+视频</strong>（2:02:49）</span></summary><div class="entry-body">
 <h3
 id="一开场心法停止无效努力允许自己不发力">一、开场心法：停止无效努力，允许自己不发力</h3>
 <p>师父开篇分享了一段深刻的近期感悟。过去很长一段时期，他处于<strong>高度忙碌但无效</strong>的状态：休闲自在只有20分，思维混乱却高达六七十，法界负面干扰也有65-70分。他形容这种状态为典型的”牛马”模式——每天把自己塞得很满，从早学到晚，大量冗余信息堆砌在脑子里，但修行进度、思想深度和洞察力反而长期卡壳。</p>
@@ -2800,12 +2793,9 @@ yourself）。</p>
 </blockquote>
 <h3 id="师父志远行空-youtube-视频-7">2026-06-03 · 师父志远行空 YouTube
 视频</h3>
-<h2 id="sec-20">EP03 因果故事会 · 越想改变命运，越被困住</h2>
-<blockquote>
-<p>📌</p>
+</div></details><details class="entry" id="sec-20"><summary><h2>EP03 因果故事会 · 越想改变命运，越被困住</h2><span class="date">📌</p>
 <p><strong>2026-06-03 · 师父志远行空 YouTube
-视频</strong>（1:58:20）</p>
-</blockquote>
+视频</strong>（1:58:20）</span></summary><div class="entry-body">
 <h3 id="一核心总论命运困局的本质">一、核心总论：命运困局的本质</h3>
 <p>本集师父的因果故事会深入解析了两个典型案例，贯穿一条主线：<strong>为什么很多人越是想改变命运，反而越被命运困住</strong>。这并非因为命不好，而是因为存在着某种深藏不露的思维与行为模式，使得人始终在”还不错”的状态中滑向平庸，最终被命运牢牢锁住。</p>
 <p>师父开篇即点明：不是所有人都缺乏智慧那么简单。<strong>“任何一个人都缺乏智慧，所有人，没有成佛以前，所有人都缺乏智慧。”</strong>
@@ -2976,12 +2966,9 @@ id="七全篇总结命运的困局如何解开">七、全篇总结：命运的�
 </blockquote>
 <h3 id="师父志远行空-youtube-视频-8">2026-05-27 · 师父志远行空 YouTube
 视频</h3>
-<h2 id="sec-21">EP02 因果故事会 · 别人的因果，你的答案</h2>
-<blockquote>
-<p>📌</p>
+</div></details><details class="entry" id="sec-21"><summary><h2>EP02 因果故事会 · 别人的因果，你的答案</h2><span class="date">📌</p>
 <p><strong>2026-05-27 · 师父志远行空 YouTube
-视频</strong>（1:53:20）</p>
-</blockquote>
+视频</strong>（1:53:20）</span></summary><div class="entry-body">
 <h3
 id="一引子一道留给在场所有人的思考题">一、引子：一道留给在场所有人的思考题</h3>
 <p>师父开场即抛出一个真实发生过的事件，用以考察长期跟随学习的听众能否运用所学法界天机知识进行独立判断。</p>
@@ -3174,13 +3161,10 @@ id="五五毒四心之痴聪明人的认知固化">五、五毒四心之「痴�
 </blockquote>
 <h3 id="师父志远行空-youtube-视频-9">2026-05-20 · 师父志远行空 YouTube
 视频</h3>
-<h2 id="sec-22">EP01 因果故事会 ·
-停更一年后，为什么还要继续讲因果故事</h2>
-<blockquote>
-<p>📌</p>
+</div></details><details class="entry" id="sec-22"><summary><h2>EP01 因果故事会 ·
+停更一年后，为什么还要继续讲因果故事</h2><span class="date">📌</p>
 <p><strong>2026-05-20 · 师父志远行空 YouTube
-视频</strong>（1:55:16）</p>
-</blockquote>
+视频</strong>（1:55:16）</span></summary><div class="entry-body">
 <h3 id="一主题">一、主题</h3>
 <p>“志远行空”因果故事会重启暨核心观点与后续规划分享</p>
 <h3 id="二核心内容">二、核心内容</h3>
@@ -3418,12 +3402,9 @@ id="sec-24">41岁张雪峰猝死：泄露社会运行的“天机”，真的会
 </blockquote>
 <h3 id="师父志远行空-youtube-视频-12">2026-03-11 · 师父志远行空 YouTube
 视频</h3>
-<h2 id="sec-25">🌀 破万法思维模型 2.0 终极全书</h2>
-<blockquote>
-<p>📌</p>
+</div></details><details class="entry" id="sec-25"><summary><h2>🌀 破万法思维模型 2.0 终极全书</h2><span class="date">📌</p>
 <p><strong>2026-03-11 · 师父志远行空 YouTube
-视频</strong>（1:36:55）</p>
-</blockquote>
+视频</strong>（1:36:55）</span></summary><div class="entry-body">
 <h3
 id="格认知判事八维太极识人"><strong>“15格认知”判事，“八维太极”识人</strong></h3>
 <h3
@@ -3630,12 +3611,9 @@ href="http://www.youtube.com/watch?v=ZBOxZFOXOAQ&amp;t=365">06:05</a>]。丁元�
 </blockquote>
 <h3 id="师父志远行空-youtube-视频-14">2026-01-16 · 师父志远行空 YouTube
 视频</h3>
-<h2 id="sec-27">2026，普通人如何破局？</h2>
-<blockquote>
-<p>📌</p>
+</div></details><details class="entry" id="sec-27"><summary><h2>2026，普通人如何破局？</h2><span class="date">📌</p>
 <p><strong>2026-01-16 · 师父志远行空 YouTube
-视频</strong>（1:44:25）</p>
-</blockquote>
+视频</strong>（1:44:25）</span></summary><div class="entry-body">
 <p>通过对2026年经济形势的判断（七亏两平一赚），结合“通透心”、“卡车司机理论”以及“脉轮财富观”，打破了普通人对于翻身、阶层跨越和修行的幻想。</p>
 <p><strong>五大核心板块</strong>：</p>
 <hr />
@@ -3836,11 +3814,8 @@ T0412，通行题为唐·实叉难陀译。广为流传的“地狱未空，誓�
 </blockquote>
 <h3 id="师父志远行空-youtube-视频-16">2025-11-19 · 师父志远行空 YouTube
 视频</h3>
-<h2 id="sec-29">停止做“正确”的事：一个精心设计的“完美陷阱”</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>2025-11-19 · 师父志远行空 YouTube 视频</strong>（09:02）</p>
-</blockquote>
+</div></details><details class="entry" id="sec-29"><summary><h2>停止做“正确”的事：一个精心设计的“完美陷阱”</h2><span class="date">📌</p>
+<p><strong>2025-11-19 · 师父志远行空 YouTube 视频</strong>（09:02）</span></summary><div class="entry-body">
 <h3
 id="一当每一步都正确整条路却错了">一、当每一步都正确，整条路却错了</h3>
 <blockquote>
@@ -3929,12 +3904,9 @@ id="二预设答题卡社会如何制造正确">二、预设答题卡：社会�
 <p><strong>版权归志远行空 · 2025-11-19</strong></p>
 </blockquote>
 <h3 id="师父内部开示">师父内部开示</h3>
-<h2 id="sec-30">EP01 100个职业背后的故事 ·
-带货主播：离钱最近，离财富最远</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>师父内部开示</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-30"><summary><h2>EP01 100个职业背后的故事 ·
+带货主播：离钱最近，离财富最远</h2><span class="date">📌</p>
+<p><strong>师父内部开示</strong></span></summary><div class="entry-body">
 <blockquote>
 <p>志远行空·100个职业背后的故事 EP01 ｜ 首期嘉宾：怀远生·
 从带货主播到通灵疗愈师 ｜ 时长 29:23</p>
@@ -4531,11 +4503,8 @@ id="七八维太极识人模型定位带货主播">七、八维太极识人模�
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
 <h3 id="师父内部开示-1">师父内部开示</h3>
-<h2 id="sec-31">EP05 因果故事会 · 顺天应时，借事修人</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>师父内部开示</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-31"><summary><h2>EP05 因果故事会 · 顺天应时，借事修人</h2><span class="date">📌</p>
+<p><strong>师父内部开示</strong></span></summary><div class="entry-body">
 <blockquote>
 <p>💡</p>
 <p><strong>志远行空因果故事会EP05</strong> ｜ 2026年7月 ｜ 精读笔记</p>
@@ -4627,11 +4596,8 @@ Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归�
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
 <h3 id="师父内部开示-2">师父内部开示</h3>
-<h2 id="sec-32">《师父语录·论弟子修行心性与人间智慧》</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>师父内部开示</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-32"><summary><h2>《师父语录·论弟子修行心性与人间智慧》</h2><span class="date">📌</p>
+<p><strong>师父内部开示</strong></span></summary><div class="entry-body">
 <h3 id="一认知的陷阱">一、认知的陷阱</h3>
 <p>很多时候，我过高地估计了部分同学的情商、智商、心性与智慧。以为一些简单的事都会，但事实并非如此。<br />
 这也是一种<strong>认知陷阱</strong>——以己度人。修行要面对真实，不是理想化地假设每个人都具备同样的理解力。</p>
@@ -4698,11 +4664,8 @@ id="七三大特征低情商低执行力高自我中心">七、三大特征：�
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
 <h3 id="师父内部开示-3">师父内部开示</h3>
-<h2 id="sec-33">逆修自查十九条</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>师父内部开示</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-33"><summary><h2>逆修自查十九条</h2><span class="date">📌</p>
+<p><strong>师父内部开示</strong></span></summary><div class="entry-body">
 <blockquote>
 <p>💡</p>
 <p>希望可以自查,平时有哪些是自认为正确实则错误之事根据自身情况,在以下内容的基础上进一步补充,对抗人类原罪不再为人–修人道,成为一名合格的”天地逆修”!</p>
@@ -4772,11 +4735,8 @@ href="https://blog.ted.com/transforming-transportation-elon-musk-at-ted2013/"><s
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
 <h3 id="师父内部开示-4">师父内部开示</h3>
-<h2 id="sec-34">七字箴言（做人做事成败的七个根本）</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>师父内部开示</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-34"><summary><h2>七字箴言（做人做事成败的七个根本）</h2><span class="date">📌</p>
+<p><strong>师父内部开示</strong></span></summary><div class="entry-body">
 <h3
 id="境环境你所处的大环境与当下场域是否稳定适配当下目标地点人群节奏">境<strong>（环境）</strong>：你所处的大环境与当下场域是否稳定、适配当下目标（地点、人群、节奏）。</h3>
 <h3
@@ -4802,11 +4762,8 @@ id="心心性心性是否稳愿力是否直是否扛得住打击而不偏航"><s
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
 <h3 id="师父内部开示-5">师父内部开示</h3>
-<h2 id="sec-35">九字箴言（七字进阶版：加上因果与合道）</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>师父内部开示</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-35"><summary><h2>九字箴言（七字进阶版：加上因果与合道）</h2><span class="date">📌</p>
+<p><strong>师父内部开示</strong></span></summary><div class="entry-body">
 <h3
 id="业业力冤亲债主历史因果是否已清未清者会被上天不予机会直接卡死"><strong>业（业力/冤亲债主）</strong>：历史因果是否已清；未清者会被“上天不予机会”直接卡死。</h3>
 <h3
@@ -4823,11 +4780,8 @@ id="道是否合道当下所为是否合规则合天道不合道者即便短期�
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
 <h3 id="师父内部开示-6">师父内部开示</h3>
-<h2 id="sec-36">Ⅰ. 规则、怀疑与笃定</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>师父内部开示</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-36"><summary><h2>Ⅰ. 规则、怀疑与笃定</h2><span class="date">📌</p>
+<p><strong>师父内部开示</strong></span></summary><div class="entry-body">
 <ul>
 <li><p>要义：对“规则”必须先行笃定，再谈质疑。这里的“规则”同时包含天道法则与人间可落地的规则。</p></li>
 <li><p>方法：</p>
@@ -4963,11 +4917,8 @@ Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归�
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
 <h3 id="师父内部开示-7">师父内部开示</h3>
-<h2 id="sec-37">师父关于“学习/教育”的教导</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>师父内部开示</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-37"><summary><h2>师父关于“学习/教育”的教导</h2><span class="date">📌</p>
+<p><strong>师父内部开示</strong></span></summary><div class="entry-body">
 <h3 id="一基本立场">一、基本立场</h3>
 <ul>
 <li>接受现实：<strong>“一定还是要接受孩子的，不是学习的料，这个现实。”</strong></li>
@@ -5030,11 +4981,8 @@ id="四给父母的操作建议原话导向">四、给父母的操作建议（�
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
 <h3 id="师父内部开示-8">师父内部开示</h3>
-<h2 id="sec-38">《高定法器与优先级》</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>师父内部开示</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-38"><summary><h2>《高定法器与优先级》</h2><span class="date">📌</p>
+<p><strong>师父内部开示</strong></span></summary><div class="entry-body">
 <h3 id="结论-1">结论</h3>
 <hr />
 <blockquote>
@@ -5043,11 +4991,8 @@ Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归�
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
 <h3 id="师父内部开示-9">师父内部开示</h3>
-<h2 id="sec-39">阴债 &gt; 普通法器＋仙符 &gt; 高定法器</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>师父内部开示</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-39"><summary><h2>阴债 &gt; 普通法器＋仙符 &gt; 高定法器</h2><span class="date">📌</p>
+<p><strong>师父内部开示</strong></span></summary><div class="entry-body">
 <hr />
 <h3 id="只请法器不打符不行">① 只请法器、不打符——不行</h3>
 <ul>
@@ -5088,11 +5033,8 @@ Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归�
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
 <h3 id="师父内部开示-10">师父内部开示</h3>
-<h2 id="sec-40">人间的“定义”</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>师父内部开示</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-40"><summary><h2>人间的“定义”</h2><span class="date">📌</p>
+<p><strong>师父内部开示</strong></span></summary><div class="entry-body">
 <ul>
 <li>本质：一种效率工具。</li>
 <li>关键：看你如何使用，是否符合规则。</li>
@@ -5122,11 +5064,8 @@ Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归�
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
 <h3 id="师父内部开示-11">师父内部开示</h3>
-<h2 id="sec-41">近期修行困惑与个人修行历程分享会</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>师父内部开示</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-41"><summary><h2>近期修行困惑与个人修行历程分享会</h2><span class="date">📌</p>
+<p><strong>师父内部开示</strong></span></summary><div class="entry-body">
 <p>回应近期部分同学在修行中出现的迷茫和“退转”现象，分享自2019年以来的个人修行心路历程、思维模式转变及生活变化，探讨修行阶段与正反馈问题，预告后续工作。</p>
 <p><strong>一、 近期现象简述</strong></p>
 <ol type="1">
@@ -5233,11 +5172,8 @@ href="https://chan.bailinsi.net/2001/6/2001605.htm"><strong>“见山三阶段�
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
 <h3 id="师父内部开示-12">师父内部开示</h3>
-<h2 id="sec-42">关于思维层级、人生修行与生命态度</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>师父内部开示</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-42"><summary><h2>关于思维层级、人生修行与生命态度</h2><span class="date">📌</p>
+<p><strong>师父内部开示</strong></span></summary><div class="entry-body">
 <h3 id="一-极致的生命态度归零与重启的勇气">一、
 极致的生命态度：归零与重启的勇气</h3>
 <p>这是师父认为“几乎没有人能做到”的最高境界，也是修行的核心目标。</p>
@@ -5306,11 +5242,8 @@ no. 278, p. 663a14）；“修诸善法，是名魔业”是后世常见引述�
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
 <h3 id="师父内部开示-13">师父内部开示</h3>
-<h2 id="sec-43">破万法思维模型</h2>
-<blockquote>
-<p>📌</p>
-<p><strong>师父内部开示</strong></p>
-</blockquote>
+</div></details><details class="entry" id="sec-43"><summary><h2>破万法思维模型</h2><span class="date">📌</p>
+<p><strong>师父内部开示</strong></span></summary><div class="entry-body">
 <p><strong>主题</strong>：破万法思维模型介绍与应用——解决信息过载，提升认知效率</p>
 <p><strong>主要内容</strong></p>
 <p>基于文本，本次讲座聚焦于介绍“破万法思维模型”，师父阐述了信息过载的危害、模型框架的核心结构和应用建议。模型旨在帮助听众筛选日常信息，减少无用知识摄入。关键点总结如下：</p>
@@ -5379,7 +5312,7 @@ href="https://ctext.org/wiki.pl?chapter=3086592&amp;if=gb&amp;remap=gb"><strong>
 <p>本精读笔记转格式自师父语录
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
-
+</div></details>
 </div>
 </div>
 <footer>
@@ -5392,6 +5325,21 @@ Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归�
 <script>
 (function(){var p=document.getElementById('progress');function upd(){var h=document.documentElement;var d=h.scrollHeight-h.clientHeight;p.style.width=(d>0?(h.scrollTop/d)*100:0)+'%';}document.addEventListener('scroll',upd,{passive:true});upd();})();
 (function(){var b=document.getElementById('toggle');function sync(){var d=document.documentElement.classList.contains('dark');b.textContent=d?'☀️':'🌙';}b.addEventListener('click',function(){document.documentElement.classList.toggle('dark');try{localStorage.setItem('ghl_theme',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){}sync();});sync();})();
+(function(){var read=[];try{read=JSON.parse(localStorage.getItem('ghl_read')||'[]')}catch(e){}
+document.querySelectorAll('.toc a[href^="#sec-"]').forEach(function(a){
+  var id=a.getAttribute('href').slice(1);
+  if(read.indexOf(id)>-1){a.classList.add('done')}
+  a.addEventListener('click',function(){
+    var d=document.getElementById(id);
+    if(d){d.open=true;if(read.indexOf(id)<0){read.push(id);try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}}
+    document.querySelectorAll('.toc a.here').forEach(function(x){x.classList.remove('here')});
+    a.classList.add('here');a.classList.add('done');
+  });
+});
+var saved=0;try{saved=parseInt(localStorage.getItem('ghl_scroll')||'0',10)}catch(e){}
+if(saved>0&&!location.hash){window.scrollTo(0,saved)}
+var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(function(){try{localStorage.setItem('ghl_scroll',String(window.scrollY))}catch(e){}},400)},{passive:true});
+})();
 </script>
 </body>
 </html>
