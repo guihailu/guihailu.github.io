@@ -146,9 +146,13 @@ else:
     body_html += '</aside></div>'
 
 # 4.7) 文档自带的 💜 简介 callout -> 引言段落（去重：页面标题下不再重复放简介）
+def intro_repl(m):
+    inner = m.group(1).replace("此合集按时间倒序整理", "<br>此合集按时间倒序整理")
+    return f'<div class="intro"><p>💜 {inner}</p></div>'
+
 body_html = re.sub(
     r'<blockquote>\s*<p>💜</p>\s*<p>(<strong>归海2026.*?)</p>\s*</blockquote>',
-    r'<div class="intro"><p>💜 \1</p></div>', body_html, count=1, flags=re.S)
+    intro_repl, body_html, count=1, flags=re.S)
 
 # 5) 组装 index.html（Apple CN 排版 + Medium 阅读 + 侧栏目录）
 css = """
@@ -162,8 +166,11 @@ header.hero{background:var(--deep);}
 header.hero img.cover{display:block;width:100%;height:auto;border:none;}
 .paper{background:var(--paper);position:relative;z-index:1;}
 .doctitle{text-align:center;padding:110px 24px 64px;}
+.titleline{display:flex;align-items:center;justify-content:center;gap:26px;flex-wrap:wrap;}
 .doctitle h1{margin:0;font-size:72px;font-weight:800;letter-spacing:.18em;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;}
-.doctitle .seal{display:inline-block;margin-left:20px;vertical-align:10px;width:42px;height:60px;border-radius:6px;background:linear-gradient(160deg,#c24430,#93291b);color:#fff5e0;font-size:22px;line-height:30px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.3);font-family:"KaiTi","STKaiti",serif;}
+.doctitle .seal{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;margin-left:18px;width:46px;height:66px;border-radius:46% 54% 58% 42%/48% 52% 46% 54%;background:linear-gradient(160deg,#c24430,#93291b);color:#fff5e0;font-size:23px;line-height:1.15;box-shadow:0 2px 10px rgba(0,0,0,.3);font-family:"KaiTi","STKaiti",serif;transform:rotate(-4deg);}
+.yt{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:var(--ink2);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:8px 18px;letter-spacing:.06em;transition:all .15s;}
+.yt:hover{color:var(--cin);border-color:var(--cin);}
 .doctitle .sub{margin-top:18px;color:var(--ink2);font-size:14px;letter-spacing:.34em;}
 .intro{max-width:640px;margin:0 auto 90px;text-align:center;font-size:16px;color:var(--ink2);line-height:2.05;}
 .intro p{margin:0;}
@@ -171,10 +178,10 @@ header.hero img.cover{display:block;width:100%;height:auto;border:none;}
 .intro::before{content:"";display:block;width:36px;height:2px;background:var(--gold);margin:0 auto 22px;border-radius:1px;}
 .layout{display:grid;grid-template-columns:252px minmax(0,1fr);gap:64px;max-width:1200px;margin:0 auto;padding:0 32px 120px;align-items:start;}
 aside.toc{position:sticky;top:32px;max-height:calc(100vh - 64px);overflow-y:auto;padding-right:10px;scrollbar-width:thin;}
-.toc h2{margin:0 0 20px;color:var(--ink2);font-size:12px;letter-spacing:.4em;font-weight:600;}
+.toc h2{margin:0 0 20px;color:var(--ink);font-size:24px;letter-spacing:.16em;font-weight:700;}
 .toc ul{margin:0;padding:0;list-style:none;border-left:1px solid var(--line);}
 .toc li{margin:0;}
-.toc a{display:block;padding:8px 16px;color:var(--ink2);text-decoration:none;font-size:13.5px;line-height:1.6;transition:color .15s;}
+.toc a{display:block;padding:8px 16px;color:var(--ink2);text-decoration:none;font-size:13.5px;line-height:1.6;font-weight:600;transition:color .15s;}
 .toc a:hover{color:var(--ink);}
 .toc a.done::after{content:" ✓";color:var(--cin);font-size:10px;}
 .toc a.here{color:var(--cin);font-weight:600;border-left:2px solid var(--cin);padding-left:14px;}
@@ -249,7 +256,10 @@ html = f"""<!DOCTYPE html>
 <header class="hero"><img class="cover" src="cover.jpg" alt="归海录封面"></header>
 <div class="paper">
   <div class="doctitle">
-    <h1>归海录<span class="seal">归<br>海</span></h1>
+    <div class="titleline">
+      <h1>归海录<span class="seal">归<br>海</span></h1>
+      <a class="yt" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ YouTube</a>
+    </div>
     <div class="sub">归海2026 · 师父志远行空的开示合集</div>
   </div>
 {body_html}
