@@ -116,7 +116,7 @@ if i > 0:
 
 # 4.5) 每条目包成折叠卡片：id 移到 details 上，日期徽章移进 summary（h2/h3 两种锚点都处理）
 def wrap_entries(b):
-    pat = re.compile(r'<h([23]) id="sec-(\d+)">(.*?)</h\1>\n', re.S)
+    pat = re.compile(r'<h([23])\s+id="sec-(\d+)">(.*?)</h\1>\n', re.S)
     matches = list(pat.finditer(b))
     if not matches:
         return b
