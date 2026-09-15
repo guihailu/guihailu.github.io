@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""归海录静态站构建：guihailu.md -> index.html（pandoc 转换）· 深蓝鎏金×宣纸书卷融合版"""
+"""归海录静态站构建：guihailu.md -> index.html（pandoc 转换）
+设计：Apple 式全宽封面 + VitePress 式侧栏目录 + Medium 式窄栏阅读 · 深蓝鎏金×宣纸，深浅双模式"""
 import re, pathlib, subprocess, sys
 
 HERE = pathlib.Path(__file__).parent
@@ -106,13 +107,18 @@ if res.returncode != 0:
     sys.exit(1)
 body_html = res.stdout
 
-# 把目录部分包进 <div class="toc">
+# 4.4) 目录包进侧栏布局：toc div -> aside.toc，正文 -> main.content
 body_html = body_html.replace(
     '<h2 id="目录">📋 目录</h2>',
-    '<div class="toc"><h2 id="目录">📋 目录</h2>', 1)
-i = body_html.find('<h2 id="sec-')
+    '<h2>📋 目录</h2>', 1)
+i = body_html.find('<h2>📋 目录</h2>')
 if i > 0:
-    body_html = body_html[:i] + '</div>\n' + body_html[i:]
+    body_html = body_html[:i] + '<div class="layout"><aside class="toc">' + body_html[i:]
+j = body_html.find('<details class="entry"')
+k = body_html.rfind('</div>', 0, j)
+if j > 0 and k > 0:
+    body_html = body_html[:k] + '</aside><main class="content">' + body_html[k + len('</div>'):]
+    body_html += '</main></div>'
 
 # 4.5) 每条目包成折叠卡片：id 移到 details 上，日期徽章移进 summary（h2/h3 两种锚点都处理）
 def wrap_entries(b):
@@ -139,67 +145,65 @@ def wrap_entries(b):
 
 body_html = wrap_entries(body_html)
 
-# 5) 组装 index.html（深蓝鎏金 hero + 宣纸正文）
+# 5) 组装 index.html（全宽封面 + 独立标题 + 侧栏目录 + 窄栏阅读）
 css = """
 :root{--deep:#0b1424;--deep2:#101d36;--gold:#c9a45c;--gold2:#e6c886;--paper:#f6f0e0;--paper2:#efe5cc;--paper3:#e8dcc0;--ink:#2c2518;--ink2:#6f6248;--cin:#b03a2e;--line:#d9caa5;--link:#8a4a3c;--quote:#4a3f2a;--th-ink:#7c3a22;--shadow:rgba(11,20,36,.25);}
 html.dark{--paper:#0f1a30;--paper2:#14203a;--paper3:#1b2a49;--ink:#e8e0c8;--ink2:#a89c7e;--cin:#d9744f;--line:#2c3d60;--link:#8fb6e8;--quote:#cfc6b2;--th-ink:#e6c886;--shadow:rgba(0,0,0,.5);}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--deep);color:var(--ink);font-family:"Noto Serif SC","Source Han Serif SC","STZhongsong","Songti SC","SimSun",serif;line-height:1.9;font-size:17px;}
+body{margin:0;background:var(--deep);color:var(--ink);font-family:"Noto Serif SC","Source Han Serif SC","STZhongsong","Songti SC","SimSun",serif;line-height:1.95;font-size:17px;}
 #progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#8a6a2f,var(--gold2),#8a6a2f);z-index:99;}
-header.hero{padding:44px 20px 120px;text-align:center;color:#f2ead8;background:radial-gradient(ellipse at 50% -10%,rgba(201,164,92,.10),transparent 55%);}
-header.hero .coverwrap{max-width:880px;margin:0 auto 40px;border-radius:16px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.45);}
-header.hero .coverwrap img{display:block;width:100%;height:auto;}
-header.hero h1{margin:0 0 10px;font-size:52px;letter-spacing:.18em;color:var(--gold2);font-weight:600;text-shadow:0 2px 18px rgba(0,0,0,.55);}
-header.hero .seal{display:inline-block;margin-left:14px;vertical-align:6px;width:46px;height:46px;border-radius:8px;background:linear-gradient(160deg,#c24430,#93291b);color:#fff5e0;font-size:15px;line-height:23px;text-align:center;padding-top:1px;letter-spacing:0;box-shadow:0 2px 8px rgba(0,0,0,.4);font-family:"KaiTi","STKaiti",serif;}
-header.hero .sub{margin:6px 0 0;color:#cbbd9c;font-size:16px;letter-spacing:.28em;}
-header.hero .intro{max-width:660px;margin:30px auto 0;text-align:left;font-size:15px;color:#e9dfc6;background:rgba(16,29,54,.55);border:1px solid rgba(201,164,92,.35);border-left:3px solid var(--gold);border-radius:10px;padding:16px 22px;backdrop-filter:blur(2px);}
-.paper{background:var(--paper);background-image:radial-gradient(rgba(180,160,120,.07) 1px,transparent 1px);background-size:22px 22px;border-radius:18px 18px 0 0;margin-top:-56px;position:relative;z-index:1;box-shadow:0 -6px 30px rgba(0,0,0,.25);}
+header.hero{background:var(--deep);}
+header.hero img.cover{display:block;width:100%;height:auto;border:none;}
+.paper{background:var(--paper);background-image:radial-gradient(rgba(180,160,120,.07) 1px,transparent 1px);background-size:22px 22px;position:relative;z-index:1;}
 html.dark .paper{background-image:radial-gradient(rgba(255,255,255,.04) 1px,transparent 1px);}
-.wrap{max-width:880px;margin:0 auto;padding:48px 28px 90px;}
-.toc{background:var(--paper2);border:1px solid var(--line);border-radius:14px;padding:26px 30px;margin:0 0 52px;box-shadow:0 2px 10px rgba(140,120,80,.10);}
-.toc h2{margin:0 0 18px;color:var(--cin);font-size:22px;border:none;padding:0;letter-spacing:.15em;display:flex;align-items:center;gap:10px;}
-.toc h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent);}
-.toc ul{margin:0;padding-left:4px;list-style:none;column-count:2;column-gap:44px;}
-.toc li{margin:9px 0;line-height:1.6;break-inside:avoid;padding-left:20px;position:relative;}
-.toc li::before{content:"▪";position:absolute;left:0;top:1px;color:var(--cin);font-size:13px;}
-.toc a{color:var(--ink);text-decoration:none;font-size:15px;}
+.doctitle{text-align:center;padding:64px 24px 20px;}
+.doctitle h1{margin:0 0 12px;font-size:46px;letter-spacing:.16em;color:var(--ink);font-weight:600;}
+.doctitle .seal{display:inline-block;margin-left:14px;vertical-align:8px;width:46px;height:46px;border-radius:8px;background:linear-gradient(160deg,#c24430,#93291b);color:#fff5e0;font-size:15px;line-height:23px;text-align:center;padding-top:1px;letter-spacing:0;box-shadow:0 2px 8px rgba(0,0,0,.35);font-family:"KaiTi","STKaiti",serif;}
+.doctitle .sub{margin:4px 0 0;color:var(--ink2);font-size:15px;letter-spacing:.26em;}
+.doctitle .intro{max-width:680px;margin:26px auto 0;text-align:left;font-size:15px;color:var(--ink);background:var(--paper2);border-left:3px solid var(--cin);border-radius:10px;padding:16px 22px;}
+.layout{display:grid;grid-template-columns:264px minmax(0,1fr);gap:48px;max-width:1180px;margin:0 auto;padding:36px 28px 100px;align-items:start;}
+aside.toc{position:sticky;top:24px;max-height:calc(100vh - 48px);overflow-y:auto;padding-right:8px;scrollbar-width:thin;}
+.toc h2{margin:0 0 16px;color:var(--ink2);font-size:14px;letter-spacing:.3em;font-weight:600;}
+.toc ul{margin:0;padding:0;list-style:none;}
+.toc li{margin:0;border-radius:8px;}
+.toc li:hover{background:var(--paper2);}
+.toc a{display:block;padding:7px 12px;color:var(--ink);text-decoration:none;font-size:14px;line-height:1.55;}
 .toc a:hover{color:var(--cin);}
 .toc a.done{color:var(--ink2);}
-.toc a.done::after{content:" ✓";color:var(--cin);font-size:12px;}
-.toc a.here{color:var(--cin);font-weight:600;}
-.wrap h2{color:var(--ink);font-size:28px;margin:72px 0 18px;padding:0 0 12px 18px;border-bottom:1px solid var(--line);border-left:5px solid var(--cin);line-height:1.5;letter-spacing:.04em;}
-.entry{margin:30px 0;border:1px solid var(--line);border-radius:14px;background:var(--paper2);overflow:hidden;box-shadow:0 2px 10px rgba(140,120,80,.08);}
+.toc a.done::after{content:" ✓";color:var(--cin);font-size:11px;}
+.toc a.here{color:var(--cin);font-weight:600;background:var(--paper2);}
+main.content{max-width:760px;min-width:0;}
+.entry{margin:0 0 26px;border:1px solid var(--line);border-radius:14px;background:var(--paper2);overflow:hidden;box-shadow:0 2px 10px rgba(140,120,80,.08);}
 .entry summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:14px;padding:18px 24px;}
 .entry summary::-webkit-details-marker{display:none;}
-.entry summary h2{margin:0;padding:0;border:none;font-size:20px;flex:1;color:var(--ink);line-height:1.6;}
+.entry summary h2{margin:0;padding:0;border:none;font-size:20px;flex:1;color:var(--ink);line-height:1.6;letter-spacing:.02em;}
 .entry summary::before{content:"＋";color:var(--cin);font-size:19px;flex:none;}
 .entry[open] summary::before{content:"－";}
 .entry summary .date{color:var(--ink2);font-size:13px;flex:none;white-space:nowrap;}
-.entry-body{padding:6px 26px 28px;border-top:1px dashed var(--line);}
+.entry-body{padding:6px 28px 30px;border-top:1px dashed var(--line);}
 .entry-body h3{color:var(--cin);font-size:21px;margin:34px 0 14px;letter-spacing:.05em;}
-.wrap h3{color:var(--cin);font-size:21px;margin:40px 0 14px;letter-spacing:.05em;}
-.wrap h4{color:var(--ink);font-size:18px;margin:30px 0 10px;}
-.wrap p{margin:15px 0;}
-.wrap blockquote{margin:20px 0;padding:14px 22px;background:var(--paper2);border-left:4px solid var(--cin);border-radius:0 10px 10px 0;color:var(--quote);box-shadow:0 1px 6px rgba(140,120,80,.10);}
-.wrap blockquote p{margin:7px 0;}
-.wrap ul,.wrap ol{padding-left:28px;}
-.wrap li{margin:8px 0;}
-.wrap a{color:var(--link);text-decoration:none;border-bottom:1px dashed var(--cin);}
-.wrap a:hover{color:var(--cin);border-bottom-style:solid;}
-.wrap table{width:100%;border-collapse:collapse;margin:22px 0;font-size:15px;display:block;overflow-x:auto;}
-.wrap th,.wrap td{border:1px solid var(--line);padding:10px 14px;text-align:left;}
-.wrap th{background:var(--paper3);color:var(--th-ink);}
-.wrap hr{border:none;border-top:1px dashed var(--line);margin:52px 0;position:relative;}
-.wrap hr::after{content:"❖";position:absolute;left:50%;top:-12px;transform:translateX(-50%);background:var(--paper);color:var(--cin);padding:0 10px;font-size:13px;}
-.wrap img{max-width:100%;border-radius:12px;}
+.entry-body h4{color:var(--ink);font-size:18px;margin:28px 0 10px;}
+.entry-body p{margin:15px 0;}
+.entry-body blockquote{margin:20px 0;padding:14px 22px;background:var(--paper);border-left:4px solid var(--cin);border-radius:0 10px 10px 0;color:var(--quote);box-shadow:0 1px 6px rgba(140,120,80,.10);}
+.entry-body blockquote p{margin:7px 0;}
+.entry-body ul,.entry-body ol{padding-left:28px;}
+.entry-body li{margin:8px 0;}
+.entry-body a{color:var(--link);text-decoration:none;border-bottom:1px dashed var(--cin);}
+.entry-body a:hover{color:var(--cin);border-bottom-style:solid;}
+.entry-body table{width:100%;border-collapse:collapse;margin:22px 0;font-size:15px;display:block;overflow-x:auto;}
+.entry-body th,.entry-body td{border:1px solid var(--line);padding:10px 14px;text-align:left;}
+.entry-body th{background:var(--paper3);color:var(--th-ink);}
+.entry-body hr{border:none;border-top:1px dashed var(--line);margin:44px 0;position:relative;}
+.entry-body hr::after{content:"❖";position:absolute;left:50%;top:-12px;transform:translateX(-50%);background:var(--paper2);color:var(--cin);padding:0 10px;font-size:13px;}
+.entry-body img{max-width:100%;border-radius:12px;}
 footer{background:var(--deep);color:#b9ab8a;font-size:14px;text-align:center;padding:34px 20px 44px;letter-spacing:.06em;}
 footer a{color:var(--gold2);text-decoration:none;}
 footer .goldline{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 18px;}
 .backtop{position:fixed;right:24px;bottom:26px;width:46px;height:46px;border-radius:9px;background:linear-gradient(160deg,#c24430,#93291b);color:#fff5e0;font-size:19px;cursor:pointer;border:none;box-shadow:0 3px 12px rgba(0,0,0,.35);opacity:.9;font-family:inherit;}
 #toggle{position:fixed;top:16px;right:16px;width:42px;height:42px;border-radius:50%;background:rgba(16,29,54,.55);border:1px solid var(--gold);color:var(--gold2);font-size:19px;cursor:pointer;z-index:100;backdrop-filter:blur(3px);}
-.backtop:hover{opacity:1;}
-@media (max-width:640px){header.hero h1{font-size:36px;letter-spacing:.12em}header.hero{padding:64px 16px 100px}.wrap{padding:36px 18px 70px}.wrap h2{font-size:23px;padding-left:13px}.toc ul{column-count:1}body{font-size:16px}.toc{padding:20px}}
+@media (max-width:960px){.layout{grid-template-columns:1fr;gap:28px;padding:28px 20px 80px;}aside.toc{position:static;max-height:none;overflow:visible;}aside.toc ul{column-count:2;column-gap:24px;}main.content{max-width:100%;}}
+@media (max-width:640px){.doctitle h1{font-size:34px;letter-spacing:.1em}.doctitle{padding:44px 16px 12px}aside.toc ul{column-count:1}body{font-size:16px}.entry-body{padding:4px 18px 24px}}
 """
 
 js = """<script>
@@ -238,16 +242,14 @@ html = f"""<!DOCTYPE html>
 </head>
 <body id="top">
 <div id="progress"></div>
-<header class="hero">
-  <div class="coverwrap"><img src="cover.jpg" alt="归海录封面"></div>
-  <h1>归海录<span class="seal">歸海<br>之錄</span></h1>
-  <div class="sub">归海2026 · 师父志远行空的开示合集</div>
-  <div class="intro">本合集收录师父在「归海2026」群中的日常开示与 YouTube 视频讲法。每一段语音，一个故事，一个道理，润物无声。此合集按时间倒序整理，持续更新。欢迎随手转发、复制分享——让智慧流到更多人那里。</div>
-</header>
+<header class="hero"><img class="cover" src="cover.jpg" alt="归海录封面"></header>
 <div class="paper">
-<div class="wrap">
+  <div class="doctitle">
+    <h1>归海录<span class="seal">歸海<br>之錄</span></h1>
+    <div class="sub">归海2026 · 师父志远行空的开示合集</div>
+    <div class="intro">本合集收录师父在「归海2026」群中的日常开示与 YouTube 视频讲法。每一段语音，一个故事，一个道理，润物无声。此合集按时间倒序整理，持续更新。欢迎随手转发、复制分享——让智慧流到更多人那里。</div>
+  </div>
 {body_html}
-</div>
 </div>
 <footer>
   <div class="goldline"></div>
