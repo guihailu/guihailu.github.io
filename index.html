@@ -9,8 +9,10 @@
 <meta property="og:description" content="师父志远行空的每日开示与 YouTube 视频讲法合集。因果、修行、认知、人间智慧——百川归海，智慧汇流。">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://guihailu.github.io/cover.jpg">
+<script>try{if(localStorage.getItem('ghl_theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}</script>
 <style>
-:root{--deep:#0b1424;--deep2:#101d36;--gold:#c9a45c;--gold2:#e6c886;--paper:#f6f0e0;--paper2:#efe5cc;--paper3:#e8dcc0;--ink:#2c2518;--ink2:#6f6248;--cin:#b03a2e;--line:#d9caa5;--shadow:rgba(11,20,36,.25);}
+:root{--deep:#0b1424;--deep2:#101d36;--gold:#c9a45c;--gold2:#e6c886;--paper:#f6f0e0;--paper2:#efe5cc;--paper3:#e8dcc0;--ink:#2c2518;--ink2:#6f6248;--cin:#b03a2e;--line:#d9caa5;--link:#8a4a3c;--quote:#4a3f2a;--th-ink:#7c3a22;--shadow:rgba(11,20,36,.25);}
+html.dark{--paper:#0f1a30;--paper2:#14203a;--paper3:#1b2a49;--ink:#e8e0c8;--ink2:#a89c7e;--cin:#d9744f;--line:#2c3d60;--link:#8fb6e8;--quote:#cfc6b2;--th-ink:#e6c886;--shadow:rgba(0,0,0,.5);}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--deep);color:var(--ink);font-family:"Noto Serif SC","Source Han Serif SC","STZhongsong","Songti SC","SimSun",serif;line-height:1.9;font-size:17px;}
@@ -20,7 +22,8 @@ header.hero h1{margin:0 0 10px;font-size:52px;letter-spacing:.18em;color:var(--g
 header.hero .seal{display:inline-block;margin-left:14px;vertical-align:6px;width:46px;height:46px;border-radius:8px;background:linear-gradient(160deg,#c24430,#93291b);color:#fff5e0;font-size:15px;line-height:23px;text-align:center;padding-top:1px;letter-spacing:0;box-shadow:0 2px 8px rgba(0,0,0,.4);font-family:"KaiTi","STKaiti",serif;}
 header.hero .sub{margin:6px 0 0;color:#cbbd9c;font-size:16px;letter-spacing:.28em;}
 header.hero .intro{max-width:660px;margin:30px auto 0;text-align:left;font-size:15px;color:#e9dfc6;background:rgba(16,29,54,.55);border:1px solid rgba(201,164,92,.35);border-left:3px solid var(--gold);border-radius:10px;padding:16px 22px;backdrop-filter:blur(2px);}
-.paper{background:var(--paper);background-image:radial-gradient(rgba(180,160,120,.06) 1px,transparent 1px);background-size:22px 22px;border-radius:18px 18px 0 0;margin-top:-56px;position:relative;z-index:1;box-shadow:0 -6px 30px rgba(0,0,0,.25);}
+.paper{background:var(--paper);background-image:radial-gradient(rgba(180,160,120,.07) 1px,transparent 1px);background-size:22px 22px;border-radius:18px 18px 0 0;margin-top:-56px;position:relative;z-index:1;box-shadow:0 -6px 30px rgba(0,0,0,.25);}
+html.dark .paper{background-image:radial-gradient(rgba(255,255,255,.04) 1px,transparent 1px);}
 .wrap{max-width:880px;margin:0 auto;padding:48px 28px 90px;}
 .toc{background:var(--paper2);border:1px solid var(--line);border-radius:14px;padding:26px 30px;margin:0 0 52px;box-shadow:0 2px 10px rgba(140,120,80,.10);}
 .toc h2{margin:0 0 18px;color:var(--cin);font-size:22px;border:none;padding:0;letter-spacing:.15em;display:flex;align-items:center;gap:10px;}
@@ -34,15 +37,15 @@ header.hero .intro{max-width:660px;margin:30px auto 0;text-align:left;font-size:
 .wrap h3{color:var(--cin);font-size:21px;margin:40px 0 14px;letter-spacing:.05em;}
 .wrap h4{color:var(--ink);font-size:18px;margin:30px 0 10px;}
 .wrap p{margin:15px 0;}
-.wrap blockquote{margin:20px 0;padding:14px 22px;background:var(--paper2);border-left:4px solid var(--cin);border-radius:0 10px 10px 0;color:#4a3f2a;box-shadow:0 1px 6px rgba(140,120,80,.10);}
+.wrap blockquote{margin:20px 0;padding:14px 22px;background:var(--paper2);border-left:4px solid var(--cin);border-radius:0 10px 10px 0;color:var(--quote);box-shadow:0 1px 6px rgba(140,120,80,.10);}
 .wrap blockquote p{margin:7px 0;}
 .wrap ul,.wrap ol{padding-left:28px;}
 .wrap li{margin:8px 0;}
-.wrap a{color:#8a4a3c;text-decoration:none;border-bottom:1px dashed var(--cin);}
+.wrap a{color:var(--link);text-decoration:none;border-bottom:1px dashed var(--cin);}
 .wrap a:hover{color:var(--cin);border-bottom-style:solid;}
 .wrap table{width:100%;border-collapse:collapse;margin:22px 0;font-size:15px;display:block;overflow-x:auto;}
 .wrap th,.wrap td{border:1px solid var(--line);padding:10px 14px;text-align:left;}
-.wrap th{background:var(--paper3);color:#7c3a22;}
+.wrap th{background:var(--paper3);color:var(--th-ink);}
 .wrap hr{border:none;border-top:1px dashed var(--line);margin:52px 0;position:relative;}
 .wrap hr::after{content:"❖";position:absolute;left:50%;top:-12px;transform:translateX(-50%);background:var(--paper);color:var(--cin);padding:0 10px;font-size:13px;}
 .wrap img{max-width:100%;border-radius:12px;}
@@ -50,6 +53,7 @@ footer{background:var(--deep);color:#b9ab8a;font-size:14px;text-align:center;pad
 footer a{color:var(--gold2);text-decoration:none;}
 footer .goldline{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 18px;}
 .backtop{position:fixed;right:24px;bottom:26px;width:46px;height:46px;border-radius:9px;background:linear-gradient(160deg,#c24430,#93291b);color:#fff5e0;font-size:19px;cursor:pointer;border:none;box-shadow:0 3px 12px rgba(0,0,0,.35);opacity:.9;font-family:inherit;}
+#toggle{position:fixed;top:16px;right:16px;width:42px;height:42px;border-radius:50%;background:rgba(16,29,54,.55);border:1px solid var(--gold);color:var(--gold2);font-size:19px;cursor:pointer;z-index:100;backdrop-filter:blur(3px);}
 .backtop:hover{opacity:1;}
 @media (max-width:640px){header.hero h1{font-size:36px;letter-spacing:.12em}header.hero{padding:64px 16px 100px}.wrap{padding:36px 18px 70px}.wrap h2{font-size:23px;padding-left:13px}.toc ul{column-count:1}body{font-size:16px}.toc{padding:20px}}
 </style>
@@ -5384,8 +5388,10 @@ Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归�
   源文档（Lark 版，需登录）：<a href="https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf">📿 归海录</a>
 </footer>
 <button class="backtop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到顶部">↑</button>
+<button id="toggle" aria-label="切换深浅色">🌙</button>
 <script>
 (function(){var p=document.getElementById('progress');function upd(){var h=document.documentElement;var d=h.scrollHeight-h.clientHeight;p.style.width=(d>0?(h.scrollTop/d)*100:0)+'%';}document.addEventListener('scroll',upd,{passive:true});upd();})();
+(function(){var b=document.getElementById('toggle');function sync(){var d=document.documentElement.classList.contains('dark');b.textContent=d?'☀️':'🌙';}b.addEventListener('click',function(){document.documentElement.classList.toggle('dark');try{localStorage.setItem('ghl_theme',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){}sync();});sync();})();
 </script>
 </body>
 </html>
