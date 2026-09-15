@@ -8,49 +8,60 @@
 <meta property="og:title" content="📿 归海录 · 师父志远行空的开示合集">
 <meta property="og:description" content="师父志远行空的每日开示与 YouTube 视频讲法合集。因果、修行、认知、人间智慧——百川归海，智慧汇流。">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://guihailu.github.io/cover.jpg">
 <style>
-:root{--bg:#0b1220;--bg2:#101a2e;--gold:#d4af6a;--gold2:#b08d4f;--ink:#e8e2d5;--ink2:#a9a18f;--line:#2a3550;}
+:root{--deep:#0b1424;--deep2:#101d36;--gold:#c9a45c;--gold2:#e6c886;--paper:#f6f0e0;--paper2:#efe5cc;--paper3:#e8dcc0;--ink:#2c2518;--ink2:#6f6248;--cin:#b03a2e;--line:#d9caa5;--shadow:rgba(11,20,36,.25);}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",-apple-system,"Segoe UI",sans-serif;line-height:1.85;font-size:17px;}
-.wrap{max-width:860px;margin:0 auto;padding:0 20px 80px;}
-header.hero{padding:72px 0 36px;text-align:center;border-bottom:1px solid var(--line);margin-bottom:40px;background:radial-gradient(ellipse at 50% 0%,rgba(212,175,106,.12),transparent 60%);}
-header.hero h1{margin:0 0 14px;font-size:44px;letter-spacing:.12em;color:var(--gold);font-weight:700;}
-header.hero .sub{color:var(--ink2);font-size:16px;letter-spacing:.05em;}
-header.hero .intro{margin:22px auto 0;max-width:640px;color:var(--ink);background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:16px 22px;text-align:left;font-size:15px;}
-.toc{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:22px 28px;margin:0 0 48px;}
-.toc h2{margin:0 0 14px;color:var(--gold);font-size:20px;border:none;padding:0;}
-.toc ul{margin:0;padding-left:22px;column-count:2;column-gap:40px;}
-.toc li{margin:7px 0;line-height:1.6;break-inside:avoid;}
+body{margin:0;background:var(--deep);color:var(--ink);font-family:"Noto Serif SC","Source Han Serif SC","STZhongsong","Songti SC","SimSun",serif;line-height:1.9;font-size:17px;}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#8a6a2f,var(--gold2),#8a6a2f);z-index:99;}
+header.hero{position:relative;background:linear-gradient(180deg,rgba(11,20,36,.45) 0%,rgba(11,20,36,.82) 62%,var(--deep) 100%),url('cover.jpg') center 30%/cover no-repeat;padding:96px 20px 120px;text-align:center;color:#f2ead8;}
+header.hero h1{margin:0 0 10px;font-size:52px;letter-spacing:.18em;color:var(--gold2);font-weight:600;text-shadow:0 2px 18px rgba(0,0,0,.55);}
+header.hero .seal{display:inline-block;margin-left:14px;vertical-align:6px;width:46px;height:46px;border-radius:8px;background:linear-gradient(160deg,#c24430,#93291b);color:#fff5e0;font-size:15px;line-height:23px;text-align:center;padding-top:1px;letter-spacing:0;box-shadow:0 2px 8px rgba(0,0,0,.4);font-family:"KaiTi","STKaiti",serif;}
+header.hero .sub{margin:6px 0 0;color:#cbbd9c;font-size:16px;letter-spacing:.28em;}
+header.hero .intro{max-width:660px;margin:30px auto 0;text-align:left;font-size:15px;color:#e9dfc6;background:rgba(16,29,54,.55);border:1px solid rgba(201,164,92,.35);border-left:3px solid var(--gold);border-radius:10px;padding:16px 22px;backdrop-filter:blur(2px);}
+.paper{background:var(--paper);background-image:radial-gradient(rgba(180,160,120,.06) 1px,transparent 1px);background-size:22px 22px;border-radius:18px 18px 0 0;margin-top:-56px;position:relative;z-index:1;box-shadow:0 -6px 30px rgba(0,0,0,.25);}
+.wrap{max-width:880px;margin:0 auto;padding:48px 28px 90px;}
+.toc{background:var(--paper2);border:1px solid var(--line);border-radius:14px;padding:26px 30px;margin:0 0 52px;box-shadow:0 2px 10px rgba(140,120,80,.10);}
+.toc h2{margin:0 0 18px;color:var(--cin);font-size:22px;border:none;padding:0;letter-spacing:.15em;display:flex;align-items:center;gap:10px;}
+.toc h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent);}
+.toc ul{margin:0;padding-left:4px;list-style:none;column-count:2;column-gap:44px;}
+.toc li{margin:9px 0;line-height:1.6;break-inside:avoid;padding-left:20px;position:relative;}
+.toc li::before{content:"▪";position:absolute;left:0;top:1px;color:var(--cin);font-size:13px;}
 .toc a{color:var(--ink);text-decoration:none;font-size:15px;}
-.toc a:hover{color:var(--gold);}
-.wrap h2{color:var(--gold);font-size:27px;margin:64px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--line);line-height:1.5;}
-.wrap h3{color:var(--gold2);font-size:21px;margin:36px 0 12px;}
-.wrap h4{color:var(--ink);font-size:18px;margin:28px 0 10px;}
-.wrap p{margin:14px 0;}
-.wrap blockquote{margin:18px 0;padding:12px 20px;background:rgba(212,175,106,.06);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;color:#cfc6b2;}
-.wrap blockquote p{margin:6px 0;}
-.wrap ul,.wrap ol{padding-left:26px;}
-.wrap li{margin:7px 0;}
-.wrap a{color:#8fb6e8;text-decoration:none;border-bottom:1px dotted #4a5a7a;}
-.wrap a:hover{color:var(--gold);}
-.wrap table{width:100%;border-collapse:collapse;margin:20px 0;font-size:15px;display:block;overflow-x:auto;}
-.wrap th,.wrap td{border:1px solid var(--line);padding:9px 13px;text-align:left;}
-.wrap th{background:var(--bg2);color:var(--gold);}
-.wrap hr{border:none;border-top:1px solid var(--line);margin:48px 0;}
-.wrap img{max-width:100%;border-radius:10px;}
-footer{margin-top:70px;padding-top:26px;border-top:1px solid var(--line);color:var(--ink2);font-size:14px;text-align:center;}
-footer a{color:#8fb6e8;text-decoration:none;}
-.backtop{position:fixed;right:22px;bottom:22px;width:44px;height:44px;border-radius:50%;background:var(--bg2);border:1px solid var(--gold);color:var(--gold);font-size:20px;cursor:pointer;opacity:.85;}
-@media (max-width:640px){header.hero h1{font-size:32px}.wrap h2{font-size:23px}.wrap{padding:0 15px 60px}body{font-size:16px}.toc ul{column-count:1}}
+.toc a:hover{color:var(--cin);}
+.wrap h2{color:var(--ink);font-size:28px;margin:72px 0 18px;padding:0 0 12px 18px;border-bottom:1px solid var(--line);border-left:5px solid var(--cin);line-height:1.5;letter-spacing:.04em;}
+.wrap h3{color:var(--cin);font-size:21px;margin:40px 0 14px;letter-spacing:.05em;}
+.wrap h4{color:var(--ink);font-size:18px;margin:30px 0 10px;}
+.wrap p{margin:15px 0;}
+.wrap blockquote{margin:20px 0;padding:14px 22px;background:var(--paper2);border-left:4px solid var(--cin);border-radius:0 10px 10px 0;color:#4a3f2a;box-shadow:0 1px 6px rgba(140,120,80,.10);}
+.wrap blockquote p{margin:7px 0;}
+.wrap ul,.wrap ol{padding-left:28px;}
+.wrap li{margin:8px 0;}
+.wrap a{color:#8a4a3c;text-decoration:none;border-bottom:1px dashed var(--cin);}
+.wrap a:hover{color:var(--cin);border-bottom-style:solid;}
+.wrap table{width:100%;border-collapse:collapse;margin:22px 0;font-size:15px;display:block;overflow-x:auto;}
+.wrap th,.wrap td{border:1px solid var(--line);padding:10px 14px;text-align:left;}
+.wrap th{background:var(--paper3);color:#7c3a22;}
+.wrap hr{border:none;border-top:1px dashed var(--line);margin:52px 0;position:relative;}
+.wrap hr::after{content:"❖";position:absolute;left:50%;top:-12px;transform:translateX(-50%);background:var(--paper);color:var(--cin);padding:0 10px;font-size:13px;}
+.wrap img{max-width:100%;border-radius:12px;}
+footer{background:var(--deep);color:#b9ab8a;font-size:14px;text-align:center;padding:34px 20px 44px;letter-spacing:.06em;}
+footer a{color:var(--gold2);text-decoration:none;}
+footer .goldline{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 18px;}
+.backtop{position:fixed;right:24px;bottom:26px;width:46px;height:46px;border-radius:9px;background:linear-gradient(160deg,#c24430,#93291b);color:#fff5e0;font-size:19px;cursor:pointer;border:none;box-shadow:0 3px 12px rgba(0,0,0,.35);opacity:.9;font-family:inherit;}
+.backtop:hover{opacity:1;}
+@media (max-width:640px){header.hero h1{font-size:36px;letter-spacing:.12em}header.hero{padding:64px 16px 100px}.wrap{padding:36px 18px 70px}.wrap h2{font-size:23px;padding-left:13px}.toc ul{column-count:1}body{font-size:16px}.toc{padding:20px}}
 </style>
 </head>
 <body id="top">
+<div id="progress"></div>
 <header class="hero">
-  <h1>📿 归海录</h1>
+  <h1>归海录<span class="seal">歸海<br>之錄</span></h1>
   <div class="sub">归海2026 · 师父志远行空的开示合集</div>
   <div class="intro">本合集收录师父在「归海2026」群中的日常开示与 YouTube 视频讲法。每一段语音，一个故事，一个道理，润物无声。此合集按时间倒序整理，持续更新。欢迎随手转发、复制分享——让智慧流到更多人那里。</div>
 </header>
+<div class="paper">
 <div class="wrap">
 <blockquote>
 <p>💜</p>
@@ -5372,11 +5383,16 @@ href="https://ctext.org/wiki.pl?chapter=3086592&amp;if=gb&amp;remap=gb"><strong>
 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。</p>
 </blockquote>
 
-<footer>
-  归海录 · 持续更新中<br>
-  更新日期：2026-09-15 ｜ 源文档（Lark 版，需登录）：<a href="https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf">📿 归海录</a>
-</footer>
 </div>
+</div>
+<footer>
+  <div class="goldline"></div>
+  归海录 · 持续更新中 ｜ 更新日期：2026-09-15<br>
+  源文档（Lark 版，需登录）：<a href="https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf">📿 归海录</a>
+</footer>
 <button class="backtop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到顶部">↑</button>
+<script>
+(function(){var p=document.getElementById('progress');function upd(){var h=document.documentElement;var d=h.scrollHeight-h.clientHeight;p.style.width=(d>0?(h.scrollTop/d)*100:0)+'%';}document.addEventListener('scroll',upd,{passive:true});upd();})();
+</script>
 </body>
 </html>
