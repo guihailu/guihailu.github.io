@@ -147,8 +147,8 @@ else:
 
 # 4.7) 文档自带的 💜 简介 callout -> 引言卡片（去重：页面标题下不再重复放简介）
 body_html = re.sub(
-    r'<blockquote>\s*<p>💜</p>\s*(<p><strong>归海2026.*?</p>)\s*</blockquote>',
-    r'<div class="intro"><p>💜 \1</div>', body_html, count=1, flags=re.S)
+    r'<blockquote>\s*<p>💜</p>\s*<p>(<strong>归海2026.*?)</p>\s*</blockquote>',
+    r'<div class="intro"><p>💜 \1</p></div>', body_html, count=1, flags=re.S)
 
 # 5) 组装 index.html（全宽封面 + 独立标题 + 侧栏目录 + 窄栏阅读）
 css = """
