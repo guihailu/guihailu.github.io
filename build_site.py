@@ -107,18 +107,10 @@ if res.returncode != 0:
     sys.exit(1)
 body_html = res.stdout
 
-# 4.4) 目录包进侧栏布局：toc div -> aside.toc，正文 -> main.content
+# 4.4) 目录开头包进 layout+aside（先只插开头，闭合在 4.6 处理）
 body_html = body_html.replace(
     '<h2 id="目录">📋 目录</h2>',
-    '<h2>📋 目录</h2>', 1)
-i = body_html.find('<h2>📋 目录</h2>')
-if i > 0:
-    body_html = body_html[:i] + '<div class="layout"><aside class="toc">' + body_html[i:]
-j = body_html.find('<details class="entry"')
-k = body_html.rfind('</div>', 0, j)
-if j > 0 and k > 0:
-    body_html = body_html[:k] + '</aside><main class="content">' + body_html[k + len('</div>'):]
-    body_html += '</main></div>'
+    '<div class="layout"><aside class="toc"><h2>📋 目录</h2>', 1)
 
 # 4.5) 每条目包成折叠卡片：id 移到 details 上，日期徽章移进 summary（h2/h3 两种锚点都处理）
 def wrap_entries(b):
@@ -144,6 +136,14 @@ def wrap_entries(b):
     return ''.join(out)
 
 body_html = wrap_entries(body_html)
+
+# 4.6) 闭合 aside.toc，开启 main.content（4.5 之后才能定位条目起点）
+j = body_html.find('<details class="entry"')
+if j > 0:
+    body_html = body_html[:j] + '</aside><main class="content">' + body_html[j:]
+    body_html += '</main></div>'
+else:
+    body_html += '</aside></div>'
 
 # 5) 组装 index.html（全宽封面 + 独立标题 + 侧栏目录 + 窄栏阅读）
 css = """
