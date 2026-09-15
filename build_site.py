@@ -21,6 +21,10 @@ def callout_to_bq(m):
 
 md = re.sub(r'<callout emoji="([^"]+)">(.*?)</callout>', callout_to_bq, md, flags=re.S)
 
+# 2.5) 去除「日期不详」标记（Eli 09-15 定：早期文档不再标注）
+md = md.replace(" ｜ 日期不详", "")
+md = md.replace("日期不详 · 师父内部开示", "师父内部开示")
+
 # 3) 收集 TOC 条目与正文标题，建立锚点映射（精确匹配优先，其次公共前缀>=6字）
 toc_pat = re.compile(r'^- \[([^\]]+)\]\(https://[^)]+#(doxjp\w+)\)', re.M)
 toc_items = [(m.group(1), m.group(2)) for m in toc_pat.finditer(md)]
