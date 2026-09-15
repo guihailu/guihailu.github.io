@@ -114,27 +114,27 @@ i = body_html.find('<h2 id="sec-')
 if i > 0:
     body_html = body_html[:i] + '</div>\n' + body_html[i:]
 
-# 4.5) 每条目包成折叠卡片：id 移到 details 上，日期徽章移进 summary
+# 4.5) 每条目包成折叠卡片：id 移到 details 上，日期徽章移进 summary（h2/h3 两种锚点都处理）
 def wrap_entries(b):
-    marker = '<h2 id="sec-'
-    pieces = b.split(marker)
-    out = [pieces[0]]
-    for p in pieces[1:]:
-        m = re.match(r'(\d+)">(.*?)</h2>\n', p, re.S)
-        if not m:
-            out.append(marker + p)
-            continue
-        sid, title = m.group(1), m.group(2)
-        rest = p[m.end():]
+    pat = re.compile(r'<h([23]) id="sec-(\d+)">(.*?)</h\1>\n', re.S)
+    matches = list(pat.finditer(b))
+    if not matches:
+        return b
+    out = [b[:matches[0].start()]]
+    for idx, m in enumerate(matches):
+        lv, sid, title = m.group(1), m.group(2), m.group(3)
+        end = matches[idx + 1].start() if idx + 1 < len(matches) else len(b)
+        chunk = b[m.end():end]
         date_html = ""
-        db = re.search(r'<blockquote>\s*<p>(📌.*?)</p>\s*</blockquote>', rest, re.S)
+        db = re.search(r'<blockquote>\s*<p>(📌.*?)</p>\s*</blockquote>', chunk, re.S)
         if db:
             date_html = '<span class="date">' + db.group(1) + '</span>'
-            rest = rest[:db.start()] + rest[db.end():]
+            chunk = chunk[:db.start()] + chunk[db.end():]
         out.append(
             f'<details class="entry" id="sec-{sid}">'
             f'<summary><h2>{title}</h2>{date_html}</summary>'
-            f'<div class="entry-body">' + rest + '</div></details>')
+            f'<div class="entry-body">' + chunk + '</div></details>')
+    out.append(b[matches[-1].end():])
     return ''.join(out)
 
 body_html = wrap_entries(body_html)
