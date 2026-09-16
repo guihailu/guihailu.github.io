@@ -110,7 +110,7 @@ body_html = res.stdout
 # 4.4) 目录开头包进 layout+aside（闭合在 4.6 处理）
 body_html = body_html.replace(
     '<h2 id="目录">📋 目录</h2>',
-    '<div class="layout"><aside class="toc"><h2>📋 目录</h2>', 1)
+    '<div class="layout"><aside class="toc"><details class="tocm"><summary>📋 目录</summary>', 1)
 
 # 4.5) 每条目包成折叠卡片：id 移到 details 上，日期徽章移进 summary（h2/h3 两种锚点都处理）
 def wrap_entries(b):
@@ -140,10 +140,10 @@ body_html = wrap_entries(body_html)
 # 4.6) 闭合 aside.toc，开启 main.content（4.5 之后才能定位条目起点）
 j = body_html.find('<details class="entry"')
 if j > 0:
-    body_html = body_html[:j] + '</aside><main class="content">' + body_html[j:]
+    body_html = body_html[:j] + '</details></aside><main class="content">' + body_html[j:]
     body_html += '</main></div>'
 else:
-    body_html += '</aside></div>'
+    body_html += '</details></aside></div>'
 
 # 4.7) 文档自带的 💜 简介 callout -> 引言段落（去重：页面标题下不再重复放简介）
 def intro_repl(m):
@@ -168,7 +168,7 @@ header.hero img.cover{display:block;width:100%;height:auto;border:none;}
 .doctitle{text-align:center;padding:110px 24px 64px;}
 .titleline{display:flex;align-items:center;justify-content:center;gap:26px;flex-wrap:wrap;}
 .doctitle h1{margin:0;font-size:72px;font-weight:800;letter-spacing:.18em;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;}
-.doctitle .seal{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;margin-left:18px;width:46px;height:66px;border-radius:46% 54% 58% 42%/48% 52% 46% 54%;background:linear-gradient(160deg,#c24430,#93291b);color:#fff5e0;font-size:23px;line-height:1.15;box-shadow:0 2px 10px rgba(0,0,0,.3);font-family:"KaiTi","STKaiti",serif;transform:rotate(-4deg);}
+.doctitle .seal{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;margin-left:16px;width:40px;height:58px;border-radius:8px;background:linear-gradient(160deg,#c24430,#93291b);color:#fff5e0;font-size:21px;line-height:1.2;box-shadow:0 2px 10px rgba(0,0,0,.3);font-family:"KaiTi","STKaiti",serif;}
 .yt{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:var(--ink2);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:8px 18px;letter-spacing:.06em;transition:all .15s;}
 .yt:hover{color:var(--cin);border-color:var(--cin);}
 .doctitle .sub{margin-top:18px;color:var(--ink2);font-size:14px;letter-spacing:.34em;}
@@ -178,7 +178,8 @@ header.hero img.cover{display:block;width:100%;height:auto;border:none;}
 .intro::before{content:"";display:block;width:36px;height:2px;background:var(--gold);margin:0 auto 22px;border-radius:1px;}
 .layout{display:grid;grid-template-columns:252px minmax(0,1fr);gap:64px;max-width:1200px;margin:0 auto;padding:0 32px 120px;align-items:start;}
 aside.toc{position:sticky;top:32px;max-height:calc(100vh - 64px);overflow-y:auto;padding-right:10px;scrollbar-width:thin;}
-.toc h2{margin:0 0 20px;color:var(--ink);font-size:24px;letter-spacing:.16em;font-weight:700;}
+.tocm summary{list-style:none;cursor:pointer;margin:0 0 20px;color:var(--ink);font-size:24px;letter-spacing:.16em;font-weight:700;}
+.tocm summary::-webkit-details-marker{display:none;}
 .toc ul{margin:0;padding:0;list-style:none;border-left:1px solid var(--line);}
 .toc li{margin:0;}
 .toc a{display:block;padding:8px 16px;color:var(--ink2);text-decoration:none;font-size:13.5px;line-height:1.6;font-weight:600;transition:color .15s;}
@@ -219,8 +220,8 @@ footer a{color:var(--gold2);text-decoration:none;}
 .fbtn:hover{background:var(--gold);color:var(--deep);}
 .fmeta{color:#8d846f;}
 #toggle{position:fixed;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:rgba(16,29,54,.6);border:1px solid rgba(201,164,92,.5);color:var(--gold2);font-size:18px;cursor:pointer;z-index:100;backdrop-filter:blur(4px);}
-@media (max-width:960px){.layout{grid-template-columns:1fr;gap:36px;padding:0 24px 90px;}aside.toc{position:static;max-height:none;overflow:visible;}aside.toc ul{column-count:2;column-gap:28px;border-left:none;}main.content{max-width:100%;}}
-@media (max-width:640px){.doctitle{padding:72px 18px 44px}.doctitle h1{font-size:44px;letter-spacing:.12em}aside.toc ul{column-count:1}body{font-size:16.5px}.entry-body{font-size:16.5px}.entry-body{padding:4px 0 36px}}
+@media (max-width:960px){.layout{grid-template-columns:1fr;gap:28px;padding:0 24px 90px;}aside.toc{position:static;max-height:none;overflow:visible;}aside.toc ul{column-count:2;column-gap:28px;border-left:none;}main.content{max-width:100%;}.tocm summary::after{content:"▾";font-size:13px;color:var(--ink2);margin-left:10px;}}
+@media (max-width:640px){.doctitle{padding:60px 16px 40px}.titleline{flex-direction:column;gap:16px}.doctitle h1{font-size:42px;letter-spacing:.1em}.doctitle .seal{width:34px;height:48px;font-size:18px;border-radius:6px;margin-left:10px}.doctitle .sub{font-size:12.5px;letter-spacing:.2em;margin-top:12px}.yt{font-size:13px;padding:7px 16px}.intro{margin:0 auto 48px;font-size:15px;padding:0 6px}.layout{padding:0 18px 72px;gap:24px}aside.toc ul{column-count:1}.tocm summary{font-size:20px}.toc a{font-size:13.5px;padding:7px 10px}.entry summary{flex-wrap:wrap;gap:6px 12px;padding:20px 0}.entry summary h2{font-size:18px;flex:1 1 100%}.entry summary .date{font-size:12px}.entry summary::before{font-size:13px}.entry-body{padding:2px 0 34px;font-size:16.5px;line-height:1.95}.entry-body h3{font-size:18px;margin:30px 0 12px}.entry-body blockquote{padding-left:14px;font-size:15.5px}footer{padding:44px 16px 52px}.fbtn{display:block;width:fit-content;margin:10px auto;padding:10px 24px}.navstack{right:14px;bottom:20px;gap:8px}.navbtn{width:40px;height:40px;font-size:15px}#toggle{width:36px;height:36px;font-size:16px}}
 """
 
 js = """<script>
@@ -253,6 +254,7 @@ var saved=0;try{saved=parseInt(localStorage.getItem('ghl_scroll')||'0',10)}catch
 if(saved>0&&!location.hash){window.scrollTo(0,saved)}
 var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(function(){try{localStorage.setItem('ghl_scroll',String(window.scrollY))}catch(e){}},400);findCur();},{passive:true});
 })();
+(function(){var d=document.querySelector('details.tocm');if(d){function sync(){if(window.innerWidth>960){d.open=true;}}sync();window.addEventListener('resize',sync);}})();
 </script>"""
 
 html = f"""<!DOCTYPE html>

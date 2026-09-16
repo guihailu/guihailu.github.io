@@ -7,7 +7,8 @@ DOC_URL = "https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf
 
 def run(cmd, **kw):
     print("$", " ".join(cmd))
-    r = subprocess.run(cmd, cwd=HERE, **kw)
+    # lark-cli 是 .cmd shim，Windows 下必须走 shell 才能被解析
+    r = subprocess.run(cmd, cwd=HERE, shell=True, **kw)
     if r.returncode != 0:
         sys.exit(r.returncode)
 
