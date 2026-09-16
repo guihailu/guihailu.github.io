@@ -248,7 +248,7 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important}}
 """
 
-js = """<script>
+js = """
 (function(){var p=document.getElementById('progress');function upd(){var h=document.documentElement;var d=h.scrollHeight-h.clientHeight;p.style.width=(d>0?(h.scrollTop/d)*100:0)+'%';}document.addEventListener('scroll',upd,{passive:true});upd();})();
 (function(){var b=document.getElementById('toggle');function sync(){var d=document.documentElement.classList.contains('dark');b.textContent=d?'☀️':'🌙';}b.addEventListener('click',function(){document.documentElement.classList.toggle('dark');try{localStorage.setItem('ghl_theme',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){}sync();});sync();})();
 (function(){var read=[];try{read=JSON.parse(localStorage.getItem('ghl_read')||'[]')}catch(e){}
@@ -280,7 +280,7 @@ var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout
 })();
 (function(){var d=document.querySelector('details.tocm');if(d){var wide=null;function sync(){var now=window.innerWidth>960;if(now!==wide){d.open=now;wide=now;}}sync();window.addEventListener('resize',sync);}})();
 (function(){var p=document.querySelector('.intro p');if(p&&p.firstChild&&p.firstChild.nodeType===3){p.firstChild.textContent=p.firstChild.textContent.replace('💜 ','');}})();
-</script>"""
+"""
 
 html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -294,7 +294,7 @@ html = f"""<!DOCTYPE html>
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://guihailu.github.io/cover.jpg">
 <script>try{{if(localStorage.getItem('ghl_theme')==='dark')document.documentElement.classList.add('dark')}}catch(e){{}}</script>
-<style>{css}</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body id="top">
 <div id="progress"></div>
@@ -321,10 +321,13 @@ html = f"""<!DOCTYPE html>
   <button class="navbtn" id="toTop" title="回到文档顶部" aria-label="回到文档顶部">↑</button>
 </div>
 <button id="toggle" aria-label="切换深浅色">🌙</button>
-{js}
+<script src="main.js" defer></script>
 </body>
 </html>"""
 
+# 三文件输出：LF 行尾；CSS/主 JS 外置，页头保留主题初始化内联脚本
+(HERE / "style.css").write_text(css, encoding="utf-8", newline="\n")
+(HERE / "main.js").write_text(js, encoding="utf-8", newline="\n")
 out = HERE / "index.html"
-out.write_text(html, encoding="utf-8")
-print(f"OK: {out} ({out.stat().st_size/1024:.0f} KB)")
+out.write_text(html, encoding="utf-8", newline="\n")
+print(f"OK: index.html {out.stat().st_size} B | style.css {(HERE/'style.css').stat().st_size} B | main.js {(HERE/'main.js').stat().st_size} B")

@@ -23,15 +23,18 @@ run(["lark-cli", "drive", "+export", "--url", DOC_URL,
      "--file-extension", "markdown", "--file-name", "guihailu.md", "--overwrite"], env=env)
 # 2) 构建
 run([sys.executable, "build_site.py"], env=env)
-# 3) git 提交推送（无变化则静默跳过）
-run(["git", "add", "index.html", "guihailu.md", "build_site.py", "sync_site.py"])
+# 3) git 提交推送（无变化则静默跳过；三资产必须与 index.html 同一次提交）
+run(["git", "add", "index.html", "guihailu.md", "build_site.py",
+     "sync_site.py", "style.css", "main.js"])
 r = subprocess.run(["git", "commit", "-m", "站点同步：归海录更新"],
                    cwd=HERE, capture_output=True, text=True)
 if r.returncode == 0:
     run(["git", "push"])
     print("SYNC PUSHED")
+    sys.exit(0)
 elif "nothing to commit" in (r.stdout + r.stderr):
     print("NO CHANGE")
+    sys.exit(0)   # 无变化=任务成功，退出码 0（修复任务计划"结果=1"误判）
 else:
     print(r.stdout, r.stderr)
     sys.exit(r.returncode)
