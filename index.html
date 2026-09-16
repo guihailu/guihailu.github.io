@@ -11,85 +11,108 @@
 <meta property="og:image" content="https://guihailu.github.io/cover.jpg">
 <script>try{if(localStorage.getItem('ghl_theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}</script>
 <style>
-:root{--deep:#0a1220;--paper:#faf8f1;--paper2:#f2eee2;--paper3:#eae4d2;--ink:#1f1a10;--ink2:#8a8170;--gold:#b28b4a;--gold2:#d9b878;--cin:#a03028;--line:#e2dccb;--line2:#c9c1ab;--link:#9a4636;--quote:#57503f;--th-ink:#8a4a3a;}
-html.dark{--paper:#0d1526;--paper2:#111c33;--paper3:#172442;--ink:#ece5d3;--ink2:#93896f;--line:#23304f;--line2:#33415f;--link:#8fb6e8;--quote:#cfc6b2;--th-ink:#e6c886;}
+:root{
+  --deep:#0a1220;--paper:#faf8f1;--paper2:#f2eee2;--ink:#211e18;
+  --muted:#6d685e;--line:#ded8c9;--gold:#b28b4a;--gold2:#d9b878;
+  --cin:#a03028;--link:#8b3d34;--quote:#514b42;
+}
+html.dark{
+  --paper:#0d1526;--paper2:#17233b;--ink:#eee8db;--muted:#b4ad9e;
+  --line:#34415a;--link:#d9b878;--quote:#cec5b5;
+}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--deep);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",sans-serif;font-size:18px;line-height:1.9;-webkit-font-smoothing:antialiased;}
-#progress{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,#8a6a2f,var(--gold2),#8a6a2f);z-index:99;}
-header.hero{background:var(--deep);}
-header.hero img.cover{display:block;width:100%;height:auto;border:none;}
-.paper{background:var(--paper);position:relative;z-index:1;}
-.doctitle{text-align:center;padding:110px 24px 64px;}
-.titleline{display:flex;align-items:center;justify-content:center;gap:26px;flex-wrap:wrap;}
-.doctitle h1{margin:0;font-size:72px;font-weight:800;letter-spacing:.18em;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;}
-.doctitle .seal{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;margin-left:16px;width:40px;height:58px;border-radius:8px;background:linear-gradient(160deg,#c24430,#93291b);color:#fff5e0;font-size:21px;line-height:1.2;box-shadow:0 2px 10px rgba(0,0,0,.3);font-family:"KaiTi","STKaiti",serif;}
-.yt{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:var(--ink2);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:8px 18px;letter-spacing:.06em;transition:all .15s;}
-.yt:hover{color:var(--cin);border-color:var(--cin);}
-.doctitle .sub{margin-top:18px;color:var(--ink2);font-size:14px;letter-spacing:.34em;}
-.intro{max-width:640px;margin:0 auto 90px;text-align:center;font-size:16px;color:var(--ink2);line-height:2.05;}
-.intro p{margin:0;}
-.intro strong{color:var(--ink);font-weight:600;}
-.intro::before{content:"";display:block;width:36px;height:2px;background:var(--gold);margin:0 auto 22px;border-radius:1px;}
-.layout{display:grid;grid-template-columns:252px minmax(0,1fr);gap:64px;max-width:1200px;margin:0 auto;padding:0 32px 120px;align-items:start;}
-aside.toc{position:sticky;top:32px;max-height:calc(100vh - 64px);overflow-y:auto;padding-right:10px;scrollbar-width:thin;}
-.tocm summary{list-style:none;cursor:pointer;margin:0 0 20px;color:var(--ink);font-size:24px;letter-spacing:.16em;font-weight:700;}
-.tocm summary::-webkit-details-marker{display:none;}
-.toc ul{margin:0;padding:0;list-style:none;border-left:1px solid var(--line);}
-.toc li{margin:0;}
-.toc a{display:block;padding:8px 16px;color:var(--ink2);text-decoration:none;font-size:13.5px;line-height:1.6;font-weight:600;transition:color .15s;}
-.toc a:hover{color:var(--ink);}
-.toc a.done::after{content:" ✓";color:var(--cin);font-size:10px;}
-.toc a.here{color:var(--cin);font-weight:600;border-left:2px solid var(--cin);padding-left:14px;}
-main.content{max-width:720px;min-width:0;}
-.entry{margin:0;border-bottom:1px solid var(--line);}
-.entry summary{cursor:pointer;list-style:none;display:flex;align-items:baseline;gap:16px;padding:26px 0;}
-.entry summary::-webkit-details-marker{display:none;}
-.entry summary h2{margin:0;font-size:21px;font-weight:700;flex:1;color:var(--ink);line-height:1.55;letter-spacing:.02em;transition:color .15s;}
-.entry summary:hover h2{color:var(--cin);}
-.entry summary::before{content:"＋";color:var(--gold);font-size:15px;flex:none;font-weight:400;}
-.entry[open] summary::before{content:"－";}
-.entry summary .date{color:var(--ink2);font-size:12.5px;flex:none;white-space:nowrap;letter-spacing:.05em;}
-.entry-body{padding:8px 0 44px;font-family:"Songti SC","Noto Serif SC","STSong","SimSun",serif;font-size:17.5px;line-height:2.05;color:var(--ink);}
-.entry-body h3{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);font-size:19px;font-weight:700;margin:38px 0 14px;letter-spacing:.03em;}
-.entry-body h4{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);font-size:17px;font-weight:600;margin:28px 0 10px;}
-.entry-body p{margin:16px 0;}
-.entry-body blockquote{margin:24px 0;padding:0 0 0 20px;border-left:2px solid var(--gold);color:var(--quote);font-size:16.5px;}
-.entry-body blockquote p{margin:8px 0;}
-.entry-body ul,.entry-body ol{padding-left:26px;}
-.entry-body li{margin:9px 0;}
-.entry-body a{color:var(--link);text-decoration:none;border-bottom:1px solid var(--line2);transition:border-color .15s;}
-.entry-body a:hover{border-bottom-color:var(--cin);}
-.entry-body table{width:100%;border-collapse:collapse;margin:24px 0;font-size:15px;display:block;overflow-x:auto;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
-.entry-body th,.entry-body td{border:1px solid var(--line);padding:9px 13px;text-align:left;}
-.entry-body th{background:var(--paper2);color:var(--th-ink);font-weight:600;}
-.entry-body hr{border:none;border-top:1px solid var(--line);margin:48px 0;}
-.entry-body img{max-width:100%;border-radius:8px;}
-footer{background:var(--deep);color:#8d846f;font-size:13px;text-align:center;padding:56px 20px 60px;letter-spacing:.1em;line-height:2.1;}
-footer a{color:var(--gold2);text-decoration:none;}
-.navstack{position:fixed;right:24px;bottom:28px;display:flex;flex-direction:column;gap:10px;z-index:98;}
-.navbtn{width:44px;height:44px;border-radius:50%;background:rgba(16,29,54,.85);border:1px solid rgba(201,164,92,.5);color:var(--gold2);font-size:17px;cursor:pointer;backdrop-filter:blur(4px);transition:all .15s;}
-.navbtn:hover{background:var(--gold);color:var(--deep);}
-.flinks{margin-bottom:26px;}
-.fbtn{display:inline-block;margin:8px 10px;padding:11px 28px;border:1px solid var(--gold);border-radius:999px;color:var(--gold2);font-size:14px;letter-spacing:.08em;text-decoration:none;transition:all .15s;font-weight:600;}
-.fbtn:hover{background:var(--gold);color:var(--deep);}
-.fmeta{color:#8d846f;}
-#toggle{position:fixed;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:rgba(16,29,54,.6);border:1px solid rgba(201,164,92,.5);color:var(--gold2);font-size:18px;cursor:pointer;z-index:100;backdrop-filter:blur(4px);}
-@media (max-width:960px){.layout{grid-template-columns:1fr;gap:28px;padding:0 24px 90px;}aside.toc{position:static;max-height:none;overflow:visible;}aside.toc ul{column-count:2;column-gap:28px;border-left:none;}main.content{max-width:100%;}.tocm summary::after{content:"▾";font-size:13px;color:var(--ink2);margin-left:10px;}}
-@media (max-width:640px){.doctitle{padding:60px 16px 40px}.titleline{flex-direction:column;gap:16px}.doctitle h1{font-size:42px;letter-spacing:.1em}.doctitle .seal{width:34px;height:48px;font-size:18px;border-radius:6px;margin-left:10px}.doctitle .sub{font-size:12.5px;letter-spacing:.2em;margin-top:12px}.yt{font-size:13px;padding:7px 16px}.intro{margin:0 auto 48px;font-size:15px;padding:0 6px}.layout{padding:0 18px 72px;gap:24px}aside.toc ul{column-count:1}.tocm summary{font-size:20px}.toc a{font-size:13.5px;padding:7px 10px}.entry summary{flex-wrap:wrap;gap:6px 12px;padding:20px 0}.entry summary h2{font-size:18px;flex:1 1 100%}.entry summary .date{font-size:12px}.entry summary::before{font-size:13px}.entry-body{padding:2px 0 34px;font-size:16.5px;line-height:1.95}.entry-body h3{font-size:18px;margin:30px 0 12px}.entry-body blockquote{padding-left:14px;font-size:15.5px}footer{padding:44px 16px 52px}.fbtn{display:block;width:fit-content;margin:10px auto;padding:10px 24px}.navstack{right:14px;bottom:20px;gap:8px}.navbtn{width:40px;height:40px;font-size:15px}#toggle{width:36px;height:36px;font-size:16px}}
+body{margin:0;background:var(--deep);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+button,a,summary{-webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+#progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--gold2);z-index:101}
+.hero{background:var(--deep);color:var(--paper);text-align:center}
+.doctitle{max-width:900px;margin:auto;padding:112px 24px 104px}
+.titleline{display:flex;justify-content:center}
+.doctitle h1{display:flex;align-items:center;justify-content:center;gap:22px;margin:0;color:#faf8f1;font-size:72px;font-weight:700;letter-spacing:.13em;line-height:1.2}
+.seal{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:42px;height:64px;flex:none;border-radius:8px;background:var(--cin);color:#fff6e9;font-family:"KaiTi","STKaiti",serif;font-size:22px;font-weight:400;letter-spacing:0;line-height:1.1}
+.doctitle .sub{margin:25px 0 0;color:#c8baa0;font-size:14px;letter-spacing:.24em;line-height:1.8}
+.yt{display:inline-flex;align-items:center;justify-content:center;margin-top:34px;padding:9px 23px;border:1px solid var(--gold);border-radius:999px;color:var(--gold2);font-size:13px;font-weight:600;letter-spacing:.09em;text-decoration:none;transition:background .2s,color .2s}
+.yt:hover{background:var(--gold2);color:var(--deep)}
+.paper{background:var(--paper);min-height:60vh}
+.intro{max-width:700px;margin:0 auto;padding:88px 24px 78px;text-align:center;color:var(--muted);font-size:15px;line-height:2.05}
+.intro::before{content:"";display:block;width:38px;height:2px;margin:0 auto 25px;background:var(--gold)}
+.intro p{margin:0}.intro strong{display:block;margin-bottom:9px;color:var(--ink);font-size:17px;font-weight:600}
+.layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:clamp(32px,4vw,64px);align-items:start;max-width:1160px;margin:auto;padding:0 32px 128px}
+aside.toc{position:sticky;top:32px;max-height:calc(100vh - 64px);overflow-y:auto;scrollbar-width:thin}
+.tocm>summary{display:block;margin:0 0 18px;list-style:none;cursor:pointer;font-size:0;line-height:1.5}
+.tocm>summary::-webkit-details-marker,.entry>summary::-webkit-details-marker{display:none}
+.tocm>summary::before{content:"目录";color:var(--ink);font-size:16px;font-weight:700;letter-spacing:.12em}
+.toc ul{margin:0;padding:0;list-style:none;border-left:1px solid var(--line)}
+.toc li{margin:0}.toc a{display:block;margin-left:-1px;padding:8px 12px;border-left:2px solid transparent;color:var(--muted);font-size:13px;font-weight:500;line-height:1.6;text-decoration:none;overflow-wrap:anywhere;transition:color .2s,border-color .2s}
+.toc a:hover{color:var(--ink)}.toc a.here{border-left-color:var(--cin);color:var(--cin);font-weight:700}
+.toc a.done::after{content:" ✓";color:var(--cin);font-size:11px}
+main.content{min-width:0;max-width:720px;width:100%;justify-self:center}
+.entry{margin:0;border-bottom:1px solid var(--line);scroll-margin-top:24px}
+.entry:first-child{border-top:1px solid var(--line)}
+.entry>summary{display:grid;grid-template-columns:18px minmax(0,1fr);column-gap:16px;align-items:start;padding:27px 0;list-style:none;cursor:pointer}
+.entry>summary::before{content:"+";grid-column:1;grid-row:1;color:var(--gold);font-size:20px;font-weight:300;line-height:1.55}
+.entry[open]>summary::before{content:"−"}
+.entry>summary h2{grid-column:2;grid-row:1;min-width:0;width:100%;margin:0;color:var(--ink);font-size:21px;font-weight:650;letter-spacing:.015em;line-height:1.65;overflow-wrap:anywhere;transition:color .2s}
+.entry>summary:hover h2{color:var(--cin)}
+.entry>summary .date{grid-column:2;grid-row:2;justify-self:start;min-width:0;max-width:100%;margin-top:10px;padding:3px 9px;border-radius:4px;background:var(--paper2);color:var(--muted);font-size:12px;font-weight:500;letter-spacing:.02em;line-height:1.65;white-space:normal;overflow-wrap:anywhere}
+.date p{display:inline;margin:0}.date strong{font-weight:500}
+.entry-body{padding:0 0 46px;color:var(--ink);font-family:"Songti SC","Noto Serif SC","STSong","SimSun",serif;font-size:17.5px;line-height:2.08;overflow-wrap:anywhere}
+.entry-body p{margin:16px 0}.entry-body h3,.entry-body h4{color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.55}
+.entry-body h3{margin:40px 0 14px;color:var(--cin);font-size:19px}.entry-body h4{margin:30px 0 10px;color:#856326;font-size:17px;letter-spacing:.04em}
+html.dark .entry-body h3{color:#d68476}html.dark .entry-body h4{color:var(--gold2)}
+.entry-body blockquote{margin:27px 0;padding:0 0 0 20px;border-left:2px solid var(--gold);color:var(--quote);font-size:16.5px}
+.entry-body blockquote p{margin:8px 0}.entry-body ul,.entry-body ol{padding-left:26px}.entry-body li{margin:9px 0}
+.entry-body a{color:var(--link);text-decoration:none;border-bottom:1px solid var(--gold)}
+.entry-body a:hover{border-color:var(--cin)}
+.entry-body table{display:block;max-width:100%;margin:25px 0;border-collapse:collapse;overflow-x:auto;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px}
+.entry-body th,.entry-body td{border:1px solid var(--line);padding:9px 13px;text-align:left}
+.entry-body th{background:var(--paper2);font-weight:600}.entry-body pre{max-width:100%;overflow-x:auto}
+.entry-body hr{margin:48px 0;border:0;border-top:1px solid var(--line)}.entry-body img{max-width:100%;height:auto}
+footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:center;font-size:13px;letter-spacing:.05em;line-height:1.9}
+.flinks{margin-bottom:24px}.fbtn{display:inline-flex;align-items:center;justify-content:center;max-width:100%;margin:6px 9px;padding:10px 25px;border:1px solid var(--gold);border-radius:999px;color:var(--gold2);font-size:13px;font-weight:600;line-height:1.6;text-decoration:none;transition:background .2s,color .2s}
+.fbtn:hover{background:var(--gold2);color:var(--deep)}.fmeta{color:#a99d86}
+.navstack{position:fixed;right:22px;bottom:24px;z-index:98;display:flex;flex-direction:column;gap:10px}
+.navbtn,#toggle{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--gold);border-radius:50%;background:var(--deep);color:var(--gold2);font-size:17px;cursor:pointer;transition:background .2s,color .2s}
+.navbtn:hover,#toggle:hover{background:var(--gold2);color:var(--deep)}
+#toggle{position:fixed;top:16px;right:18px;z-index:100}
+@media(max-width:960px){
+  .layout{display:block;max-width:768px;padding:0 24px 96px}
+  aside.toc{position:static;max-height:none;overflow:visible;margin:0 auto 22px}
+  .tocm{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .tocm>summary{display:flex;align-items:center;justify-content:space-between;margin:0;padding:17px 0}
+  .tocm>summary::after{content:"⌄";color:var(--gold);font-size:22px;line-height:1}
+  .tocm[open]>summary::after{transform:rotate(180deg)}
+  .tocm ul{max-height:55vh;margin:0 0 15px;overflow-y:auto}
+  main.content{max-width:720px;margin:auto}
+}
+@media(max-width:640px){
+  .doctitle{padding:64px 22px 52px}.doctitle h1{gap:14px;font-size:44px;letter-spacing:.08em}
+  .seal{width:36px;height:54px;border-radius:8px;font-size:18px}
+  .doctitle .sub{margin-top:16px;font-size:12px;letter-spacing:.1em}.yt{margin-top:20px}
+  .intro{padding:42px 23px 38px;font-size:14.5px;line-height:1.95}.intro::before{margin-bottom:19px}.intro strong{margin-bottom:6px;font-size:16px}
+  .layout{padding:0 20px 84px}.tocm>summary{padding:14px 0}.entry>summary{column-gap:11px;padding:20px 0}
+  .entry>summary h2{font-size:18px;line-height:1.65}.entry>summary .date{font-size:11.5px}
+  .entry-body{padding-bottom:37px;font-size:16.5px;line-height:2.05}.entry-body h3{font-size:18px}
+  .entry-body blockquote{padding-left:15px;font-size:15.5px}
+  footer{padding:48px 20px 56px}.fbtn{display:flex;width:max-content;margin:10px auto}
+  .navstack{right:12px;bottom:calc(16px + env(safe-area-inset-bottom));gap:8px}
+  .navbtn,#toggle{width:40px;height:40px;font-size:16px}#toggle{top:12px;right:12px}
+}
+@media(max-width:380px){.doctitle h1{font-size:42px}.doctitle .sub{letter-spacing:.05em}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important}}
 </style>
 </head>
 <body id="top">
 <div id="progress"></div>
-<header class="hero"><img class="cover" src="cover.jpg" alt="归海录封面"></header>
-<div class="paper">
+<header class="hero">
   <div class="doctitle">
-    <div class="titleline">
-      <h1>归海录<span class="seal">归<br>海</span></h1>
-      <a class="yt" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ YouTube</a>
-    </div>
-    <div class="sub">归海2026 · 师父志远行空的开示合集</div>
+    <div class="titleline"><h1>归海录<span class="seal" aria-hidden="true">归<br>海</span></h1></div>
+    <p class="sub">归海2026 · 师父志远行空的开示合集</p>
+    <a class="yt" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ YouTube</a>
   </div>
+</header>
+<div class="paper">
 <div class="intro"><p>💜 <strong>归海2026 ·
 师父志远行空的开示合集</strong>本合集收录师父在「归海2026」群中的日常开示与
 YouTube
@@ -186,13 +209,14 @@ NPC；修到最后，修的不过是一场众生善缘。</p>
 </blockquote>
 <h3 id="开场一场烧起来的法拉利">💡 开场：一场烧起来的法拉利</h3>
 <p>这场比赛原本就很受关注：王一博、吴彦祖同场参赛——王一博第一回合拿到组别冠军，第二回合因碰撞退赛；吴彦祖也在自己的比赛中碰撞退赛，后来还专门发过视频痛批赛事救援系统失灵。</p>
-<p>但这场比赛最让全世界记住的，不是明星，也不是冠军，而是一辆烧起来的法拉利，和一个放弃比赛、冲进火场救人的年轻车手。</p>
+<p><strong>但这场比赛最让全世界记住的，不是明星，也不是冠军，而是一辆烧起来的法拉利，和一个放弃比赛、冲进火场救人的年轻车手。</strong></p>
 <p>这件事情师父为什么一定要说？他的职业也不是赛车评论，他只是这些年通过高维系统查事，看过上万人命运的起伏和因果关系。</p>
 <blockquote>
 <p>普通人看着可能是赛事管理出了问题，站在我们天道角度去看，是为什么一个人偏偏在这一天走到生死关口，为什么该救他的人没有及时出现？一个本来没有义务救他的对手，却停下了车。</p>
 </blockquote>
-<p>这个到底只是勇敢，还是一个人命不该绝的时候，他的机缘和众生善缘刚好接上了？</p>
-<p>所以这期先把人间的责任说清楚——比方说是谁招的人、谁做的培训，为什么没有防火服，为什么所谓的”国家配置”最后真着火了没有用。最后再从因果机缘和众生善缘的角度，把这件事往天道的角度再说一层。做这类内容也不是为了围着热点骂几句，而是借已经发生的事，让大家看见新闻画面之外，那些真正会影响一个人命运走向的东西，到底是什么。</p>
+<p><strong>这个到底只是勇敢，还是一个人命不该绝的时候，他的机缘和众生善缘刚好接上了？</strong></p>
+<p>所以这期先把人间的责任说清楚——比方说是谁招的人、谁做的培训，为什么没有防火服，为什么所谓的”国家配置”最后真着火了没有用。</p>
+<p>最后再从因果机缘和众生善缘的角度，把这件事往天道的角度再说一层。做这类内容也不是为了围着热点骂几句，而是借已经发生的事，让大家看见新闻画面之外，那些真正会影响一个人命运走向的东西，到底是什么。</p>
 <hr />
 <h3
 id="一事故现场救他的是跟在后面的对手">一、事故现场：救他的，是跟在后面的对手</h3>
@@ -204,7 +228,8 @@ id="一事故现场救他的是跟在后面的对手">一、事故现场：救�
 <p>而跟在这个事故车后面的，是 23
 岁的荷兰车手哈托格。哈托格看见前方出现火球，直接赛也不比了，把自己的赛车停下来：他先跑到驾驶室的一侧，尝试着把米尔罗伊从车里弄出来，但没有成功；随后他就从现场人员手里拿到灭火器，先压住座舱附近的火，然后再绕到另外一边，把米尔罗伊拖出了赛车。</p>
 <p><strong>整个过程，最先到达现场的正式消防和医疗力量，没有形成有效的救援。</strong>米尔罗伊后来也说自己能够活下来，完全是因为哈托格停下了车。他多根肋骨、锁骨和手部骨折，肺部也是严重受损，后来就在上海接受了手术。</p>
-<p>但是最荒谬的事情还在后面：赛事直播最初竟然报道，米尔罗伊是自己离开赛车、安全走出了赛车。他的车队很快就发声明了，明确指出车手根本不是自行脱困，而是哈托格冒着生命危险，从燃烧的车里把他拖出来的。车队痛批主办方的应急救援存在严重的失职，要求对赛道安全、救援过程和错误报道进行完整、独立、公开的调查，并且宣布：在正式得到回应和整改之前，他们这车队就不再参加
+<p>但是最荒谬的事情还在后面：赛事直播最初竟然报道，米尔罗伊是自己离开赛车、安全走出了赛车。</p>
+<p>他的车队很快就发声明了，明确指出车手根本不是自行脱困，而是哈托格冒着生命危险，从燃烧的车里把他拖出来的。车队痛批主办方的应急救援存在严重的失职，要求对赛道安全、救援过程和错误报道进行完整、独立、公开的调查，并且宣布：在正式得到回应和整改之前，他们这车队就不再参加
 China GT 的相关赛事了。</p>
 <blockquote>
 <p>这个就真的是很中国式：现场的人还不知人是怎么弄出来的，直播间已经写好结果了——救援还没到，公关就先开始了。</p>
@@ -212,14 +237,18 @@ China GT 的相关赛事了。</p>
 <hr />
 <h3
 id="二人间这笔账救援是一套提前组织好的系统">二、人间这笔账：救援，是一套提前组织好的系统</h3>
-<p>事故发生以后，中国车手杨百杰又讲了一些细节。按照他的说法：有工作人员因为害怕，把灭火器放下以后就离开了；另外一个工作人员拿着灭火器晃晃悠悠的，都没能及时打开，好像都不会用灭火器；救护车大约
-15 分钟才到，原因是司机在车里睡觉，有人拍车窗都没能及时叫醒。</p>
-<p>这里也要说清楚：这些主要是杨百杰一方的公开指控，不是赛事独立调查的最终结论。香港媒体根据直播画面的复盘，认为救护车大概是事故发生
-6 分钟以后到达现场。那这个到底是 6 分钟还是 15
+<p>事故发生以后，中国车手杨百杰又讲了一些细节。按照他的说法：有工作人员因为害怕，把灭火器放下以后就离开了；另外一个工作人员拿着灭火器晃晃悠悠的，都没能及时打开，好像都不会用灭火器；</p>
+<p>救护车大约 15
+分钟才到，原因是司机在车里睡觉，有人拍车窗都没能及时叫醒。</p>
+<p>这里也要说清楚：这些主要是杨百杰一方的公开指控，不是赛事独立调查的最终结论。</p>
+<p>香港媒体根据直播画面的复盘，认为救护车大概是事故发生 6
+分钟以后到达现场。那这个到底是 6 分钟还是 15
 分钟？司机是不是在睡觉？赛事方应该把通信记录、车辆启动记录和完整的视频拿出来。</p>
-<p>不过，一辆赛车已经燃烧起来了，黄金抢救时间其实就是几十秒——6 分钟和 15
-分钟的区别，无非是荒谬离谱到了什么程度而已。</p>
-<p>我们真正值得注意的是现场那些人的装备。从公开的视频来看，最早接触事故车的那个人身上完全看不到防火服——没有消防头盔、面罩、耐火手套、呼吸保护，什么都没有。后面有人从车上下来，也主要是穿着反光服——那是安保的装束，没有看到一套能够支持他钻进燃烧座舱的装备。</p>
+<p><strong>不过，一辆赛车已经燃烧起来了，黄金抢救时间其实就是几十秒——6
+分钟和 15 分钟的区别，无非是荒谬离谱到了什么程度而已。</strong></p>
+<h4 id="黄金抢救时间其实就是几十秒">黄金抢救时间其实就是几十秒</h4>
+<p>我们真正值得注意的是现场那些人的装备。从公开的视频来看，最早接触事故车的那个人身上完全看不到防火服——没有消防头盔、面罩、耐火手套、呼吸保护，什么都没有。</p>
+<p>后面有人从车上下来，也主要是穿着反光服——那是安保的装束，没有看到一套能够支持他钻进燃烧座舱的装备。</p>
 <p>所以这里就出现了两个可能性：</p>
 <ul>
 <li>第一，他们压根就不是专业消防人员，只是赛道工作人员、安保，或者临时外包的临时工——那么问题就是：为什么赛车已经烧成这样，最先到达现场的仍然不是专业消防力量？</li>
@@ -227,11 +256,14 @@ id="二人间这笔账救援是一套提前组织好的系统">二、人间这�
 </ul>
 <p>其实不管是哪一种，责任都不能只放在那几个工作人员身上。网上还流传过现场工作人员一天只有
 60
-块钱的招聘截图——这个数字目前没有得到赛事方官方证实，咱也不拿它当事实。但就算不是
-60 块钱，哪怕就是
+块钱的招聘截图——这个数字目前没有得到赛事方官方证实，咱也不拿它当事实。</p>
+<p>但就算不是 60 块钱，哪怕就是
 160、260，这个结果也没有任何变化：因为他们穿的是反光服，不是防火服；临时培训也不是消防训练。</p>
 <p><strong>你如果让一个没有装备的人往火里冲，这个不叫职业精神，这只能让现场再增加一名伤员。</strong></p>
-<p>国际汽联的赛事安全防范，对消防、医疗和救援是有要求的——它肯定不是要求你”现场只要有人就行”，肯定不是聋子的耳朵——摆设。像这种赛事的医疗队伍，要有定期的训练和部署；医疗干预的车辆，肯定需要配防火服、防火毯，包括一些消防用的剪切工具、灭火器等等。<strong>也就是说，救援是一套提前组织好的系统，不是赛车烧起来以后，随便去找几个临时工去研究灭火器。</strong></p>
+<h4 id="救援是一套提前组织好的系统">救援是一套提前组织好的系统</h4>
+<p>国际汽联的赛事安全防范，对消防、医疗和救援是有要求的——它肯定不是要求你”现场只要有人就行”，肯定不是聋子的耳朵——摆设。</p>
+<p>像这种赛事的医疗队伍，要有定期的训练和部署；医疗干预的车辆，肯定需要配防火服、防火毯，包括一些消防用的剪切工具、灭火器等等。</p>
+<p><strong>也就是说，救援是一套提前组织好的系统，不是赛车烧起来以后，随便去找几个临时工去研究灭火器。</strong></p>
 <hr />
 <h3 id="三反光服灭火器与草台班子">三、反光服、灭火器与”草台班子”</h3>
 <p>在这种情况下，有人就替 China GT 解释了：说它毕竟不是
@@ -239,20 +271,25 @@ F1，预算没有那么大，又不是世界三大运动——F1、奥运会、�
 <p>但是，China GT
 虽然没有那么高的规格，它也不是几个车友随便在郊区找块空地、大家各自拉一辆车来跑两圈这么简单。2026
 年的 China GT 上海站，一共有 59 辆赛车、100 多名选手参赛；GT3
-组别里有法拉利、奔驰 AMG、兰博基尼、保时捷、奥迪、宝马；现场观众有 4
-万名，还有王一博、吴彦祖这样的明星车手参加——小米还是整个 2026
+组别里有法拉利、奔驰 AMG、兰博基尼、保时捷、奥迪、宝马；</p>
+<p>现场观众有 4 万名，还有王一博、吴彦祖这样的明星车手参加——小米还是整个
+2026
 赛季的总冠名合作伙伴。这个赛事背后的运营体系，肯定不是一群完全没有经验的人。</p>
+<h4 id="运营方不是没有经验的">运营方不是没有经验的</h4>
 <p>公开资料显示，力盛体育拥有包括 China GT 在内的多项赛车赛事的 IP；2026
 年上半年，这家公司体育赛事经营业务收入约 2.02 亿元，半年运营 46
-场比赛，其中赛车比赛 30 场。这里要说：这个 2.02
+场比赛，其中赛车比赛 30 场。</p>
+<p>这里要说：这个 2.02
 亿肯定不是就这一场失火比赛的收入，咱不能拿来乱除、算这场比赛到底赚了多少——但它至少说明：运营方不是没有经验的，不是没有商业资源的，不是没有钱的，也不是第一次办这个活动。</p>
 <p>而赛事方在后来的声明中说：初步核查，认定为整个人员资源调配符合国家赛事标准，只是”在细致运营管理方面有待提高”，之后会对赛事组织保障、应急救援和医疗继续复盘。</p>
 <blockquote>
 <p>这句话最大的问题就是避重就轻。什么叫做”在细节运营管理方面有待提高”？观众排队慢了一点，收香烟打火机的时候折腾了很多时间，厕所指示牌少了一块，矿泉水不够凉了——这个叫做细致管理有待提高。那你赛车起火以后，专业救援都没有形成，最先靠近的人没有完整的防火装备，救护车几分钟才出现，直播中间发生舆情之后，你连车手是自己出来还是被人拖出来的都没弄清楚——这就不叫细节了，这个就是赛事安全体系本身有问题了。</p>
 </blockquote>
-<p>在这个过程中，它的纸面配置可能一样不少：救护车有、灭火器有、工作人员有。但是事故一发生，这些东西没经过培训、互相不认识。所谓的”国家标准”，如果说最后需要由赛车手放弃比赛来救人，那至少你要重新解释一下：这个标准，它到底是不是一个荒谬。</p>
+<p>在这个过程中，它的纸面配置可能一样不少：救护车有、灭火器有、工作人员有。但是事故一发生，这些东西没经过培训、互相不认识。</p>
+<p>所谓的”国家标准”，如果说最后需要由赛车手放弃比赛来救人，那至少你要重新解释一下：这个标准，它到底是不是一个荒谬。</p>
 <p>接下来从赛车事故的角度，还是对比更出名的
 F1——虽然说这俩有一定的区别，但咱看看人家专业救援是怎么弄的。</p>
+<h4 id="看看人家专业救援是怎么弄的">看看人家专业救援是怎么弄的</h4>
 <ul>
 <li><strong>2020
 年巴林大奖赛</strong>：格罗斯让的赛车高速撞上护墙，车身断裂，瞬间陷入大火。FIA
@@ -266,18 +303,20 @@ Halo 保护装置救了自己——就是俗称的”人字拖”。</li>
 </ul>
 <p>其实众所周知，F1 是非常危险的。著名的车神塞纳撞车去世以后，F1
 也不是没再死过人——朱尔斯·比安奇 2014 年日本站撞上了赛道的救援车辆，昏迷
-9 个月以后去世，是塞纳之后第一位因为大奖赛事故死亡的 F1
-赛车手。这样的死亡，其实后来又推动了虚拟安全车等制度的发展。</p>
-<p>所以 F1
-今天有这套东西，不是靠管理层在办公室想出来的——很多设备、流程和规则，背后都有车手受伤甚至死亡这种血淋淋的教训买来的。</p>
+9 个月以后去世，是塞纳之后第一位因为大奖赛事故死亡的 F1 赛车手。</p>
+<p>这样的死亡，其实后来又推动了虚拟安全车等制度的发展。</p>
+<p><strong>所以 F1
+今天有这套东西，不是靠管理层在办公室想出来的——很多设备、流程和规则，背后都有车手受伤甚至死亡这种血淋淋的教训买来的。</strong></p>
 <p>China GT 虽然不是 F1，可能没有 F1
-那么多预算，但是”赛车起火以后怎么办”，肯定不应该是现场现学的。反光背心看上去很扎眼，但它其实已经完成了反光的任务——剩下的工作，真的不在普通反光服和普通工作人员的能力范围之内。</p>
+那么多预算，但是”赛车起火以后怎么办”，肯定不应该是现场现学的。反光背心看上去很扎眼，但它其实已经完成了反光的任务——</p>
+<p>剩下的工作，真的不在普通反光服和普通工作人员的能力范围之内。</p>
 <blockquote>
 <p>很多人小时候会以为，这个世界是有一批特别专业、特别聪明、而且已经把所有事情安排好的人去管理的。当我们慢慢长大了以后才会发现，很多组织就是临时拼凑起来的——这个世界就是一个巨大的草台班子。平时开会，每个部门都说自己准备好了；真正出事了以后，甲方找乙方，乙方找外包，外包再去找临时工。</p>
 </blockquote>
 <p>China GT
 这件事情为什么让大家感到很震惊呢？是因为外面那层外包装太完整了：国际品牌的赛车、上海国际赛车场、上市公司、冠名赞助、明星车手、4
-万观众——大家会自然地认为，最基本的消防和医疗不会出问题。结果火一烧起来，真正能够决定一个人能不能活下来的，变成了灭火器会不会开、司机有没有醒，以及旁边那个年轻的车手，愿不愿意停车救助。</p>
+万观众——大家会自然地认为，最基本的消防和医疗不会出问题。</p>
+<p>结果火一烧起来，真正能够决定一个人能不能活下来的，变成了灭火器会不会开、司机有没有醒，以及旁边那个年轻的车手，愿不愿意停车救助。</p>
 <hr />
 <h3
 id="四徐浪的绳子命运不讲究叙事结构">四、徐浪的绳子：命运不讲究叙事结构</h3>
@@ -289,11 +328,12 @@ id="四徐浪的绳子命运不讲究叙事结构">四、徐浪的绳子：命�
 <blockquote>
 <p>这样一个顶级的赛车手，没有死在几百公里时速的翻车中间，最后居然死在了一根绳子和一个钢结构。电视剧我觉得这么写，观众可能都会觉得编剧太偷懒了——你前头铺垫了一个人辉煌了一生，怎么一个钩子就把主角写没了？但是很多时候，现实生活里的命运没有这么讲究叙事结构。</p>
 </blockquote>
-<p>一个螺丝、一根钢绳、一次走神、一个没有睡醒的司机，都有可能把一个人几十年的本事和积累，瞬间就清零了。</p>
+<p><strong>一个螺丝、一根钢绳、一次走神、一个没有睡醒的司机，都有可能把一个人几十年的本事和积累，瞬间就清零了。</strong></p>
 <hr />
 <h3 id="五天道视角几本账同时存在">五、天道视角：几本账同时存在</h3>
 <p>接下来是师父自己的老本行。这些年熟悉他的朋友都知道，他通过超级堂口的查事，看过上万人他们的命运走向和因果案例。</p>
-<p>这种车辆事故当中，确实有一些我们看不见的因素，它不只是驾驶技术、天气和机械故障。人间查出来的，可能就是前车忽然变道了、轮胎爆了、司机走神了；但是往法界去看，有的时候是旧业、孽缘、债主讨债，或者当事人的大运正好走到了危险的转折节点，都有可能出现一些问题。</p>
+<p>这种车辆事故当中，确实有一些我们看不见的因素，它不只是驾驶技术、天气和机械故障。</p>
+<p>人间查出来的，可能就是前车忽然变道了、轮胎爆了、司机走神了；但是往法界去看，有的时候是旧业、孽缘、债主讨债，或者当事人的大运正好走到了危险的转折节点，都有可能出现一些问题。</p>
 <p>不过，法拉利的车手米尔罗伊这次事故，师父没有专门看过，不能直接就说他是债主讨债，也不会替他去编一些前世。但是这场事故至少有几本账，是要算的：</p>
 <ul>
 <li><strong>赛车为什么发生碰撞</strong>，是车辆驾驶和竞技规则方面的事情</li>
@@ -305,32 +345,40 @@ id="四徐浪的绳子命运不讲究叙事结构">四、徐浪的绳子：命�
 <hr />
 <h3
 id="六哈托格刚好出现在该出现的位置">六、哈托格：刚好出现在该出现的位置</h3>
-<p>接下来说说救人的哈托格。据他自己说，他看到前面的赛车变成了一个火球，当时没有太多的时间思考，他认为这个车手很可能自己没有办法出来，所以直接停车往那边跑。他也承认了自己是害怕的，甚至一度不知道自己能不能够把人救出来；他只是认为自己刚好出现在那个应该出现的位置，也希望这种行为不要被看成多么罕见的英雄主义。</p>
-<p>有车手在赛后采访中被问到”怎么看，战术策略或者自己的开法上会有什么样的调整吗”，回答只有一句：“我们没有任何的战术策略。”</p>
-<p>从人性上来讲，这肯定是勇敢——他放弃了比赛，自己的生命也受到了威胁。包括受伤车手米尔罗伊后来说，自己有三个孩子，未来会把这段经历讲给孩子听——在那三个孩子眼里，哈托格肯定就是救回父亲的超级英雄。</p>
-<p>那咱们为什么把徐浪的事情和这件事情进行对比呢？因为天道的判定是一个非常复杂的体系：我们不能说这个人当下被救了，他就一定是有善因果；说徐浪被砸了，他就一定是之前种下了恶业。天道的计算没有我们想的这么简单。</p>
+<p>接下来说说救人的哈托格。据他自己说，他看到前面的赛车变成了一个火球，当时没有太多的时间思考，他认为这个车手很可能自己没有办法出来，所以直接停车往那边跑。</p>
+<p>他也承认了自己是害怕的，甚至一度不知道自己能不能够把人救出来；他只是认为自己刚好出现在那个应该出现的位置，也希望这种行为不要被看成多么罕见的英雄主义。</p>
+<p>有车手在赛后采访中被问到”怎么看，战术策略或者自己的开法上会有什么样的调整吗”，回答只有一句：“<strong>我们没有任何的战术策略。</strong>”</p>
+<p>从人性上来讲，这肯定是勇敢——他放弃了比赛，自己的生命也受到了威胁。</p>
+<p>包括受伤车手米尔罗伊后来说，自己有三个孩子，未来会把这段经历讲给孩子听——在那三个孩子眼里，哈托格肯定就是救回父亲的超级英雄。</p>
+<p>那咱们为什么把徐浪的事情和这件事情进行对比呢？因为天道的判定是一个非常复杂的体系：我们不能说这个人当下被救了，他就一定是有善因果；说徐浪被砸了，他就一定是之前种下了恶业。</p>
+<p>天道的计算没有我们想的这么简单。</p>
 <p>至于这笔善因果、善福报什么时候回来、通过什么方式回来——这个不是做完以后拿手机扫一下、功德当天就到账了。<strong>天道不是商场的积分制。</strong></p>
 <hr />
 <h3 id="七别把任何人当成-npc">七、别把任何人当成 NPC</h3>
 <p>这个事情其实还有一个很现实的地方：很多大的公司、包括有资源的人，平时很容易把普通劳动者就当成
-NPC——司机你负责开车，保安负责站岗，临时工作人员穿上制服，甚至去拉一些”三和大神”把人员补齐；工资一压再压，培训能省则省，反正绝大部分活动得过且过，也不会出事——站在那里，和真正的救援看起来没什么区别。</p>
+NPC——司机你负责开车，保安负责站岗，临时工作人员穿上制服，甚至去拉一些”三和大神”把人员补齐；工资一压再压，培训能省则省，</p>
+<p>反正绝大部分活动得过且过，也不会出事——站在那里，和真正的救援看起来没什么区别。</p>
 <blockquote>
 <p>但是这个世界很多时候一旦出了事，这些所谓的
 NPC，手里可能正好就拿着你的生死开关。</p>
 </blockquote>
+<h4
+id="手里可能正好就拿着你的生死开关">手里可能正好就拿着你的生死开关</h4>
 <p>举个很多人都知道的例子：1815
-年，拿破仑从厄尔巴岛返回法国，走到拉弗雷的时候，奉命拦截他的第五线列步兵团已经在那里等着他了。如果这一批普通的士兵，真的是依照上级要求去开枪，那拿破仑的百日王朝可能当天就结束了。结果拿破仑走到枪口前，那些士兵不仅没有开火，反而倒向了拿破仑——两支队伍合在一起，继续向巴黎前进。</p>
+年，拿破仑从厄尔巴岛返回法国，走到拉弗雷的时候，奉命拦截他的第五线列步兵团已经在那里等着他了。</p>
+<p>如果这一批普通的士兵，真的是依照上级要求去开枪，那拿破仑的百日王朝可能当天就结束了。结果拿破仑走到枪口前，那些士兵不仅没有开火，反而倒向了拿破仑——两支队伍合在一起，继续向巴黎前进。</p>
 <p>所以说，决定欧洲历史下一步怎么走的，很多时候并不是拿破仑这种大人物，也可能就决定在那一排平时看上去像
 NPC 的士兵身上。</p>
 <p>所以在这里，咱也不要把那几个害怕的工作人员骂得太狠。在一场赛事的过程中，他们是可以随便被填进任何工作岗位的
-NPC；但是当他们回到自己的人生中的时候，他们就不再是 NPC
-了——在家庭里，他们也是父亲、也是丈夫、也是儿子，也有亲人等着他们回去。</p>
+NPC；但是当他们回到自己的人生中的时候，他们就不再是 NPC 了——</p>
+<p>在家庭里，他们也是父亲、也是丈夫、也是儿子，也有亲人等着他们回去。</p>
 <blockquote>
 <p>当承办方不给足够的训练和装备，却希望他们在事故发生以后忽然拿命去换荣誉——这个要求，未免就太不要脸了。</p>
 </blockquote>
 <p>轮回里也没有任何人会永远站在高处。今天你签字决定别人的工作，下一次可能就轮到那个人决定你——而你躺在那里，连一句求救的话都说不出。</p>
 <p>与此同时，你也不知道今天哪个看起来不起眼的人，会在未来的某一个时间节点提醒你一下、扶你一把、点你一下、把你从火里拖出来，甚至未来给你一场修行的大机缘、接上你的慧命，都有可能。<strong>这就是我们说的众生善缘为什么重要。</strong></p>
-<p>不是说今天一定要对一个服务员好一点，等他十年以后涌泉相报——现实没有这么工整。只是一个人一路走过去，没有必要把所有人都当成
+<p>不是说今天一定要对一个服务员好一点，等他十年以后涌泉相报——现实没有这么工整。</p>
+<p>只是一个人一路走过去，没有必要把所有人都当成
 NPC、当成耗材，更不要到处留下怨和恨。这样的话，轮回中终有一次，等你自己弱小、无能为力的时候，身边的人可能真的没有人愿意伸手帮你一把。</p>
 <blockquote>
 <p>一个人哪怕再有钱、再有本事，在无数次的轮回起伏当中，也不可能永远清醒、聪明、强大，也不可能永远在强势的位置。轮回很长啊，总有那么一个阶段，你需要别人提醒你一句、扶你一下，甚至替你完成你自己都已经做不到的事情。那个人未必是大人物，也未必原来就认识你，有的时候可能只是过去留下一段善缘——在你最需要的时候，这个看上去不起眼的所谓的
@@ -344,7 +392,7 @@ id="收尾修到最后不过修一场众生善缘">收尾：修到最后，不�
 <li>人间要把赛事的制度做好，是为了不让更多人的生命，去赌”别的赛车手会来救他”这样一种机缘</li>
 <li>而在更长的轮回里，我们每一个人都应该多留一些善缘，是因为总有一天，我们也可能困在火里，连自己都救不了</li>
 </ul>
-<p>而米尔罗伊这次等到了救他的那个哈托格，并不代表每一个人都能等得到。</p>
+<p><strong>而米尔罗伊这次等到了救他的那个哈托格，并不代表每一个人都能等得到。</strong></p>
 <blockquote>
 <p>而最后的最后，我们不过就是落到一句话：修行在人世间、在六道内、甚至在六道外——我们修的到底是什么？修到最后，不过就是修一场众生善缘。</p>
 </blockquote>
@@ -5377,7 +5425,7 @@ document.querySelectorAll('.toc a[href^="#sec-"]').forEach(function(a){
 document.querySelectorAll('.entry summary').forEach(function(s){
   s.addEventListener('click',function(){var e=s.parentElement;if(e&&e.id){cur=e.id;}});
 });
-function findCur(){var best=null;document.querySelectorAll('.entry').forEach(function(e){var r=e.getBoundingClientRect();if(r.top<=120){best=e;}});if(best){cur=best.id;}return cur;}
+function findCur(){var best=null;document.querySelectorAll('.entry').forEach(function(e){var r=e.getBoundingClientRect();if(r.top<=120){best=e;}});if(best){cur=best.id;var a=document.querySelector('.toc a[href="#'+cur+'"]');if(a&&!a.classList.contains('here')){document.querySelectorAll('.toc a.here').forEach(function(x){x.classList.remove('here')});a.classList.add('here');}}return cur;}
 document.getElementById('toTop').addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
 document.getElementById('toReading').addEventListener('click',function(){
   var id=cur||findCur();
@@ -5388,7 +5436,8 @@ var saved=0;try{saved=parseInt(localStorage.getItem('ghl_scroll')||'0',10)}catch
 if(saved>0&&!location.hash){window.scrollTo(0,saved)}
 var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(function(){try{localStorage.setItem('ghl_scroll',String(window.scrollY))}catch(e){}},400);findCur();},{passive:true});
 })();
-(function(){var d=document.querySelector('details.tocm');if(d){function sync(){if(window.innerWidth>960){d.open=true;}}sync();window.addEventListener('resize',sync);}})();
+(function(){var d=document.querySelector('details.tocm');if(d){var wide=null;function sync(){var now=window.innerWidth>960;if(now!==wide){d.open=now;wide=now;}}sync();window.addEventListener('resize',sync);}})();
+(function(){var p=document.querySelector('.intro p');if(p&&p.firstChild&&p.firstChild.nodeType===3){p.firstChild.textContent=p.firstChild.textContent.replace('💜 ','');}})();
 </script>
 </body>
 </html>
