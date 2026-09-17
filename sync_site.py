@@ -32,9 +32,9 @@ if r.returncode == 0:
     run(["git", "push"])
     print("SYNC PUSHED")
     sys.exit(0)
-elif "nothing to commit" in (r.stdout + r.stderr):
+elif "nothing to commit" in (r.stdout + r.stderr) or "nothing added to commit" in (r.stdout + r.stderr):
     print("NO CHANGE")
-    sys.exit(0)   # 无变化=任务成功，退出码 0（修复任务计划"结果=1"误判）
+    sys.exit(0)   # 无变化=任务成功，退出码 0（修复任务计划"结果=1"误判；git 有 untracked 文件时报"nothing added to commit"）
 else:
     print(r.stdout, r.stderr)
     sys.exit(r.returncode)
