@@ -23,9 +23,11 @@ run(["lark-cli", "drive", "+export", "--url", DOC_URL,
      "--file-extension", "markdown", "--file-name", "guihailu.md", "--overwrite"], env=env)
 # 2) 构建
 run([sys.executable, "build_site.py"], env=env)
-# 3) git 提交推送（无变化则静默跳过；三资产必须与 index.html 同一次提交）
+# 3) 将需要登录的 Lark 图片镜像成公开静态资源
+run([sys.executable, "mirror_media.py"], env=env)
+# 4) git 提交推送（无变化则静默跳过；页面与资源必须同一次提交）
 run(["git", "add", "index.html", "guihailu.md", "build_site.py",
-     "sync_site.py", "style.css", "main.js"])
+     "sync_site.py", "mirror_media.py", "style.css", "main.js", "media"])
 r = subprocess.run(["git", "commit", "-m", "站点同步：归海录更新"],
                    cwd=HERE, capture_output=True, text=True)
 if r.returncode == 0:

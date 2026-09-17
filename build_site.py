@@ -141,7 +141,6 @@ def wrap_entries(b):
             f'<details class="entry" id="sec-{sid}">'
             f'<summary><h2>{title}</h2>{date_html}</summary>'
             f'<div class="entry-body">' + chunk + '</div></details>')
-    out.append(b[matches[-1].end():])
     return ''.join(out)
 
 body_html = wrap_entries(body_html)
