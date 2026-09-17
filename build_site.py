@@ -11,13 +11,22 @@ md = SRC.read_text(encoding="utf-8")
 # 1) 去掉 <title> 行
 md = re.sub(r"<title>.*?</title>\n", "", md)
 
-# 2) callout -> blockquote（每行加 "> "）
+# 2) callout -> blockquote（每行加 "> "；列表行前插空行防止与上文合并成段落）
 def callout_to_bq(m):
     emoji, body = m.group(1), m.group(2)
     lines = [f"> {emoji}"]
+    prev_list = False
     for l in body.split("\n"):
         l = l.rstrip()
-        lines.append(("> " + l) if l.strip() else ">")
+        if not l.strip():
+            lines.append(">")
+            prev_list = False
+            continue
+        is_list = l.strip().startswith("- ")
+        if is_list and not prev_list:
+            lines.append(">")
+        lines.append("> " + l)
+        prev_list = is_list
     return "\n".join(lines)
 
 md = re.sub(r'<callout emoji="([^"]+)">(.*?)</callout>', callout_to_bq, md, flags=re.S)
