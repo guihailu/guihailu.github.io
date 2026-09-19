@@ -259,7 +259,7 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
   .doctitle{padding:64px 22px 52px}.doctitle h1{gap:14px;font-size:44px;letter-spacing:.08em}
   .seal{width:36px;height:54px;border-radius:8px;font-size:18px}
   .doctitle .sub{margin-top:16px;font-size:12px;letter-spacing:.1em}.yt{margin-top:20px}
-  .intro{padding:42px 23px 38px;font-size:14.5px;line-height:1.95}.intro::before{margin-bottom:19px}.intro strong{font-size:16px}.intro .intro-copy{text-align:left}
+  .intro{padding:42px 23px 38px;font-size:14.5px;line-height:1.95}.intro::before{margin-bottom:19px}.intro strong{font-size:16px}.intro .intro-copy{text-align:center}
   .layout{padding:0 20px 84px}.tocm>summary{padding:14px 0}.entry>summary{column-gap:11px;padding:20px 0}
   .entry>summary h2{font-size:18px;line-height:1.65}.entry>summary .date{font-size:11.5px}
   .entry-body{padding-bottom:37px;font-size:16.5px;line-height:2.05}.entry-body h3{font-size:18px}
@@ -335,7 +335,7 @@ html = f"""<!DOCTYPE html>
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://guihailu.github.io/cover.jpg">
 <script>try{{if(localStorage.getItem('ghl_theme')==='dark')document.documentElement.classList.add('dark')}}catch(e){{}}</script>
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body id="top">
 <div id="progress"></div>
@@ -362,7 +362,7 @@ html = f"""<!DOCTYPE html>
   <button class="navbtn" id="toTop" aria-label="回到文档顶部">↑ 顶部</button>
 </div>
 <button id="toggle" aria-label="切换深浅色">🌙</button>
-<script src="main.js?v=3" defer></script>
+<script src="main.js?v=4" defer></script>
 </body>
 </html>"""
 
