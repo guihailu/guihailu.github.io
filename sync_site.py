@@ -13,8 +13,9 @@ def run(cmd, **kw):
         sys.exit(r.returncode)
 
 env = dict(os.environ)
-env.setdefault("HTTPS_PROXY", "http://127.0.0.1:11304")
-env.setdefault("HTTP_PROXY", "http://127.0.0.1:11304")
+# 本地代理 11304 已于 09-20 挂掉；Lark/git 均可直连，proxy 一律置空（代理恢复后可还原）
+env.setdefault("HTTPS_PROXY", "")
+env.setdefault("HTTP_PROXY", "")
 env["LARKSUITE_CLI_NO_UPDATE_NOTIFIER"] = "1"
 env["PYTHONIOENCODING"] = "utf-8"
 
