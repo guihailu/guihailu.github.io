@@ -335,7 +335,7 @@ html = f"""<!DOCTYPE html>
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://guihailu.github.io/cover.jpg">
 <script>try{{if(localStorage.getItem('ghl_theme')==='dark')document.documentElement.classList.add('dark')}}catch(e){{}}</script>
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.v5.css">
 </head>
 <body id="top">
 <div id="progress"></div>
@@ -362,13 +362,13 @@ html = f"""<!DOCTYPE html>
   <button class="navbtn" id="toTop" aria-label="回到文档顶部">↑ 顶部</button>
 </div>
 <button id="toggle" aria-label="切换深浅色">🌙</button>
-<script src="main.js?v=4" defer></script>
+<script src="main.v5.js" defer></script>
 </body>
 </html>"""
 
 # 三文件输出：LF 行尾；CSS/主 JS 外置，页头保留主题初始化内联脚本
-(HERE / "style.css").write_text(css, encoding="utf-8", newline="\n")
-(HERE / "main.js").write_text(js, encoding="utf-8", newline="\n")
+(HERE / "style.v5.css").write_text(css, encoding="utf-8", newline="\n")
+(HERE / "main.v5.js").write_text(js, encoding="utf-8", newline="\n")
 out = HERE / "index.html"
 out.write_text(html, encoding="utf-8", newline="\n")
-print(f"OK: index.html {out.stat().st_size} B | style.css {(HERE/'style.css').stat().st_size} B | main.js {(HERE/'main.js').stat().st_size} B")
+print(f"OK: index.html {out.stat().st_size} B | style.v5.css {(HERE/'style.v5.css').stat().st_size} B | main.v5.js {(HERE/'main.v5.js').stat().st_size} B")

@@ -27,7 +27,7 @@ run([sys.executable, "build_site.py"], env=env)
 run([sys.executable, "mirror_media.py"], env=env)
 # 4) git 提交推送（无变化则静默跳过；页面与资源必须同一次提交）
 run(["git", "add", "index.html", "guihailu.md", "build_site.py",
-     "sync_site.py", "mirror_media.py", "style.css", "main.js", "media"])
+     "sync_site.py", "mirror_media.py", "style.v5.css", "main.v5.js", "media"])
 r = subprocess.run(["git", "commit", "-m", "站点同步：归海录更新"],
                    cwd=HERE, capture_output=True, text=True, encoding="utf-8", errors="replace")
 if r.returncode == 0:
