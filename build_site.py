@@ -164,8 +164,10 @@ else:
 
 # 4.7) 文档自带的 💜 简介 callout -> 引言段落（去重：页面标题下不再重复放简介）
 def intro_repl(m):
-    inner = m.group(1).replace("此合集按时间倒序整理", "<br>此合集按时间倒序整理")
-    return f'<div class="intro"><p>💜 {inner}</p></div>'
+    title, _, body = m.group(1).partition('</strong>')
+    body = body.replace('每一段语音', '</p><p class="intro-copy">每一段语音', 1)
+    body = body.replace('此合集按时间倒序整理', '</p><p class="intro-note">此合集按时间倒序整理', 1)
+    return f'<div class="intro"><p class="intro-title">{title}</strong></p><p class="intro-copy">{body}</p></div>'
 
 body_html = re.sub(
     r'<blockquote>\s*<p>💜</p>\s*<p>(<strong>归海2026.*?)</p>\s*</blockquote>',
@@ -199,7 +201,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var
 .paper{background:var(--paper);min-height:60vh}
 .intro{max-width:700px;margin:0 auto;padding:88px 24px 78px;text-align:center;color:var(--muted);font-size:15px;line-height:2.05}
 .intro::before{content:"";display:block;width:38px;height:2px;margin:0 auto 25px;background:var(--gold)}
-.intro p{margin:0}.intro strong{display:block;margin-bottom:9px;color:var(--ink);font-size:17px;font-weight:600}
+.intro p{margin:0}.intro .intro-title{margin-bottom:16px}.intro strong{display:block;color:var(--ink);font-size:17px;font-weight:600}
+.intro .intro-copy+.intro-copy{margin-top:12px}.intro .intro-note{margin-top:18px;font-size:13px;line-height:1.8}
 .layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:clamp(32px,4vw,64px);align-items:start;max-width:1160px;margin:auto;padding:0 32px 128px}
 aside.toc{position:sticky;top:32px;max-height:calc(100vh - 64px);overflow-y:auto;scrollbar-width:thin}
 .tocm>summary{display:block;margin:0 0 18px;list-style:none;cursor:pointer;font-size:0;line-height:1.5}
@@ -252,7 +255,7 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
   .doctitle{padding:64px 22px 52px}.doctitle h1{gap:14px;font-size:44px;letter-spacing:.08em}
   .seal{width:36px;height:54px;border-radius:8px;font-size:18px}
   .doctitle .sub{margin-top:16px;font-size:12px;letter-spacing:.1em}.yt{margin-top:20px}
-  .intro{padding:42px 23px 38px;font-size:14.5px;line-height:1.95}.intro::before{margin-bottom:19px}.intro strong{margin-bottom:6px;font-size:16px}
+  .intro{padding:42px 23px 38px;font-size:14.5px;line-height:1.95}.intro::before{margin-bottom:19px}.intro strong{font-size:16px}.intro .intro-copy{text-align:left}
   .layout{padding:0 20px 84px}.tocm>summary{padding:14px 0}.entry>summary{column-gap:11px;padding:20px 0}
   .entry>summary h2{font-size:18px;line-height:1.65}.entry>summary .date{font-size:11.5px}
   .entry-body{padding-bottom:37px;font-size:16.5px;line-height:2.05}.entry-body h3{font-size:18px}
