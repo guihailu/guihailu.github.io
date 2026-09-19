@@ -61,9 +61,12 @@ html.dark .entry-body h3{color:#d68476}html.dark .entry-body h4{color:var(--gold
 footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:center;font-size:13px;letter-spacing:.05em;line-height:1.9}
 .flinks{margin-bottom:24px}.fbtn{display:inline-flex;align-items:center;justify-content:center;max-width:100%;margin:6px 9px;padding:10px 25px;border:1px solid var(--gold);border-radius:999px;color:var(--gold2);font-size:13px;font-weight:600;line-height:1.6;text-decoration:none;transition:background .2s,color .2s}
 .fbtn:hover{background:var(--gold2);color:var(--deep)}.fmeta{color:#a99d86}
-.navstack{position:fixed;right:22px;bottom:24px;z-index:98;display:flex;flex-direction:column;gap:10px}
-.navbtn,#toggle{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--gold);border-radius:50%;background:var(--deep);color:var(--gold2);font-size:17px;cursor:pointer;transition:background .2s,color .2s}
-.navbtn:hover,#toggle:hover{background:var(--gold2);color:var(--deep)}
+.navstack{position:fixed;right:22px;bottom:24px;z-index:98;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.navbtn{display:none;place-items:center;min-width:44px;height:44px;padding:0 16px;border:1px solid var(--gold);border-radius:999px;background:var(--deep);color:var(--gold2);font-size:14px;font-weight:600;line-height:1;cursor:pointer;transition:background .2s,color .2s}
+.navbtn.nav-on,#toTop{display:grid}
+.navbtn:hover{background:var(--gold2);color:var(--deep)}
+#toggle{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--gold);border-radius:50%;background:var(--deep);color:var(--gold2);font-size:17px;cursor:pointer;transition:background .2s,color .2s}
+#toggle:hover{background:var(--gold2);color:var(--deep)}
 #toggle{position:fixed;top:16px;right:18px;z-index:100}
 @media(max-width:960px){
   .layout{display:block;max-width:768px;padding:0 24px 96px}
@@ -86,7 +89,7 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
   .entry-body blockquote{padding-left:15px;font-size:15.5px}
   footer{padding:48px 20px 56px}.fbtn{display:flex;width:max-content;margin:10px auto}
   .navstack{right:12px;bottom:calc(16px + env(safe-area-inset-bottom));gap:8px}
-  .navbtn,#toggle{width:40px;height:40px;font-size:16px}#toggle{top:12px;right:12px}
+  .navbtn{min-width:40px;height:40px;padding:0 13px;font-size:13px}#toggle{width:40px;height:40px;font-size:16px;top:12px;right:12px}
 }
 @media(max-width:380px){.doctitle h1{font-size:42px}.doctitle .sub{letter-spacing:.05em}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important}}

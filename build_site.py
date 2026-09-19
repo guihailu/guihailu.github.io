@@ -237,9 +237,12 @@ html.dark .entry-body h3{color:#d68476}html.dark .entry-body h4{color:var(--gold
 footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:center;font-size:13px;letter-spacing:.05em;line-height:1.9}
 .flinks{margin-bottom:24px}.fbtn{display:inline-flex;align-items:center;justify-content:center;max-width:100%;margin:6px 9px;padding:10px 25px;border:1px solid var(--gold);border-radius:999px;color:var(--gold2);font-size:13px;font-weight:600;line-height:1.6;text-decoration:none;transition:background .2s,color .2s}
 .fbtn:hover{background:var(--gold2);color:var(--deep)}.fmeta{color:#a99d86}
-.navstack{position:fixed;right:22px;bottom:24px;z-index:98;display:flex;flex-direction:column;gap:10px}
-.navbtn,#toggle{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--gold);border-radius:50%;background:var(--deep);color:var(--gold2);font-size:17px;cursor:pointer;transition:background .2s,color .2s}
-.navbtn:hover,#toggle:hover{background:var(--gold2);color:var(--deep)}
+.navstack{position:fixed;right:22px;bottom:24px;z-index:98;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.navbtn{display:none;place-items:center;min-width:44px;height:44px;padding:0 16px;border:1px solid var(--gold);border-radius:999px;background:var(--deep);color:var(--gold2);font-size:14px;font-weight:600;line-height:1;cursor:pointer;transition:background .2s,color .2s}
+.navbtn.nav-on,#toTop{display:grid}
+.navbtn:hover{background:var(--gold2);color:var(--deep)}
+#toggle{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--gold);border-radius:50%;background:var(--deep);color:var(--gold2);font-size:17px;cursor:pointer;transition:background .2s,color .2s}
+#toggle:hover{background:var(--gold2);color:var(--deep)}
 #toggle{position:fixed;top:16px;right:18px;z-index:100}
 @media(max-width:960px){
   .layout{display:block;max-width:768px;padding:0 24px 96px}
@@ -262,7 +265,7 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
   .entry-body blockquote{padding-left:15px;font-size:15.5px}
   footer{padding:48px 20px 56px}.fbtn{display:flex;width:max-content;margin:10px auto}
   .navstack{right:12px;bottom:calc(16px + env(safe-area-inset-bottom));gap:8px}
-  .navbtn,#toggle{width:40px;height:40px;font-size:16px}#toggle{top:12px;right:12px}
+  .navbtn{min-width:40px;height:40px;padding:0 13px;font-size:13px}#toggle{width:40px;height:40px;font-size:16px;top:12px;right:12px}
 }
 @media(max-width:380px){.doctitle h1{font-size:42px}.doctitle .sub{letter-spacing:.05em}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important}}
@@ -289,14 +292,31 @@ document.querySelectorAll('.entry summary').forEach(function(s){
 });
 function findCur(){var best=null;document.querySelectorAll('.entry').forEach(function(e){var r=e.getBoundingClientRect();if(r.top<=120){best=e;}});if(best){cur=best.id;var a=document.querySelector('.toc a[href="#'+cur+'"]');if(a&&!a.classList.contains('here')){document.querySelectorAll('.toc a.here').forEach(function(x){x.classList.remove('here')});a.classList.add('here');}}return cur;}
 document.getElementById('toTop').addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
+function curOpenArticle(){
+  // 当前文章 = 已展开(details[open])且其标题已滚出视口上方的卡片；取距视口顶最近的一张
+  var best=null;
+  document.querySelectorAll('.entry[open]').forEach(function(e){
+    var s=e.querySelector('summary');
+    if(!s)return;
+    var b=s.getBoundingClientRect().bottom;
+    if(b<=0&&(!best||b>best.b)){best={id:e.id,b:b};}
+  });
+  return best?best.id:null;
+}
+function updateNav(){
+  var btn=document.getElementById('toReading');
+  if(!btn)return;
+  if(curOpenArticle()){btn.classList.add('nav-on');}else{btn.classList.remove('nav-on');}
+}
 document.getElementById('toReading').addEventListener('click',function(){
-  var id=cur||findCur();
-  if(id){var el=document.getElementById(id);if(el){window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-16,behavior:'smooth'});return;}}
+  var id=curOpenArticle();
+  if(id){var el=document.getElementById(id);if(el){var s=el.querySelector('summary');window.scrollTo({top:s.getBoundingClientRect().top+window.scrollY-16,behavior:'smooth'});return;}}
   window.scrollTo({top:0,behavior:'smooth'});
 });
+document.addEventListener('toggle',function(ev){if(ev.target&&ev.target.classList&&ev.target.classList.contains('entry')){updateNav();}},true);
 var saved=0;try{saved=parseInt(localStorage.getItem('ghl_scroll')||'0',10)}catch(e){}
 if(saved>0&&!location.hash){window.scrollTo(0,saved)}
-var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(function(){try{localStorage.setItem('ghl_scroll',String(window.scrollY))}catch(e){}},400);findCur();},{passive:true});
+var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(function(){try{localStorage.setItem('ghl_scroll',String(window.scrollY))}catch(e){}},400);findCur();updateNav();},{passive:true});
 })();
 (function(){var d=document.querySelector('details.tocm');if(d){var wide=null;function sync(){var now=window.innerWidth>960;if(now!==wide){d.open=now;wide=now;}}sync();window.addEventListener('resize',sync);}})();
 (function(){var p=document.querySelector('.intro p');if(p&&p.firstChild&&p.firstChild.nodeType===3){p.firstChild.textContent=p.firstChild.textContent.replace('💜 ','');}})();
@@ -337,8 +357,8 @@ html = f"""<!DOCTYPE html>
   <div class="fmeta">归海录 · 持续更新中 ｜ 更新日期：2026-09-15</div>
 </footer>
 <div class="navstack">
-  <button class="navbtn" id="toReading" title="回到当前阅读标题" aria-label="回到当前阅读标题">📖</button>
-  <button class="navbtn" id="toTop" title="回到文档顶部" aria-label="回到文档顶部">↑</button>
+  <button class="navbtn" id="toReading" aria-label="回到本篇开头">↩ 本篇开头</button>
+  <button class="navbtn" id="toTop" aria-label="回到文档顶部">↑ 顶部</button>
 </div>
 <button id="toggle" aria-label="切换深浅色">🌙</button>
 <script src="main.js" defer></script>
