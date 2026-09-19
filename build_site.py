@@ -11,6 +11,15 @@ md = SRC.read_text(encoding="utf-8")
 # 1) 去掉 <title> 行
 md = re.sub(r"<title>.*?</title>\n", "", md)
 
+# 1.5) 前置元数据清理（09-19 Eli 令）：以下三类块在 Lark 中位于条目标题之前，
+# 站点卡片切分时会落入前一张卡片尾部造成孤行/错位——构建时跳过，不碰 Lark 源、不改文字。
+# ① 日期头 h2（与各条目 📌 callout 内容重复）
+md = re.sub(r'^## 日期不详 · 师父内部开示\n+', '', md, flags=re.M)
+# ② 「主题：」裸行（条目 h1 标题已含主题）
+md = re.sub(r'^主题：[^\n]+\n+', '', md, flags=re.M)
+# ③ 💜 前置日期 callout（「日期行+主题行」形态；正文/前言中的 💜 不含日期行，不匹配）
+md = re.sub(r'<callout emoji="💜">\n\*\*20\d{2}-\d{2}-\d{2}[^*]*\*\*\n\*\*主题：[^*]*\*\*\n</callout>\n*', '', md)
+
 # 2) callout -> blockquote（每行加 "> "；列表行前插空行防止与上文合并成段落）
 def callout_to_bq(m):
     emoji, body = m.group(1), m.group(2)
