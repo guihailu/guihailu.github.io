@@ -64,7 +64,6 @@
 - [九字箴言（七字进阶版：加上因果与合道） ｜ 日期不详](https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf#doxjp8UfpFN55jN5YRzU0GbwoXc)
 - [Ⅰ. 规则、怀疑与笃定 ｜ 日期不详](https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf#doxjpN0l1v1VJWyXRLbTYseB3zh)
 - [师父关于“学习/教育”的教导 ｜ 日期不详](https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf#doxjpBkmIp7N18ic5Tuc5tnKpYb)
-- [《高定法器与优先级》 ｜ 日期不详](https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf#doxjpgS0LPmKjOWQFhW1yV5PZoc)
 - [阴债 > 普通法器＋仙符 > 高定法器 ｜ 日期不详](https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf#doxjpeMue5VMfpziaz7ZHOTV2Ug)
 - [人间的“定义” ｜ 日期不详](https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf#doxjpkMLc6IqTe60yiXmmRLMmXb)
 - [近期修行困惑与个人修行历程分享会 ｜ 日期不详](https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf#doxjpRXqtDsSZflEt4Z9r8j8lRf)
@@ -8129,20 +8128,6 @@ PS:如何提升效率:
 - **美术联考**——即美术类省级统考，由各省组织的专业基础统一考试，成绩作为艺术类院校录取的专业依据。
 - **福报**——佛教用语，指善行所感得的福乐果报。
 </callout>
-
-# 《高定法器与优先级》
-
-<callout emoji="📌">
-**日期不详 · 师父内部开示**
-</callout>
-
----
-
-<callout emoji="📢">
-本精读笔记转格式自师父语录 Wiki，现有证据无法核定发布日期。版权归属：志远行空｜归海录。
-</callout>
-
-## 日期不详 · 师父内部开示
 
 # 阴债 > 普通法器＋仙符 > 高定法器
 
