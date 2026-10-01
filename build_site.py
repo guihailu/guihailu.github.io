@@ -20,6 +20,11 @@ md = re.sub(r'^主题：[^\n]+\n+', '', md, flags=re.M)
 # ③ 💜 前置日期 callout（「日期行+主题行」形态；正文/前言中的 💜 不含日期行，不匹配）
 md = re.sub(r'<callout emoji="💜">\n\*\*20\d{2}-\d{2}-\d{2}[^*]*\*\*\n\*\*主题：[^*]*\*\*\n</callout>\n*', '', md)
 
+# 1.7) 简介结缘语（🌿…🌹）：保证独立段落与三行换行——Lark 的 <br/> 在 callout→blockquote 的 rstrip 下会丢，这里显式补回
+md = md.replace('持续更新。\n🌿 学到知识以后', '持续更新。\n\n🌿 学到知识以后')
+md = md.replace('缘分。  \n这是对善知识的回应', '缘分。<br>\n这是对善知识的回应')
+md = md.replace('善链接。  \n能够帮助您', '善链接。<br>\n能够帮助您')
+
 # 2) callout -> blockquote（每行加 "> "；列表行前插空行防止与上文合并成段落）
 def callout_to_bq(m):
     emoji, body = m.group(1), m.group(2)
@@ -176,10 +181,12 @@ def intro_repl(m):
     title, _, body = m.group(1).partition('</strong>')
     body = body.replace('每一段语音', '</p><p class="intro-copy">每一段语音', 1)
     body = body.replace('此合集按时间倒序整理', '</p><p class="intro-note">此合集按时间倒序整理', 1)
-    return f'<div class="intro"><p class="intro-title">{title}</strong></p><p class="intro-copy">{body}</p></div>'
+    extra = (m.group(2) or '').strip()
+    extra_html = f'<p class="intro-copy">{extra}</p>' if extra else ''
+    return f'<div class="intro"><p class="intro-title">{title}</strong></p><p class="intro-copy">{body}</p>{extra_html}</div>'
 
 body_html = re.sub(
-    r'<blockquote>\s*<p>💜</p>\s*<p>(<strong>归海2026.*?)</p>\s*</blockquote>',
+    r'<blockquote>\s*<p>💜</p>\s*<p>(<strong>归海2026.*?)</p>\s*(?:<p>(.*?)</p>\s*)?</blockquote>',
     intro_repl, body_html, count=1, flags=re.S)
 
 # 5) 组装 index.html（Apple CN 排版 + Medium 阅读 + 侧栏目录）
@@ -211,7 +218,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var
 .intro{max-width:700px;margin:0 auto;padding:88px 24px 78px;text-align:center;color:var(--muted);font-size:15px;line-height:2.05}
 .intro::before{content:"";display:block;width:38px;height:2px;margin:0 auto 25px;background:var(--gold)}
 .intro p{margin:0}.intro .intro-title{margin-bottom:16px}.intro strong{display:block;color:var(--ink);font-size:17px;font-weight:600}
-.intro .intro-copy+.intro-copy{margin-top:12px}.intro .intro-note{margin-top:18px;font-size:13px;line-height:1.8}
+.intro .intro-copy+.intro-copy{margin-top:12px}.intro .intro-note{margin-top:18px;font-size:13px;line-height:1.8}.intro .intro-note+.intro-copy{margin-top:16px}
 .layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:clamp(32px,4vw,64px);align-items:start;max-width:1160px;margin:auto;padding:0 32px 128px}
 aside.toc{position:sticky;top:32px;max-height:calc(100vh - 64px);overflow-y:auto;scrollbar-width:thin}
 .tocm>summary{display:block;margin:0 0 18px;list-style:none;cursor:pointer;font-size:0;line-height:1.5}

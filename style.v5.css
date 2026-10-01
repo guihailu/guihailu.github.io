@@ -26,7 +26,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var
 .intro{max-width:700px;margin:0 auto;padding:88px 24px 78px;text-align:center;color:var(--muted);font-size:15px;line-height:2.05}
 .intro::before{content:"";display:block;width:38px;height:2px;margin:0 auto 25px;background:var(--gold)}
 .intro p{margin:0}.intro .intro-title{margin-bottom:16px}.intro strong{display:block;color:var(--ink);font-size:17px;font-weight:600}
-.intro .intro-copy+.intro-copy{margin-top:12px}.intro .intro-note{margin-top:18px;font-size:13px;line-height:1.8}
+.intro .intro-copy+.intro-copy{margin-top:12px}.intro .intro-note{margin-top:18px;font-size:13px;line-height:1.8}.intro .intro-note+.intro-copy{margin-top:16px}
 .layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:clamp(32px,4vw,64px);align-items:start;max-width:1160px;margin:auto;padding:0 32px 128px}
 aside.toc{position:sticky;top:32px;max-height:calc(100vh - 64px);overflow-y:auto;scrollbar-width:thin}
 .tocm>summary{display:block;margin:0 0 18px;list-style:none;cursor:pointer;font-size:0;line-height:1.5}
