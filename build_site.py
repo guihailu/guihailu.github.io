@@ -14,7 +14,7 @@ md = re.sub(r"<title>.*?</title>\n", "", md)
 # 1.5) 前置元数据清理（09-19 Eli 令）：以下三类块在 Lark 中位于条目标题之前，
 # 站点卡片切分时会落入前一张卡片尾部造成孤行/错位——构建时跳过，不碰 Lark 源、不改文字。
 # ① 日期头 h2（与各条目 📌 callout 内容重复）
-md = re.sub(r'^## 日期不详 · 师父内部开示\n+', '', md, flags=re.M)
+md = re.sub(r'^## 日期不详 · 内部分享\n+', '', md, flags=re.M)
 # ② 「主题：」裸行（条目 h1 标题已含主题）
 md = re.sub(r'^主题：[^\n]+\n+', '', md, flags=re.M)
 # ③ 💜 前置日期 callout（「日期行+主题行」形态；正文/前言中的 💜 不含日期行，不匹配）
@@ -42,7 +42,16 @@ md = re.sub(r'<callout emoji="([^"]+)">(.*?)</callout>', callout_to_bq, md, flag
 
 # 2.5) 去除「日期不详」标记（Eli 09-15 定：早期文档不再标注）
 md = md.replace(" ｜ 日期不详", "")
-md = md.replace("日期不详 · 师父内部开示", "师父内部开示")
+md = md.replace("日期不详 · 内部分享", "内部分享")
+
+# 2.6) 合并相邻同 URL 的链接段（此前对 TOC 链接文本做 str_replace 时，
+# Lark 会把一段链接拆成多段同 URL 链接；此处规范化回单段，保住 TOC 解析）
+merge_seg = re.compile(r'\[([^\]]*)\]\((https://[^)]+)\)\[([^\]]*)\]\(\2\)')
+while True:
+    md2 = merge_seg.sub(r'[\1\3](\2)', md)
+    if md2 == md:
+        break
+    md = md2
 
 # 3) 收集 TOC 条目与正文标题，建立锚点映射（精确匹配优先，其次公共前缀>=6字）
 toc_pat = re.compile(r'^- \[([^\]]+)\]\(https://[^)]+#(doxjp\w+)\)', re.M)
@@ -328,10 +337,10 @@ html = f"""<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>📿 归海录 · 师父志远行空的开示合集</title>
-<meta name="description" content="归海录：师父志远行空的每日开示与 YouTube 视频讲法合集——每一段语音，一个故事，一个道理，润物无声。按时间倒序，持续更新。">
-<meta property="og:title" content="📿 归海录 · 师父志远行空的开示合集">
-<meta property="og:description" content="师父志远行空的每日开示与 YouTube 视频讲法合集。因果、修行、认知、人间智慧——百川归海，智慧汇流。">
+<title>📿 归海录 · 志远行空</title>
+<meta name="description" content="归海录：志远行空的日常分享与 YouTube 视频讲法合集——每一段语音，一个故事，一个道理，润物无声。按时间倒序，持续更新。">
+<meta property="og:title" content="📿 归海录 · 志远行空">
+<meta property="og:description" content="志远行空的日常分享与 YouTube 视频讲法合集。因果、修行、认知、人间智慧——百川归海，智慧汇流。">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://guihailu.github.io/cover.jpg">
 <script>try{{if(localStorage.getItem('ghl_theme')==='dark')document.documentElement.classList.add('dark')}}catch(e){{}}</script>
@@ -342,7 +351,7 @@ html = f"""<!DOCTYPE html>
 <header class="hero">
   <div class="doctitle">
     <div class="titleline"><h1>归海录<span class="seal" aria-hidden="true">归<br>海</span></h1></div>
-    <p class="sub">归海2026 · 师父志远行空的开示合集</p>
+    <p class="sub">归海2026 · 志远行空</p>
     <a class="yt" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ YouTube</a>
   </div>
 </header>
@@ -351,7 +360,7 @@ html = f"""<!DOCTYPE html>
 </div>
 <footer>
   <div class="flinks">
-    <a class="fbtn" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ 师父 YouTube 频道</a>
+    <a class="fbtn" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ 志远行空 YouTube 频道</a>
     <a class="fbtn" href="https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a>
     <a class="fbtn" href="https://www.oceanwards.com/" target="_blank" rel="noopener">🌊 归海论坛</a>
   </div>
