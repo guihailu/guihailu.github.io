@@ -28,7 +28,7 @@ def local_image(token):
     with tempfile.TemporaryDirectory(prefix="lark-media-", dir=HERE) as directory:
         temporary = pathlib.Path(directory)
         result = subprocess.run(
-            ["lark-cli", "docs", "+media-download", "--token", token,
+            ["lark-cli", "--profile", "qinglai", "docs", "+media-download", "--token", token,
              "--output", "./source", "--overwrite"],
             cwd=temporary, capture_output=True, text=True,
             shell=os.name == "nt", encoding="utf-8", errors="replace",

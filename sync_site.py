@@ -19,8 +19,8 @@ env.setdefault("HTTP_PROXY", "")
 env["LARKSUITE_CLI_NO_UPDATE_NOTIFIER"] = "1"
 env["PYTHONIOENCODING"] = "utf-8"
 
-# 1) 导出 Lark 文档
-run(["lark-cli", "drive", "+export", "--url", DOC_URL,
+# 1) 导出 Lark 文档（10 月：--profile qinglai 经新号清籁读取；主号 API 额度冻结）
+run(["lark-cli", "--profile", "qinglai", "drive", "+export", "--url", DOC_URL,
      "--file-extension", "markdown", "--file-name", "guihailu.md", "--overwrite"], env=env)
 # 2) 构建
 run([sys.executable, "build_site.py"], env=env)
