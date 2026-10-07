@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """归海录静态站构建：guihailu.md -> index.html（pandoc 转换）
 设计语言（照抄顶级站手法）：Apple CN 超大标题+留白 / Medium 衬线窄栏阅读 / VitePress 侧栏目录"""
-import re, pathlib, subprocess, sys
+import re, pathlib, subprocess, sys, json, hashlib
 
 HERE = pathlib.Path(__file__).parent
 SRC = HERE / "guihailu.md"
@@ -286,6 +286,26 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 }
 @media(max-width:380px){.doctitle h1{font-size:42px}.doctitle .sub{letter-spacing:.05em}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important}}
+/* ---- 全文检索（10-07 新增）：搜索条 + 结果面板 ---- */
+.searchbar{background:var(--deep);padding:0 24px 64px}
+.searchwrap{position:relative;max-width:700px;margin:0 auto}
+#q{width:100%;height:46px;padding:0 18px;border:1px solid var(--gold);border-radius:999px;background:rgba(250,248,241,.05);color:#faf8f1;font-size:14.5px;letter-spacing:.02em;outline:none;-webkit-appearance:none;appearance:none}
+#q::placeholder{color:#9d927c}
+#q:focus{background:rgba(250,248,241,.09);border-color:var(--gold2)}
+#q::-webkit-search-cancel-button{filter:invert(.8)}
+#qres{display:none;position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:60;max-height:60vh;overflow:auto;-webkit-overflow-scrolling:touch;background:#101a2e;border:1px solid rgba(178,139,74,.45);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.45);text-align:left}
+#qres.on{display:block}
+.qcount{padding:9px 14px;border-bottom:1px solid rgba(178,139,74,.2);color:#c8baa0;font-size:12px}
+.qitem{padding:11px 14px;border-bottom:1px solid rgba(178,139,74,.14);cursor:pointer}
+.qitem:last-child{border-bottom:0}
+.qitem:hover{background:rgba(178,139,74,.08)}
+.qhead{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px}
+.qt{color:#faf8f1;font-size:14.5px;font-weight:600;line-height:1.6}
+.qd{color:#c8baa0;font-size:11.5px}
+.qs{margin-top:3px;color:#b9b1a0;font-size:12.5px;line-height:1.7}
+#qres mark{background:rgba(217,184,120,.35);color:#f3e9d2;border-radius:2px;padding:0 1px}
+.qnone{padding:14px;color:#c8baa0;font-size:13.5px}
+@media(max-width:640px){.searchbar{padding:0 20px 46px}#q{height:44px;font-size:14px}#qres{max-height:55vh}.qt{font-size:14px}.qs{font-size:12px}}
 """
 
 js = """
@@ -337,6 +357,24 @@ var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout
 })();
 (function(){var d=document.querySelector('details.tocm');if(d){var wide=null;function sync(){var now=window.innerWidth>960;if(now!==wide){d.open=now;wide=now;}}sync();window.addEventListener('resize',sync);}})();
 (function(){var p=document.querySelector('.intro p');if(p&&p.firstChild&&p.firstChild.nodeType===3){p.firstChild.textContent=p.firstChild.textContent.replace('💜 ','');}})();
+/* ---- 全文检索（10-07 新增）：即时过滤 + 点击展开定位 ---- */
+(function(){var box=document.getElementById('q'),res=document.getElementById('qres');if(!box||!res)return;var idx=null;
+var p=(window.__GHL_INDEX__)?Promise.resolve(window.__GHL_INDEX__):fetch('search_index.json').then(function(r){if(!r.ok)throw 0;return r.json()}).catch(function(){return{entries:[],count:0,err:1}});
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function mark(s,q){var i=String(s).toLowerCase().indexOf(q.toLowerCase());if(i<0)return esc(s);return esc(String(s).slice(0,i))+'<mark>'+esc(String(s).slice(i,i+q.length))+'</mark>'+esc(String(s).slice(i+q.length));}
+function snip(t,q){t=String(t);var i=t.toLowerCase().indexOf(q.toLowerCase());var s=i<0?0:Math.max(0,i-15);return (s>0?'…':'')+t.slice(s,s+60)+(t.length>s+60?'…':'');}
+function render(q){q=q.trim();if(!q){res.classList.remove('on');res.innerHTML='';return;}
+p.then(function(j){if(j)idx=j;var es=(idx&&idx.entries)||[];
+if(idx&&idx.err){res.innerHTML='<div class="qnone">检索数据加载失败，刷新页面重试</div>';res.classList.add('on');return;}
+var ql=q.toLowerCase(),out=[];for(var i=0;i<es.length;i++){var e=es[i];if((e.title||'').toLowerCase().indexOf(ql)>-1||(e.text||'').toLowerCase().indexOf(ql)>-1)out.push(e);}
+if(!out.length){res.innerHTML='<div class="qnone">没有找到与「'+esc(q)+'」相关的内容</div>';}
+else{var h='<div class="qcount">'+out.length+' 条结果</div>';for(var k=0;k<out.length;k++){var e2=out[k];h+='<div class="qitem" data-id="'+e2.id+'"><div class="qhead"><span class="qt">'+mark(e2.title||'',q)+'</span><span class="qd">'+esc(e2.date||'')+'</span></div><div class="qs">'+mark(snip(e2.text||'',q),q)+'</div></div>';}res.innerHTML=h;}
+res.classList.add('on');});}
+box.addEventListener('input',function(){render(box.value)});
+box.addEventListener('focus',function(){if(box.value.trim())render(box.value)});
+res.addEventListener('click',function(ev){var n=ev.target;while(n&&n!==res&&!(n.classList&&n.classList.contains('qitem')))n=n.parentNode;if(!n||n===res)return;var id=n.getAttribute('data-id');res.classList.remove('on');var a=document.querySelector('.toc a[href="#'+id+'"]');if(a)a.click();var el=document.getElementById(id);if(el){setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},60);}});
+document.addEventListener('click',function(ev){var n=ev.target;while(n){if(n.classList&&n.classList.contains('searchbar'))return;n=n.parentNode;}res.classList.remove('on');});
+})();
 """
 
 html = f"""<!DOCTYPE html>
@@ -362,6 +400,7 @@ html = f"""<!DOCTYPE html>
     <a class="yt" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ YouTube</a>
   </div>
 </header>
+<div class="searchbar"><div class="searchwrap"><input id="q" type="search" placeholder="搜索全文…" autocomplete="off" aria-label="搜索全文"><div id="qres"></div></div></div>
 <div class="paper">
 {body_html}
 </div>
@@ -370,6 +409,7 @@ html = f"""<!DOCTYPE html>
     <a class="fbtn" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ 志远行空 YouTube 频道</a>
     <a class="fbtn" href="https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a>
     <a class="fbtn" href="https://www.oceanwards.com/" target="_blank" rel="noopener">🌊 归海论坛</a>
+    <a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>
   </div>
   <div class="fmeta">归海录 · 持续更新中 ｜ 更新日期：2026-09-15</div>
 </footer>
@@ -387,4 +427,67 @@ html = f"""<!DOCTYPE html>
 (HERE / "main.v5.js").write_text(js, encoding="utf-8", newline="\n")
 out = HERE / "index.html"
 out.write_text(html, encoding="utf-8", newline="\n")
+
+# 6) 全文检索索引 + 离线单文件版（10-07 新增；失败不阻塞主链路，退出码仍 0）
+def _note(msg):
+    with open(HERE / "sync_log.txt", "a", encoding="utf-8") as f:
+        f.write(msg + "\n")
+
+def _plain(s):
+    s = re.sub(r'<[^>]+>', ' ', s or '')
+    s = (s.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
+           .replace('&quot;', '"').replace('&#39;', "'"))
+    return re.sub(r'\s+', ' ', s).strip()
+
+try:
+    _items = []
+    for m in re.finditer(r'<details class="entry" id="(sec-\d+)">(.*?)</details>', body_html, re.S):
+        sid, blk = m.group(1), m.group(2)
+        tm = re.search(r'<h2>(.*?)</h2>', blk, re.S)
+        dm = re.search(r'<span class="date">(.*?)</span>', blk, re.S)
+        bm = re.search(r'<div class="entry-body">(.*)$', blk, re.S)
+        _title = _plain(tm.group(1) if tm else '')
+        _date = _plain(dm.group(1) if dm else '').replace('📌', '').strip()
+        _text = _plain(bm.group(1) if bm else '')
+        if sid and _title:
+            _items.append({"id": sid, "title": _title, "date": _date, "text": _text})
+    _fp = hashlib.sha256(json.dumps(_items, ensure_ascii=False, sort_keys=True,
+                                    separators=(',', ':')).encode('utf-8')).hexdigest()[:12]
+    _idx_json = json.dumps({"generated": _fp, "count": len(_items), "entries": _items},
+                           ensure_ascii=False, separators=(',', ':'))
+    (HERE / "search_index.json").write_text(_idx_json + "\n", encoding="utf-8", newline="\n")
+    print(f"OK: search_index.json {len(_items)} entries, fingerprint {_fp}")
+except Exception as e:
+    _note("WARN search_index 生成失败: %r" % (e,))
+    print("WARN: search_index.json 生成失败:", e)
+
+try:
+    _off = html.replace('<link rel="stylesheet" href="style.v5.css">',
+                        "<style>\n" + css + "</style>", 1)
+    if '<style>' not in _off:
+        raise ValueError('style 内联替换失败')
+    _off = _off.replace('<script src="main.v5.js" defer></script>',
+                        '<script>window.__GHL_INDEX__=' + _idx_json.replace('</', '<\\/') + ';</script>\n<script>' + js + '</script>', 1)
+    if 'window.__GHL_INDEX__=' not in _off:
+        raise ValueError('js 内联替换失败')
+    _dl = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
+    if _dl not in _off:
+        raise ValueError('下载入口锚点缺失')
+    _off = _off.replace(_dl, '<span class="fbtn">📥 本页即离线版</span>', 1)
+    # 离线版图片走在线链接：feishu 原链 → 站点已镜像的公开图（与 mirror_media 同源缓存；
+    # 未命中则保留原链回落，不下载、不阻塞）
+    _resolved = 0
+    for _tok in dict.fromkeys(re.findall(r'https://feishu\.cn/file/([A-Za-z0-9]+)', _off)):
+        _stem = hashlib.sha256(_tok.encode('ascii')).hexdigest()[:20]
+        _cand = [p for p in (HERE / "media").glob(_stem + '.*')
+                 if p.suffix.lower() in {'.png', '.jpg', '.jpeg', '.webp', '.gif'}]
+        if len(_cand) == 1:
+            _off = _off.replace('https://feishu.cn/file/' + _tok,
+                                'https://guihailu.github.io/media/' + _cand[0].name)
+            _resolved += 1
+    (HERE / "归海录_离线版.html").write_text(_off, encoding="utf-8", newline="\n")
+    print(f"OK: 归海录_离线版.html {(HERE/'归海录_离线版.html').stat().st_size} B | 在线图 {_resolved} 张")
+except Exception as e:
+    _note("WARN 离线版生成失败: %r" % (e,))
+    print("WARN: 归海录_离线版.html 生成失败:", e)
 print(f"OK: index.html {out.stat().st_size} B | style.v5.css {(HERE/'style.v5.css').stat().st_size} B | main.v5.js {(HERE/'main.v5.js').stat().st_size} B")

@@ -47,3 +47,21 @@ var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout
 })();
 (function(){var d=document.querySelector('details.tocm');if(d){var wide=null;function sync(){var now=window.innerWidth>960;if(now!==wide){d.open=now;wide=now;}}sync();window.addEventListener('resize',sync);}})();
 (function(){var p=document.querySelector('.intro p');if(p&&p.firstChild&&p.firstChild.nodeType===3){p.firstChild.textContent=p.firstChild.textContent.replace('💜 ','');}})();
+/* ---- 全文检索（10-07 新增）：即时过滤 + 点击展开定位 ---- */
+(function(){var box=document.getElementById('q'),res=document.getElementById('qres');if(!box||!res)return;var idx=null;
+var p=(window.__GHL_INDEX__)?Promise.resolve(window.__GHL_INDEX__):fetch('search_index.json').then(function(r){if(!r.ok)throw 0;return r.json()}).catch(function(){return{entries:[],count:0,err:1}});
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function mark(s,q){var i=String(s).toLowerCase().indexOf(q.toLowerCase());if(i<0)return esc(s);return esc(String(s).slice(0,i))+'<mark>'+esc(String(s).slice(i,i+q.length))+'</mark>'+esc(String(s).slice(i+q.length));}
+function snip(t,q){t=String(t);var i=t.toLowerCase().indexOf(q.toLowerCase());var s=i<0?0:Math.max(0,i-15);return (s>0?'…':'')+t.slice(s,s+60)+(t.length>s+60?'…':'');}
+function render(q){q=q.trim();if(!q){res.classList.remove('on');res.innerHTML='';return;}
+p.then(function(j){if(j)idx=j;var es=(idx&&idx.entries)||[];
+if(idx&&idx.err){res.innerHTML='<div class="qnone">检索数据加载失败，刷新页面重试</div>';res.classList.add('on');return;}
+var ql=q.toLowerCase(),out=[];for(var i=0;i<es.length;i++){var e=es[i];if((e.title||'').toLowerCase().indexOf(ql)>-1||(e.text||'').toLowerCase().indexOf(ql)>-1)out.push(e);}
+if(!out.length){res.innerHTML='<div class="qnone">没有找到与「'+esc(q)+'」相关的内容</div>';}
+else{var h='<div class="qcount">'+out.length+' 条结果</div>';for(var k=0;k<out.length;k++){var e2=out[k];h+='<div class="qitem" data-id="'+e2.id+'"><div class="qhead"><span class="qt">'+mark(e2.title||'',q)+'</span><span class="qd">'+esc(e2.date||'')+'</span></div><div class="qs">'+mark(snip(e2.text||'',q),q)+'</div></div>';}res.innerHTML=h;}
+res.classList.add('on');});}
+box.addEventListener('input',function(){render(box.value)});
+box.addEventListener('focus',function(){if(box.value.trim())render(box.value)});
+res.addEventListener('click',function(ev){var n=ev.target;while(n&&n!==res&&!(n.classList&&n.classList.contains('qitem')))n=n.parentNode;if(!n||n===res)return;var id=n.getAttribute('data-id');res.classList.remove('on');var a=document.querySelector('.toc a[href="#'+id+'"]');if(a)a.click();var el=document.getElementById(id);if(el){setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},60);}});
+document.addEventListener('click',function(ev){var n=ev.target;while(n){if(n.classList&&n.classList.contains('searchbar'))return;n=n.parentNode;}res.classList.remove('on');});
+})();
