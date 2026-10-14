@@ -38,7 +38,8 @@ aside.toc{position:sticky;top:32px;max-height:calc(100vh - 64px);overflow-y:auto
 .toc a.done::after{content:" ✓";color:var(--cin);font-size:11px}
 main.content{min-width:0;max-width:720px;width:100%;justify-self:center}
 .entry{margin:0;border-bottom:1px solid var(--line);scroll-margin-top:24px}
-.entry:first-child{border-top:1px solid var(--line)}
+.entry:first-of-type{border-top:1px solid var(--line)}
+.lanchor{display:block;width:0;height:0;overflow:hidden;scroll-margin-top:24px}
 .entry>summary{display:grid;grid-template-columns:18px minmax(0,1fr);column-gap:16px;align-items:start;padding:27px 0;list-style:none;cursor:pointer}
 .entry>summary::before{content:"+";grid-column:1;grid-row:1;color:var(--gold);font-size:20px;font-weight:300;line-height:1.55}
 .entry[open]>summary::before{content:"−"}

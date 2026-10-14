@@ -80,12 +80,40 @@ def common_prefix(a, b):
             break
     return n
 
-sec_of_title = {}   # 标题原文 -> sec id
+# 3.1) 永久 ID 注册表（10-14 迁移）：键=doxjp block id，值=ghl-NNNNNN；只增不删不重用；内容决定、幂等
+IDMAP_F = HERE / "id_map.json"
+LEGACY_F = HERE / "legacy_anchors.json"
+id_map = {}
+if IDMAP_F.exists():
+    try:
+        id_map = json.loads(IDMAP_F.read_text(encoding="utf-8"))
+    except Exception as e:
+        print("WARN id_map.json 解析失败，按空表处理:", e)
+        id_map = {}
+_maxnum = 0
+for _v in id_map.values():
+    _m = re.fullmatch(r"ghl-(\d+)", str(_v or ""))
+    if _m:
+        _maxnum = max(_maxnum, int(_m.group(1)))
+_legacy_existed = LEGACY_F.exists()
+migration_legacy = {}
+print(f"永久ID: 注册表 {len(id_map)} 条（最大号 ghl-{_maxnum:06d}）｜legacy {'已读取（冻结）' if _legacy_existed else '待生成（迁移首跑）'}")
+
+id_of_title = {}   # 标题原文 -> 永久 id（ghl-NNNNNN）
 used = set()
 unmatched = []
+_seen_bids = set()
 for i, (text, bid) in enumerate(toc_items, 1):
     t = norm(text.split(" ｜ ")[0].strip())
-    sid = f"sec-{i:02d}"
+    # 永久 ID：以 doxjp 为键发号/取号（新键=当前最大+1，只增不删不重用）
+    if bid in _seen_bids:
+        print("  WARN 目录重复 doxjp:", bid)
+    _seen_bids.add(bid)
+    if bid not in id_map:
+        _maxnum += 1
+        id_map[bid] = f"ghl-{_maxnum:06d}"
+    sid = id_map[bid]
+    old_sid = f"sec-{i:02d}"   # 旧顺序锚：仅迁移首跑用于冻结 legacy 表
     hit = None
     for pos, lv, ht in headings:
         if pos in used:
@@ -105,26 +133,58 @@ for i, (text, bid) in enumerate(toc_items, 1):
         continue
     pos, lv, ht = hit
     used.add(pos)
-    sec_of_title[ht] = sid
+    id_of_title[ht] = sid
+    if not _legacy_existed:
+        migration_legacy[old_sid] = sid
 
 if unmatched:
     print("  UNMATCHED:", *unmatched, sep="\n    ")
+
+# 3.2) 注册表落盘：id_map 只增不删；legacy 迁移首跑冻结后只读（10-14）
+if _legacy_existed:
+    try:
+        legacy_map = json.loads(LEGACY_F.read_text(encoding="utf-8"))
+    except Exception as e:
+        print("WARN legacy_anchors.json 解析失败，按空表处理:", e)
+        legacy_map = {}
+else:
+    legacy_map = migration_legacy
+    LEGACY_F.write_text(
+        json.dumps(dict(sorted(legacy_map.items())), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8", newline="\n")
+    print(f"OK: legacy_anchors.json 已生成并冻结（迁移快照 {len(legacy_map)} 条）")
+_ids_sorted = sorted(id_map.items(), key=lambda kv: int(kv[1].split("-")[1]))
+_idmap_txt = json.dumps(dict(_ids_sorted), ensure_ascii=False, indent=2) + "\n"
+if (not IDMAP_F.exists()) or IDMAP_F.read_text(encoding="utf-8") != _idmap_txt:
+    IDMAP_F.write_text(_idmap_txt, encoding="utf-8", newline="\n")
+    print(f"OK: id_map.json 写入（{len(id_map)} 条）")
+else:
+    print(f"OK: id_map.json 未变（{len(id_map)} 条）")
+legacy_json = json.dumps(legacy_map, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
 
 # TOC 链接 -> 页内锚点
 def toc_repl(m):
     text, bid = m.group(1), m.group(2)
     t = norm(text.split(" ｜ ")[0].strip())
-    for ht, sid in sec_of_title.items():
-        if norm(ht) == t or common_prefix(norm(ht), t) >= 6:
+    # 精确匹配优先（两遍式）——避免「…（上/中/下）」等同前缀标题全部命中最早一条（10-14 修正旧缺陷）
+    for ht, sid in id_of_title.items():
+        if norm(ht) == t:
+            return f"- [{text}](#{sid})"
+    for ht, sid in id_of_title.items():
+        if common_prefix(norm(ht), t) >= 6:
             return f"- [{text}](#{sid})"
     return f"- [{text}](#top)"
 
 md = toc_pat.sub(toc_repl, md)
 
-# 正文标题加锚点（按标题原文唯一替换）
-for ht, sid in sec_of_title.items():
+# 正文标题加锚点（按标题原文唯一替换；id 随 doxjp 注册，永不漂移）
+_injected = set()
+for ht, sid in id_of_title.items():
+    if sid in _injected:
+        continue   # 防御：目录重复 doxjp 时同一 id 不重复注入
     pat = re.compile(rf'^(#{{1,2}}) ({re.escape(ht)})$', re.M)
     md = pat.sub(rf'\1 \2 {{#{sid}}}', md, count=1)
+    _injected.add(sid)
 
 # 4) pandoc 转 HTML
 pre = HERE / "guihailu_pre.md"
@@ -146,7 +206,7 @@ body_html = body_html.replace(
 
 # 4.5) 每条目包成折叠卡片：id 移到 details 上，日期徽章移进 summary（h2/h3 两种锚点都处理）
 def wrap_entries(b):
-    pat = re.compile(r'<h([23])\s+id="sec-(\d+)">(.*?)</h\1>\n', re.S)
+    pat = re.compile(r'<h([23])\s+id="(ghl-\d+)">(.*?)</h\1>\n', re.S)
     matches = list(pat.finditer(b))
     if not matches:
         return b
@@ -161,7 +221,7 @@ def wrap_entries(b):
             date_html = '<span class="date">' + db.group(1) + '</span>'
             chunk = chunk[:db.start()] + chunk[db.end():]
         out.append(
-            f'<details class="entry" id="sec-{sid}">'
+            f'<details class="entry" id="{sid}">'
             f'<summary><h2>{title}</h2>{date_html}</summary>'
             f'<div class="entry-body">' + chunk + '</div></details>')
     return ''.join(out)
@@ -176,6 +236,18 @@ if j > 0:
 else:
     body_html += '</details></aside></div>'
 
+# 4.65) 旧锚兼容空 span（10-14）：按冻结的 legacy 映射在对应条目前注入 <span id="sec-NN" class="lanchor">，
+# 锚随条目走、永不漂移；空 span 位于闭卡之外——无 JS 时浏览器原生跳转亦可命中
+_rev_legacy = {}
+for _k, _v in legacy_map.items():
+    _rev_legacy.setdefault(_v, []).append(_k)
+def inject_lanchors(b):
+    def _rep(m):
+        return ''.join(f'<span id="{k}" class="lanchor"></span>'
+                       for k in sorted(_rev_legacy.get(m.group(1), []))) + m.group(0)
+    return re.sub(r'<details class="entry" id="(ghl-\d+)">', _rep, b)
+body_html = inject_lanchors(body_html)
+
 # 4.7) 文档自带的 💜 简介 callout -> 引言段落（去重：页面标题下不再重复放简介）
 def intro_repl(m):
     title, _, body = m.group(1).partition('</strong>')
@@ -188,6 +260,15 @@ def intro_repl(m):
 body_html = re.sub(
     r'<blockquote>\s*<p>💜</p>\s*<p>(<strong>归海2026.*?)</p>\s*(?:<p>(.*?)</p>\s*)?</blockquote>',
     intro_repl, body_html, count=1, flags=re.S)
+
+# 4.8) 页脚「内容更新至」日期（10-14）：取全部条目徽章中最大合法日期——内容决定、保持幂等
+_latest_date = ""
+for _dspan in re.finditer(r'<span class="date">(.*?)</span>', body_html, re.S):
+    for _dv in re.findall(r'20\d{2}-\d{2}-\d{2}', _dspan.group(1)):
+        if _dv > _latest_date:
+            _latest_date = _dv
+_footer_date = f" ｜ 内容更新至 {_latest_date}" if _latest_date else ""
+print(f"页脚日期: {_latest_date or '(未取到，省略)'}")
 
 # 5) 组装 index.html（Apple CN 排版 + Medium 阅读 + 侧栏目录）
 css = """
@@ -230,7 +311,8 @@ aside.toc{position:sticky;top:32px;max-height:calc(100vh - 64px);overflow-y:auto
 .toc a.done::after{content:" ✓";color:var(--cin);font-size:11px}
 main.content{min-width:0;max-width:720px;width:100%;justify-self:center}
 .entry{margin:0;border-bottom:1px solid var(--line);scroll-margin-top:24px}
-.entry:first-child{border-top:1px solid var(--line)}
+.entry:first-of-type{border-top:1px solid var(--line)}
+.lanchor{display:block;width:0;height:0;overflow:hidden;scroll-margin-top:24px}
 .entry>summary{display:grid;grid-template-columns:18px minmax(0,1fr);column-gap:16px;align-items:start;padding:27px 0;list-style:none;cursor:pointer}
 .entry>summary::before{content:"+";grid-column:1;grid-row:1;color:var(--gold);font-size:20px;font-weight:300;line-height:1.55}
 .entry[open]>summary::before{content:"−"}
@@ -311,9 +393,12 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 js = """
 (function(){var p=document.getElementById('progress');function upd(){var h=document.documentElement;var d=h.scrollHeight-h.clientHeight;p.style.width=(d>0?(h.scrollTop/d)*100:0)+'%';}document.addEventListener('scroll',upd,{passive:true});upd();})();
 (function(){var b=document.getElementById('toggle');var MOON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';var SUN='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.6M12 19.4V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.6M19.4 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';function sync(){var d=document.documentElement.classList.contains('dark');b.innerHTML=d?SUN:MOON;}b.addEventListener('click',function(){document.documentElement.classList.toggle('dark');try{localStorage.setItem('ghl_theme',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){}sync();});sync();})();
-(function(){var read=[];try{read=JSON.parse(localStorage.getItem('ghl_read')||'[]')}catch(e){}
+(function(){var LG=(window.__GHL_LEGACY__||{});var read=[];try{read=JSON.parse(localStorage.getItem('ghl_read')||'[]')}catch(e){}
+/* 已读态一次性迁移（10-14）：旧 sec-NN → ghl；无法映射即丢弃（可接受损失） */
+var mig=[],chg=false;for(var mi=0;mi<read.length;mi++){var mv=read[mi];var nv=/^ghl-[0-9]+$/.test(mv)?mv:(LG[mv]||null);if(nv){mig.push(nv);}if(nv!==mv){chg=true;}}
+if(chg){read=mig;try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}
 var cur=null;
-document.querySelectorAll('.toc a[href^="#sec-"]').forEach(function(a){
+document.querySelectorAll('.toc a[href^="#ghl-"]').forEach(function(a){
   var id=a.getAttribute('href').slice(1);
   if(read.indexOf(id)>-1){a.classList.add('done')}
   a.addEventListener('click',function(){
@@ -355,6 +440,8 @@ var saved=0;try{saved=parseInt(localStorage.getItem('ghl_scroll')||'0',10)}catch
 if(saved>0&&!location.hash){window.scrollTo(0,saved)}
 var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(function(){try{localStorage.setItem('ghl_scroll',String(window.scrollY))}catch(e){}},400);findCur();updateNav();},{passive:true});
 })();
+/* 旧 #sec-NN / 新 #ghl 直链（10-14）：载入时展开命中条目（原生锚点负责滚动，这里补展开） */
+(function(){var LG=(window.__GHL_LEGACY__||{});var h=(location.hash||'').slice(1);if(!h)return;var t=/^sec-[0-9]+$/.test(h)?LG[h]:h;if(!t||!/^ghl-[0-9]+$/.test(t))return;var d=document.getElementById(t);if(d){d.open=true;}})();
 (function(){var d=document.querySelector('details.tocm');if(d){var wide=null;function sync(){var now=window.innerWidth>960;if(now!==wide){d.open=now;wide=now;}}sync();window.addEventListener('resize',sync);}})();
 (function(){var p=document.querySelector('.intro p');if(p&&p.firstChild&&p.firstChild.nodeType===3){p.firstChild.textContent=p.firstChild.textContent.replace('💜 ','');}})();
 /* ---- 全文检索（10-07 新增）：即时过滤 + 点击展开定位 ---- */
@@ -389,6 +476,7 @@ html = f"""<!DOCTYPE html>
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://guihailu.github.io/cover.jpg">
 <script>try{{if(localStorage.getItem('ghl_theme')==='dark')document.documentElement.classList.add('dark')}}catch(e){{}}</script>
+<script>window.__GHL_LEGACY__={legacy_json};</script>
 <link rel="stylesheet" href="style.v5.css">
 </head>
 <body id="top">
@@ -411,7 +499,7 @@ html = f"""<!DOCTYPE html>
     <a class="fbtn" href="https://www.oceanwards.com/" target="_blank" rel="noopener">🌊 归海论坛</a>
     <a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>
   </div>
-  <div class="fmeta">归海录 · 持续更新中 ｜ 更新日期：2026-09-15</div>
+  <div class="fmeta">归海录 · 持续更新中{_footer_date}</div>
 </footer>
 <div class="navstack">
   <button class="navbtn" id="toReading" aria-label="回到本篇开头">↩ 本篇开头</button>
@@ -441,16 +529,19 @@ def _plain(s):
 
 try:
     _items = []
-    for m in re.finditer(r'<details class="entry" id="(sec-\d+)">(.*?)</details>', body_html, re.S):
+    for m in re.finditer(r'<details class="entry" id="(ghl-\d+)">(.*?)</details>', body_html, re.S):
         sid, blk = m.group(1), m.group(2)
         tm = re.search(r'<h2>(.*?)</h2>', blk, re.S)
         dm = re.search(r'<span class="date">(.*?)</span>', blk, re.S)
         bm = re.search(r'<div class="entry-body">(.*)$', blk, re.S)
         _title = _plain(tm.group(1) if tm else '')
-        _date = _plain(dm.group(1) if dm else '').replace('📌', '').strip()
+        # 10-14：date=首个合法 YYYY-MM-DD（不定则空，不伪造）；meta=徽章原文整串留档
+        _meta = _plain(dm.group(1) if dm else '').replace('📌', '').strip()
+        _dmm = re.search(r'20\d{2}-\d{2}-\d{2}', _meta)
+        _date = _dmm.group(0) if _dmm else ''
         _text = _plain(bm.group(1) if bm else '')
         if sid and _title:
-            _items.append({"id": sid, "title": _title, "date": _date, "text": _text})
+            _items.append({"id": sid, "title": _title, "date": _date, "meta": _meta, "text": _text})
     _fp = hashlib.sha256(json.dumps(_items, ensure_ascii=False, sort_keys=True,
                                     separators=(',', ':')).encode('utf-8')).hexdigest()[:12]
     _idx_json = json.dumps({"generated": _fp, "count": len(_items), "entries": _items},
