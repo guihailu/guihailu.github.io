@@ -127,6 +127,12 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 .ft-h{margin:0 0 7px;color:var(--ink);font-size:20px;font-weight:700;letter-spacing:.06em;text-align:center}
 .ft-sub{margin:0 0 26px;color:var(--muted);font-size:12.5px;text-align:center;letter-spacing:.03em}
 .ftcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
+.ftmore{margin:16px 0 0}
+.ftmore summary{cursor:pointer;list-style:none;text-align:center;color:var(--muted);font-size:12.5px;letter-spacing:.05em;padding:10px 0;border-top:1px dashed var(--line)}
+.ftmore summary::-webkit-details-marker{display:none}
+.ftmore summary::before{content:"＋ ";color:var(--gold)}
+.ftmore[open] summary::before{content:"－ "}
+.ftmore .ftcards{margin-top:16px}
 .ftcard{border:1px solid var(--line);border-radius:14px;background:var(--paper2);padding:20px 18px 15px}
 .ft-t{margin:0 0 8px;color:var(--ink);font-size:16.5px;font-weight:700;line-height:1.5}
 .ft-scene{margin:0;color:var(--muted);font-size:13px;line-height:1.85}

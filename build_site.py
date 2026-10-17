@@ -282,7 +282,7 @@ for _dspan in re.finditer(r'<span class="date">(.*?)</span>', body_html, re.S):
 _footer_date = f" ｜ 内容更新至 {_latest_date}" if _latest_date else ""
 print(f"页脚日期: {_latest_date or '(未取到，省略)'}")
 
-# 4.9) 「第一次来」问题入口区（10-17 施工窗 2）：guide 数据渲染为三卡；id 缺失即 WARN 并跳过该条
+# 4.9) 「第一次来」问题入口区（10-17 施工窗 2/3）：guide 数据渲染为多卡；首屏 6 卡，其余收进 details；id 缺失即 WARN 并跳过该条
 _guide_html = ""
 try:
     _known_ids = set(id_map.values())
@@ -311,13 +311,19 @@ try:
             f'<ul class="ft-reads">{_ritems}</ul>'
             f'<p class="ft-notice">{_html.escape(g["notice"])}</p></article>')
     if _cards:
+        _primary = "".join(_cards[:6])
+        _more = ""
+        if len(_cards) > 6:
+            _more = ('<details class="ftmore"><summary>展开其余 '
+                     f'{len(_cards) - 6} 条路线</summary>'
+                     '<div class="ftcards">' + "".join(_cards[6:]) + '</div></details>')
         _guide_html = ('<section class="firsttime" id="firsttime"><h2 class="ft-h">第一次来？从这里出发</h2>'
                        '<p class="ft-sub">按场景导航 · 推荐与提示为编辑整理，非原典内容</p>'
-                       '<div class="ftcards">' + "".join(_cards) + '</div></section>')
+                       '<div class="ftcards">' + _primary + '</div>' + _more + '</section>')
     _anchor = '<div class="layout">'
     if _guide_html and _anchor in body_html:
         body_html = body_html.replace(_anchor, _guide_html + _anchor, 1)
-        print(f"OK: 「第一次来」区已插入（{len(_cards)} 卡）")
+        print(f"OK: 「第一次来」区已插入（{len(_cards)} 卡，首屏 6 卡）")
     else:
         print("WARN 「第一次来」区未插入（anchor 缺失或无卡）")
 except Exception as e:
@@ -453,6 +459,12 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 .ft-h{margin:0 0 7px;color:var(--ink);font-size:20px;font-weight:700;letter-spacing:.06em;text-align:center}
 .ft-sub{margin:0 0 26px;color:var(--muted);font-size:12.5px;text-align:center;letter-spacing:.03em}
 .ftcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
+.ftmore{margin:16px 0 0}
+.ftmore summary{cursor:pointer;list-style:none;text-align:center;color:var(--muted);font-size:12.5px;letter-spacing:.05em;padding:10px 0;border-top:1px dashed var(--line)}
+.ftmore summary::-webkit-details-marker{display:none}
+.ftmore summary::before{content:"＋ ";color:var(--gold)}
+.ftmore[open] summary::before{content:"－ "}
+.ftmore .ftcards{margin-top:16px}
 .ftcard{border:1px solid var(--line);border-radius:14px;background:var(--paper2);padding:20px 18px 15px}
 .ft-t{margin:0 0 8px;color:var(--ink);font-size:16.5px;font-weight:700;line-height:1.5}
 .ft-scene{margin:0;color:var(--muted);font-size:13px;line-height:1.85}
