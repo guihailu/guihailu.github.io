@@ -10,6 +10,8 @@
 
 # 📋 目录
 
+- [缅北“活人祭天”，天收不收？修仙者讲打生桩、发毒誓和借运挪运｜主神意志 ｜ 2026-10-17](https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf#doxjpnZcbLe5iGVVDtTwxBKQnYH)
+- [云行远堂对谈喜川·灵与法 ｜ 2026-10-17](https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf#doxjpK6wkiPGkUcvBcCy4gNvGub)
 - [在澳门、东南亚顶级赌场工作有多幸福？接待王储、收高额小费，连「小鬼」都有业绩考核｜3位赌场从业者亲述潜规则 ｜ 2026-10-11](https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf#doxjpvKZPenXpBsw3G2QxzYjCOo)
 - [普通人还可以修仙吗？动物、鬼又是怎么修炼的？｜阴阳师聊六道诸界 ｜ 2026-10-10](https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf#doxjpjQys28WKEN9oiNuZAIPNid)
 - [今天普通人还能修仙吗？动物要渡雷劫，鬼也有成仙的路 ｜ 2026-10-07](https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf#doxjpQhiT7vcCtzzfi825jUI6jg)
