@@ -1,10 +1,22 @@
 # -*- coding: utf-8 -*-
 """归海录静态站构建：guihailu.md -> index.html（pandoc 转换）
 设计语言（照抄顶级站手法）：Apple CN 超大标题+留白 / Medium 衬线窄栏阅读 / VitePress 侧栏目录"""
-import re, pathlib, subprocess, sys, json, hashlib
+import re, pathlib, subprocess, sys, json, hashlib, html as _html
+from guide_data import GUIDE, ALIASES  # 问题入口数据（10-17 施工窗 2）
 
 HERE = pathlib.Path(__file__).parent
 SRC = HERE / "guihailu.md"
+
+# 繁→简归一表（10-17 施工窗 2）：t2s.json（pair 串，构建端与前端共用）；缺失时降级为空表仅 WARN
+try:
+    _t2s_pairs = json.loads((HERE / "t2s.json").read_text(encoding="utf-8"))["pairs"]
+    T2S = {_t2s_pairs[i]: _t2s_pairs[i + 1] for i in range(0, len(_t2s_pairs), 2)}
+except Exception as _e:
+    print("WARN t2s.json 读取失败，简繁归一降级:", _e)
+    _t2s_pairs, T2S = "", {}
+
+def norm_s(s):
+    return "".join(T2S.get(c, c) for c in s)
 
 md = SRC.read_text(encoding="utf-8")
 
@@ -270,6 +282,47 @@ for _dspan in re.finditer(r'<span class="date">(.*?)</span>', body_html, re.S):
 _footer_date = f" ｜ 内容更新至 {_latest_date}" if _latest_date else ""
 print(f"页脚日期: {_latest_date or '(未取到，省略)'}")
 
+# 4.9) 「第一次来」问题入口区（10-17 施工窗 2）：guide 数据渲染为三卡；id 缺失即 WARN 并跳过该条
+_guide_html = ""
+try:
+    _known_ids = set(id_map.values())
+    _miss = sorted({r["id"] for g in GUIDE for r in g["reads"]} - _known_ids |
+                   {k for k in ALIASES if k not in _known_ids})
+    if _miss:
+        print("WARN guide/aliases 引用缺失 id:", _miss)
+    _cards = []
+    for g in GUIDE:
+        _reads = [r for r in g["reads"] if r["id"] in _known_ids]
+        if not _reads:
+            continue
+        _chips = "".join(
+            f'<button type="button" class="ft-chip" data-q="{_html.escape(c, quote=True)}">{_html.escape(c)}</button>'
+            for c in g["chips"])
+        _ritems = "".join(
+            f'<li><span class="ft-r">{_html.escape(r["role"])}</span>'
+            f'<a href="#{r["id"]}">{_html.escape(r["label"])}</a></li>'
+            for r in _reads)
+        _cards.append(
+            f'<article class="ftcard"><h3 class="ft-t">{_html.escape(g["title"])}</h3>'
+            f'<p class="ft-scene">{_html.escape(g["scene"])}</p>'
+            f'<blockquote class="ft-quote"><p>{_html.escape(g["quote"])}</p>'
+            f'<cite>— <a href="#{_reads[0]["id"]}">{_html.escape(_reads[0]["label"])}</a></cite></blockquote>'
+            f'<div class="ft-chips">{_chips}</div>'
+            f'<ul class="ft-reads">{_ritems}</ul>'
+            f'<p class="ft-notice">{_html.escape(g["notice"])}</p></article>')
+    if _cards:
+        _guide_html = ('<section class="firsttime" id="firsttime"><h2 class="ft-h">第一次来？从这里出发</h2>'
+                       '<p class="ft-sub">按场景导航 · 推荐与提示为编辑整理，非原典内容</p>'
+                       '<div class="ftcards">' + "".join(_cards) + '</div></section>')
+    _anchor = '<div class="layout">'
+    if _guide_html and _anchor in body_html:
+        body_html = body_html.replace(_anchor, _guide_html + _anchor, 1)
+        print(f"OK: 「第一次来」区已插入（{len(_cards)} 卡）")
+    else:
+        print("WARN 「第一次来」区未插入（anchor 缺失或无卡）")
+except Exception as e:
+    print("WARN 「第一次来」区生成失败:", e)
+
 # 5) 组装 index.html（Apple CN 排版 + Medium 阅读 + 侧栏目录）
 css = """
 :root{
@@ -387,7 +440,38 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 .qs{margin-top:3px;color:#b9b1a0;font-size:12.5px;line-height:1.7}
 #qres mark{background:rgba(217,184,120,.35);color:#f3e9d2;border-radius:2px;padding:0 1px}
 .qnone{padding:14px;color:#c8baa0;font-size:13.5px}
+/* ---- 搜索 v2 补充（10-17 施工窗 2）：近似提示 + 问题入口引导面板 ---- */
+.qnote{padding:10px 14px;border-bottom:1px solid rgba(178,139,74,.2);color:#c8baa0;font-size:12.5px;line-height:1.7}
+.qguide{padding:10px 14px 12px}
+.qgt{color:#c8baa0;font-size:12.5px;margin-bottom:7px}
+.qgr{padding:7px 0;color:#e8ddc3;font-size:13.5px;font-weight:600;cursor:pointer;border-bottom:1px dashed rgba(178,139,74,.25)}
+.qgr:last-child{border-bottom:0}
+.qgr:hover{color:var(--gold2)}
 @media(max-width:640px){.searchbar{padding:0 20px 46px}#q{height:44px;font-size:14px}#qres{max-height:55vh}.qt{font-size:14px}.qs{font-size:12px}}
+/* ---- 「第一次来」问题入口（10-17 施工窗 2） ---- */
+.firsttime{max-width:1024px;margin:0 auto;padding:0 32px 58px}
+.ft-h{margin:0 0 7px;color:var(--ink);font-size:20px;font-weight:700;letter-spacing:.06em;text-align:center}
+.ft-sub{margin:0 0 26px;color:var(--muted);font-size:12.5px;text-align:center;letter-spacing:.03em}
+.ftcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
+.ftcard{border:1px solid var(--line);border-radius:14px;background:var(--paper2);padding:20px 18px 15px}
+.ft-t{margin:0 0 8px;color:var(--ink);font-size:16.5px;font-weight:700;line-height:1.5}
+.ft-scene{margin:0;color:var(--muted);font-size:13px;line-height:1.85}
+.ft-quote{margin:14px 0 12px;padding:0 0 0 12px;border-left:2px solid var(--gold);color:var(--quote);font-size:13px;line-height:1.8}
+.ft-quote p{margin:0}
+.ft-quote cite{display:block;margin-top:5px;color:var(--muted);font-size:11.5px;font-style:normal;line-height:1.6}
+.ft-quote cite a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--gold)}
+.ft-quote cite a:hover{color:var(--link)}
+.ft-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 13px}
+.ft-chip{padding:3px 11px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);font-size:12px;line-height:1.7;cursor:pointer;font-family:inherit}
+.ft-chip:hover{border-color:var(--gold);color:var(--ink)}
+.ft-reads{margin:0;padding:0;list-style:none}
+.ft-reads li{display:flex;align-items:baseline;gap:9px;margin:7px 0;font-size:13.5px;line-height:1.7}
+.ft-r{flex:none;padding:1px 8px;border-radius:4px;background:var(--cin);color:#faf3ea;font-size:11px;letter-spacing:.08em;white-space:nowrap}
+.ft-reads li:not(:first-child) .ft-r{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.ft-reads a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--gold)}
+.ft-reads a:hover{color:var(--cin);border-color:var(--cin)}
+.ft-notice{margin:12px 0 0;padding-top:9px;border-top:1px dashed var(--line);color:var(--muted);font-size:11.5px;line-height:1.75}
+@media(max-width:960px){.firsttime{padding:0 20px 46px}.ftcards{grid-template-columns:1fr;gap:14px}}
 """
 
 js = """
@@ -444,24 +528,70 @@ var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout
 (function(){var LG=(window.__GHL_LEGACY__||{});var h=(location.hash||'').slice(1);if(!h)return;var t=/^sec-[0-9]+$/.test(h)?LG[h]:h;if(!t||!/^ghl-[0-9]+$/.test(t))return;var d=document.getElementById(t);if(d){d.open=true;}})();
 (function(){var d=document.querySelector('details.tocm');if(d){var wide=null;function sync(){var now=window.innerWidth>960;if(now!==wide){d.open=now;wide=now;}}sync();window.addEventListener('resize',sync);}})();
 (function(){var p=document.querySelector('.intro p');if(p&&p.firstChild&&p.firstChild.nodeType===3){p.firstChild.textContent=p.firstChild.textContent.replace('💜 ','');}})();
-/* ---- 全文检索（10-07 新增）：即时过滤 + 点击展开定位 ---- */
-(function(){var box=document.getElementById('q'),res=document.getElementById('qres');if(!box||!res)return;var idx=null;
-var p=(window.__GHL_INDEX__)?Promise.resolve(window.__GHL_INDEX__):fetch('search_index.json').then(function(r){if(!r.ok)throw 0;return r.json()}).catch(function(){return{entries:[],count:0,err:1}});
+/* ---- 全文检索 v2（10-17 施工窗 2）：简繁归一 + 多字段排序 + 问题入口引导 ---- */
+(function(){var box=document.getElementById('q'),res=document.getElementById('qres');if(!box||!res)return;var idx=null;var p=null;
+function getIdx(){if(!p)p=(window.__GHL_INDEX__)?Promise.resolve(window.__GHL_INDEX__):fetch('search_index.json').then(function(r){if(!r.ok)throw 0;return r.json()}).catch(function(){return{entries:[],count:0,err:1}});return p;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function mark(s,q){var i=String(s).toLowerCase().indexOf(q.toLowerCase());if(i<0)return esc(s);return esc(String(s).slice(0,i))+'<mark>'+esc(String(s).slice(i,i+q.length))+'</mark>'+esc(String(s).slice(i+q.length));}
-function snip(t,q){t=String(t);var i=t.toLowerCase().indexOf(q.toLowerCase());var s=i<0?0:Math.max(0,i-15);return (s>0?'…':'')+t.slice(s,s+60)+(t.length>s+60?'…':'');}
+var _t2s=null;
+function norm(s){if(!_t2s){_t2s={};var pr=(idx&&idx.t2s)||'';for(var i=0;i<pr.length;i+=2)_t2s[pr[i]]=pr[i+1];}var o='';for(var j=0;j<s.length;j++){o+=(_t2s[s[j]]||s[j]);}return o;}
+function cnt(h,n){var c=0,i=0;if(!n)return 0;for(;;){i=h.indexOf(n,i);if(i<0)return c;c++;i+=n.length;}}
+function has4(a,b){if(a.length<4||b.length<4)return false;for(var i=0;i+4<=a.length;i++){if(b.indexOf(a.slice(i,i+4))>-1)return true;}return false;}
+function thit(qs,s){if(!s||s.length<2||qs.length<2)return false;if(s.indexOf(qs)>-1)return true;if(qs.indexOf(s)>-1)return true;return has4(qs,s);}
+function hl(orig,nq,lw){var i=nq.indexOf(lw);if(i<0)return esc(orig);return esc(orig.slice(0,i))+'<mark>'+esc(orig.slice(i,i+lw.length))+'</mark>'+esc(orig.slice(i+lw.length));}
+function snipH(orig,nq,lw){var i=nq.indexOf(lw);var s=i<0?0:Math.max(0,i-15);var e0=Math.min(orig.length,s+60);var frag;if(i>=0&&i<e0){var i2=i-s;var mEnd=Math.min(i2+lw.length,e0-s);frag=esc(orig.slice(s,s+i2))+'<mark>'+esc(orig.slice(s+i2,s+mEnd))+'</mark>'+esc(orig.slice(s+mEnd,e0));}else{frag=esc(orig.slice(s,e0));}return (s>0?'…':'')+frag+(e0<orig.length?'…':'');}
+function prep(){if(!idx||idx._warmed)return;idx._warmed=1;var es=idx.entries||[];for(var i=0;i<es.length;i++){var e=es[i];
+var bt=String(e.title||''),bx=String(e.text||'');
+if(e.titleN)bt=e.titleN;else if(e.titleP){var at=bt.split('');for(var p=0;p<e.titleP.length;p++){at[e.titleP[p][0]]=e.titleP[p][1];}bt=at.join('');}
+if(e.textN)bx=e.textN;else if(e.textP){var ax=bx.split('');for(var q=0;q<e.textP.length;q++){ax[e.textP[q][0]]=e.textP[q][1];}bx=ax.join('');}
+e._tl=bt.toLowerCase();e._xl=bx.toLowerCase();}}
 function render(q){q=q.trim();if(!q){res.classList.remove('on');res.innerHTML='';return;}
-p.then(function(j){if(j)idx=j;var es=(idx&&idx.entries)||[];
+getIdx().then(function(j){if(j)idx=j;
 if(idx&&idx.err){res.innerHTML='<div class="qnone">检索数据加载失败，刷新页面重试</div>';res.classList.add('on');return;}
-var ql=q.toLowerCase(),out=[];for(var i=0;i<es.length;i++){var e=es[i];if((e.title||'').toLowerCase().indexOf(ql)>-1||(e.text||'').toLowerCase().indexOf(ql)>-1)out.push(e);}
-if(!out.length){res.innerHTML='<div class="qnone">没有找到与「'+esc(q)+'」相关的内容</div>';}
-else{var h='<div class="qcount">'+out.length+' 条结果</div>';for(var k=0;k<out.length;k++){var e2=out[k];h+='<div class="qitem" data-id="'+e2.id+'"><div class="qhead"><span class="qt">'+mark(e2.title||'',q)+'</span><span class="qd">'+esc(e2.date||'')+'</span></div><div class="qs">'+mark(snip(e2.text||'',q),q)+'</div></div>';}res.innerHTML=h;}
-res.classList.add('on');});}
+prep();var es=(idx&&idx.entries)||[];var qs=norm(q).toLowerCase();if(!qs)return;
+var i,k,out=[],byId={};
+for(i=0;i<es.length;i++){var e=es[i];byId[e.id]=e;e._s=0;e._bg=null;
+  if(e._tl.indexOf(qs)>-1)e._s+=120;
+  var c=cnt(e._xl,qs);if(c)e._s+=Math.min(c,12)*4;
+  if(e.aliases){for(k=0;k<e.aliases.length;k++){if(thit(qs,String(e.aliases[k]).toLowerCase()))e._s+=180;}}
+}
+var gh=(idx&&idx.guide)||[];
+for(i=0;i<gh.length;i++){var g=gh[i],hitg=false;
+  for(k=0;k<g.questions.length;k++){if(thit(qs,norm(g.questions[k]).toLowerCase())){hitg=true;break;}}
+  if(hitg){for(k=0;k<g.reads.length;k++){var re=byId[g.reads[k].id];if(re)re._s+=(k===0?90:45);}}
+}
+var soft=false;
+for(i=0;i<es.length;i++){if(es[i]._s>0){es[i]._i=i;out.push(es[i]);}}
+if(!out.length&&qs.length>=3){
+  var bgs=[],seen={};
+  for(i=0;i+2<=qs.length;i++){var bg=qs.slice(i,i+2);if(!/^[\\u4e00-\\u9fff]{2}$/.test(bg))continue;if(!seen[bg]){seen[bg]=1;bgs.push(bg);}}
+  if(bgs.length>=2){for(i=0;i<es.length;i++){var e2=es[i],hn=0,sc=0,bb=null,bc=0;
+    for(k=0;k<bgs.length;k++){var c4=cnt(e2._tl,bgs[k])*3+cnt(e2._xl,bgs[k]);if(c4>0){hn++;sc+=Math.min(c4,6);if(c4>bc){bc=c4;bb=bgs[k];}}}
+    if(hn>=2){e2._s=sc;e2._bg=bb;e2._i=i;out.push(e2);soft=true;}}}
+}
+if(!out.length){
+  var gg='';if(gh.length){gg='<div class="qguide"><div class="qgt">也可以从这里出发：</div>';for(i=0;i<gh.length;i++){gg+='<div class="qgr" data-goto="firsttime">'+esc(gh[i].title)+'</div>';}gg+='</div>';}
+  res.innerHTML='<div class="qnone">没有找到与「'+esc(q)+'」相关的内容</div>'+gg;res.classList.add('on');return;
+}
+out.sort(function(a,b){return (b._s-a._s)||(a._i-b._i);});
+var h='';
+if(soft)h+='<div class="qnote">没有与「'+esc(q)+'」完全匹配的内容，以下按关键词近似检索：</div>';
+h+='<div class="qcount">'+out.length+' 条结果'+(soft?'（近似）':'')+'</div>';
+for(i=0;i<out.length;i++){var e3=out[i];var lw=(soft&&e3._bg)?e3._bg:qs;
+  h+='<div class="qitem" data-id="'+e3.id+'"><div class="qhead"><span class="qt">'+hl(String(e3.title||''),e3._tl,lw)+'</span><span class="qd">'+esc(e3.date||'')+'</span></div><div class="qs">'+snipH(String(e3.text||''),e3._xl,lw)+'</div></div>';
+}
+res.innerHTML=h;res.classList.add('on');});}
 box.addEventListener('input',function(){render(box.value)});
 box.addEventListener('focus',function(){if(box.value.trim())render(box.value)});
-res.addEventListener('click',function(ev){var n=ev.target;while(n&&n!==res&&!(n.classList&&n.classList.contains('qitem')))n=n.parentNode;if(!n||n===res)return;var id=n.getAttribute('data-id');res.classList.remove('on');var a=document.querySelector('.toc a[href="#'+id+'"]');if(a)a.click();var el=document.getElementById(id);if(el){setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},60);}});
+res.addEventListener('click',function(ev){var n=ev.target;
+while(n&&n!==res&&!(n.classList&&(n.classList.contains('qitem')||n.classList.contains('qgr'))))n=n.parentNode;
+if(!n||n===res)return;
+if(n.classList.contains('qgr')){res.classList.remove('on');var ft=document.getElementById('firsttime');if(ft)ft.scrollIntoView({behavior:'smooth',block:'start'});return;}
+var id=n.getAttribute('data-id');res.classList.remove('on');var a=document.querySelector('.toc a[href="#'+id+'"]');if(a)a.click();var el=document.getElementById(id);if(el){setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},60);}});
 document.addEventListener('click',function(ev){var n=ev.target;while(n){if(n.classList&&n.classList.contains('searchbar'))return;n=n.parentNode;}res.classList.remove('on');});
+document.querySelectorAll('.ft-chip').forEach(function(b){b.addEventListener('click',function(){box.value=b.getAttribute('data-q');render(box.value);box.scrollIntoView({behavior:'smooth',block:'center'});try{box.focus({preventScroll:true})}catch(e){}});});
 })();
+/* 「第一次来」区文章链接（10-17 施工窗 2）：点击时展开对应条目（原生锚点负责滚动） */
+(function(){document.querySelectorAll('.firsttime a[href^="#ghl-"]').forEach(function(a){a.addEventListener('click',function(){var d=document.getElementById(a.getAttribute('href').slice(1));if(d)d.open=true;});});})();
 """
 
 html = f"""<!DOCTYPE html>
@@ -521,6 +651,20 @@ def _note(msg):
     with open(HERE / "sync_log.txt", "a", encoding="utf-8") as f:
         f.write(msg + "\n")
 
+def _norm_extra(s):
+    """10-17 施工窗 2：繁简归一差异补丁 [[位置,替换字],…]（位置按 UTF-16 码元计，与 JS 字符串索引一致，
+    星平面字符出现前逐位补偿；替换字均为 BMP）。逐字符 1:1、与原文等长，保前端高亮定位。无差异返回 None。"""
+    ns = norm_s(s)
+    if ns == s:
+        return None
+    out, off = [], 0
+    for i, (a, b) in enumerate(zip(s, ns)):
+        if a != b:
+            out.append([i + off, b])
+        if ord(a) > 0xFFFF:
+            off += 1
+    return out
+
 def _plain(s):
     s = re.sub(r'<[^>]+>', ' ', s or '')
     s = (s.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
@@ -541,10 +685,24 @@ try:
         _date = _dmm.group(0) if _dmm else ''
         _text = _plain(bm.group(1) if bm else '')
         if sid and _title:
-            _items.append({"id": sid, "title": _title, "date": _date, "meta": _meta, "text": _text})
-    _fp = hashlib.sha256(json.dumps(_items, ensure_ascii=False, sort_keys=True,
+            _it = {"id": sid, "title": _title, "date": _date, "meta": _meta, "text": _text}
+            # 10-17 施工窗 2：简繁归一增量（差异补丁，见 _norm_extra）+ 检索别名
+            _te = _norm_extra(_title)
+            if _te:
+                _it["titleP"] = _te
+            _xe = _norm_extra(_text)
+            if _xe:
+                _it["textP"] = _xe
+            _al = ALIASES.get(sid)
+            if _al:
+                _it["aliases"] = list(_al)
+            _items.append(_it)
+    # 顶层新增 guide / t2s（10-17 施工窗 2）；指纹覆盖全部内容，保幂等
+    _payload = {"guide": GUIDE, "t2s": _t2s_pairs, "entries": _items}
+    _fp = hashlib.sha256(json.dumps(_payload, ensure_ascii=False, sort_keys=True,
                                     separators=(',', ':')).encode('utf-8')).hexdigest()[:12]
-    _idx_json = json.dumps({"generated": _fp, "count": len(_items), "entries": _items},
+    _idx_json = json.dumps({"generated": _fp, "count": len(_items), "guide": GUIDE,
+                            "t2s": _t2s_pairs, "entries": _items},
                            ensure_ascii=False, separators=(',', ':'))
     (HERE / "search_index.json").write_text(_idx_json + "\n", encoding="utf-8", newline="\n")
     print(f"OK: search_index.json {len(_items)} entries, fingerprint {_fp}")

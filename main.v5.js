@@ -52,21 +52,67 @@ var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout
 (function(){var LG=(window.__GHL_LEGACY__||{});var h=(location.hash||'').slice(1);if(!h)return;var t=/^sec-[0-9]+$/.test(h)?LG[h]:h;if(!t||!/^ghl-[0-9]+$/.test(t))return;var d=document.getElementById(t);if(d){d.open=true;}})();
 (function(){var d=document.querySelector('details.tocm');if(d){var wide=null;function sync(){var now=window.innerWidth>960;if(now!==wide){d.open=now;wide=now;}}sync();window.addEventListener('resize',sync);}})();
 (function(){var p=document.querySelector('.intro p');if(p&&p.firstChild&&p.firstChild.nodeType===3){p.firstChild.textContent=p.firstChild.textContent.replace('💜 ','');}})();
-/* ---- 全文检索（10-07 新增）：即时过滤 + 点击展开定位 ---- */
-(function(){var box=document.getElementById('q'),res=document.getElementById('qres');if(!box||!res)return;var idx=null;
-var p=(window.__GHL_INDEX__)?Promise.resolve(window.__GHL_INDEX__):fetch('search_index.json').then(function(r){if(!r.ok)throw 0;return r.json()}).catch(function(){return{entries:[],count:0,err:1}});
+/* ---- 全文检索 v2（10-17 施工窗 2）：简繁归一 + 多字段排序 + 问题入口引导 ---- */
+(function(){var box=document.getElementById('q'),res=document.getElementById('qres');if(!box||!res)return;var idx=null;var p=null;
+function getIdx(){if(!p)p=(window.__GHL_INDEX__)?Promise.resolve(window.__GHL_INDEX__):fetch('search_index.json').then(function(r){if(!r.ok)throw 0;return r.json()}).catch(function(){return{entries:[],count:0,err:1}});return p;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function mark(s,q){var i=String(s).toLowerCase().indexOf(q.toLowerCase());if(i<0)return esc(s);return esc(String(s).slice(0,i))+'<mark>'+esc(String(s).slice(i,i+q.length))+'</mark>'+esc(String(s).slice(i+q.length));}
-function snip(t,q){t=String(t);var i=t.toLowerCase().indexOf(q.toLowerCase());var s=i<0?0:Math.max(0,i-15);return (s>0?'…':'')+t.slice(s,s+60)+(t.length>s+60?'…':'');}
+var _t2s=null;
+function norm(s){if(!_t2s){_t2s={};var pr=(idx&&idx.t2s)||'';for(var i=0;i<pr.length;i+=2)_t2s[pr[i]]=pr[i+1];}var o='';for(var j=0;j<s.length;j++){o+=(_t2s[s[j]]||s[j]);}return o;}
+function cnt(h,n){var c=0,i=0;if(!n)return 0;for(;;){i=h.indexOf(n,i);if(i<0)return c;c++;i+=n.length;}}
+function has4(a,b){if(a.length<4||b.length<4)return false;for(var i=0;i+4<=a.length;i++){if(b.indexOf(a.slice(i,i+4))>-1)return true;}return false;}
+function thit(qs,s){if(!s||s.length<2||qs.length<2)return false;if(s.indexOf(qs)>-1)return true;if(qs.indexOf(s)>-1)return true;return has4(qs,s);}
+function hl(orig,nq,lw){var i=nq.indexOf(lw);if(i<0)return esc(orig);return esc(orig.slice(0,i))+'<mark>'+esc(orig.slice(i,i+lw.length))+'</mark>'+esc(orig.slice(i+lw.length));}
+function snipH(orig,nq,lw){var i=nq.indexOf(lw);var s=i<0?0:Math.max(0,i-15);var e0=Math.min(orig.length,s+60);var frag;if(i>=0&&i<e0){var i2=i-s;var mEnd=Math.min(i2+lw.length,e0-s);frag=esc(orig.slice(s,s+i2))+'<mark>'+esc(orig.slice(s+i2,s+mEnd))+'</mark>'+esc(orig.slice(s+mEnd,e0));}else{frag=esc(orig.slice(s,e0));}return (s>0?'…':'')+frag+(e0<orig.length?'…':'');}
+function prep(){if(!idx||idx._warmed)return;idx._warmed=1;var es=idx.entries||[];for(var i=0;i<es.length;i++){var e=es[i];
+var bt=String(e.title||''),bx=String(e.text||'');
+if(e.titleN)bt=e.titleN;else if(e.titleP){var at=bt.split('');for(var p=0;p<e.titleP.length;p++){at[e.titleP[p][0]]=e.titleP[p][1];}bt=at.join('');}
+if(e.textN)bx=e.textN;else if(e.textP){var ax=bx.split('');for(var q=0;q<e.textP.length;q++){ax[e.textP[q][0]]=e.textP[q][1];}bx=ax.join('');}
+e._tl=bt.toLowerCase();e._xl=bx.toLowerCase();}}
 function render(q){q=q.trim();if(!q){res.classList.remove('on');res.innerHTML='';return;}
-p.then(function(j){if(j)idx=j;var es=(idx&&idx.entries)||[];
+getIdx().then(function(j){if(j)idx=j;
 if(idx&&idx.err){res.innerHTML='<div class="qnone">检索数据加载失败，刷新页面重试</div>';res.classList.add('on');return;}
-var ql=q.toLowerCase(),out=[];for(var i=0;i<es.length;i++){var e=es[i];if((e.title||'').toLowerCase().indexOf(ql)>-1||(e.text||'').toLowerCase().indexOf(ql)>-1)out.push(e);}
-if(!out.length){res.innerHTML='<div class="qnone">没有找到与「'+esc(q)+'」相关的内容</div>';}
-else{var h='<div class="qcount">'+out.length+' 条结果</div>';for(var k=0;k<out.length;k++){var e2=out[k];h+='<div class="qitem" data-id="'+e2.id+'"><div class="qhead"><span class="qt">'+mark(e2.title||'',q)+'</span><span class="qd">'+esc(e2.date||'')+'</span></div><div class="qs">'+mark(snip(e2.text||'',q),q)+'</div></div>';}res.innerHTML=h;}
-res.classList.add('on');});}
+prep();var es=(idx&&idx.entries)||[];var qs=norm(q).toLowerCase();if(!qs)return;
+var i,k,out=[],byId={};
+for(i=0;i<es.length;i++){var e=es[i];byId[e.id]=e;e._s=0;e._bg=null;
+  if(e._tl.indexOf(qs)>-1)e._s+=120;
+  var c=cnt(e._xl,qs);if(c)e._s+=Math.min(c,12)*4;
+  if(e.aliases){for(k=0;k<e.aliases.length;k++){if(thit(qs,String(e.aliases[k]).toLowerCase()))e._s+=180;}}
+}
+var gh=(idx&&idx.guide)||[];
+for(i=0;i<gh.length;i++){var g=gh[i],hitg=false;
+  for(k=0;k<g.questions.length;k++){if(thit(qs,norm(g.questions[k]).toLowerCase())){hitg=true;break;}}
+  if(hitg){for(k=0;k<g.reads.length;k++){var re=byId[g.reads[k].id];if(re)re._s+=(k===0?90:45);}}
+}
+var soft=false;
+for(i=0;i<es.length;i++){if(es[i]._s>0){es[i]._i=i;out.push(es[i]);}}
+if(!out.length&&qs.length>=3){
+  var bgs=[],seen={};
+  for(i=0;i+2<=qs.length;i++){var bg=qs.slice(i,i+2);if(!/^[\u4e00-\u9fff]{2}$/.test(bg))continue;if(!seen[bg]){seen[bg]=1;bgs.push(bg);}}
+  if(bgs.length>=2){for(i=0;i<es.length;i++){var e2=es[i],hn=0,sc=0,bb=null,bc=0;
+    for(k=0;k<bgs.length;k++){var c4=cnt(e2._tl,bgs[k])*3+cnt(e2._xl,bgs[k]);if(c4>0){hn++;sc+=Math.min(c4,6);if(c4>bc){bc=c4;bb=bgs[k];}}}
+    if(hn>=2){e2._s=sc;e2._bg=bb;e2._i=i;out.push(e2);soft=true;}}}
+}
+if(!out.length){
+  var gg='';if(gh.length){gg='<div class="qguide"><div class="qgt">也可以从这里出发：</div>';for(i=0;i<gh.length;i++){gg+='<div class="qgr" data-goto="firsttime">'+esc(gh[i].title)+'</div>';}gg+='</div>';}
+  res.innerHTML='<div class="qnone">没有找到与「'+esc(q)+'」相关的内容</div>'+gg;res.classList.add('on');return;
+}
+out.sort(function(a,b){return (b._s-a._s)||(a._i-b._i);});
+var h='';
+if(soft)h+='<div class="qnote">没有与「'+esc(q)+'」完全匹配的内容，以下按关键词近似检索：</div>';
+h+='<div class="qcount">'+out.length+' 条结果'+(soft?'（近似）':'')+'</div>';
+for(i=0;i<out.length;i++){var e3=out[i];var lw=(soft&&e3._bg)?e3._bg:qs;
+  h+='<div class="qitem" data-id="'+e3.id+'"><div class="qhead"><span class="qt">'+hl(String(e3.title||''),e3._tl,lw)+'</span><span class="qd">'+esc(e3.date||'')+'</span></div><div class="qs">'+snipH(String(e3.text||''),e3._xl,lw)+'</div></div>';
+}
+res.innerHTML=h;res.classList.add('on');});}
 box.addEventListener('input',function(){render(box.value)});
 box.addEventListener('focus',function(){if(box.value.trim())render(box.value)});
-res.addEventListener('click',function(ev){var n=ev.target;while(n&&n!==res&&!(n.classList&&n.classList.contains('qitem')))n=n.parentNode;if(!n||n===res)return;var id=n.getAttribute('data-id');res.classList.remove('on');var a=document.querySelector('.toc a[href="#'+id+'"]');if(a)a.click();var el=document.getElementById(id);if(el){setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},60);}});
+res.addEventListener('click',function(ev){var n=ev.target;
+while(n&&n!==res&&!(n.classList&&(n.classList.contains('qitem')||n.classList.contains('qgr'))))n=n.parentNode;
+if(!n||n===res)return;
+if(n.classList.contains('qgr')){res.classList.remove('on');var ft=document.getElementById('firsttime');if(ft)ft.scrollIntoView({behavior:'smooth',block:'start'});return;}
+var id=n.getAttribute('data-id');res.classList.remove('on');var a=document.querySelector('.toc a[href="#'+id+'"]');if(a)a.click();var el=document.getElementById(id);if(el){setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},60);}});
 document.addEventListener('click',function(ev){var n=ev.target;while(n){if(n.classList&&n.classList.contains('searchbar'))return;n=n.parentNode;}res.classList.remove('on');});
+document.querySelectorAll('.ft-chip').forEach(function(b){b.addEventListener('click',function(){box.value=b.getAttribute('data-q');render(box.value);box.scrollIntoView({behavior:'smooth',block:'center'});try{box.focus({preventScroll:true})}catch(e){}});});
 })();
+/* 「第一次来」区文章链接（10-17 施工窗 2）：点击时展开对应条目（原生锚点负责滚动） */
+(function(){document.querySelectorAll('.firsttime a[href^="#ghl-"]').forEach(function(a){a.addEventListener('click',function(){var d=document.getElementById(a.getAttribute('href').slice(1));if(d)d.open=true;});});})();

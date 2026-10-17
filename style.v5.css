@@ -114,4 +114,35 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 .qs{margin-top:3px;color:#b9b1a0;font-size:12.5px;line-height:1.7}
 #qres mark{background:rgba(217,184,120,.35);color:#f3e9d2;border-radius:2px;padding:0 1px}
 .qnone{padding:14px;color:#c8baa0;font-size:13.5px}
+/* ---- 搜索 v2 补充（10-17 施工窗 2）：近似提示 + 问题入口引导面板 ---- */
+.qnote{padding:10px 14px;border-bottom:1px solid rgba(178,139,74,.2);color:#c8baa0;font-size:12.5px;line-height:1.7}
+.qguide{padding:10px 14px 12px}
+.qgt{color:#c8baa0;font-size:12.5px;margin-bottom:7px}
+.qgr{padding:7px 0;color:#e8ddc3;font-size:13.5px;font-weight:600;cursor:pointer;border-bottom:1px dashed rgba(178,139,74,.25)}
+.qgr:last-child{border-bottom:0}
+.qgr:hover{color:var(--gold2)}
 @media(max-width:640px){.searchbar{padding:0 20px 46px}#q{height:44px;font-size:14px}#qres{max-height:55vh}.qt{font-size:14px}.qs{font-size:12px}}
+/* ---- 「第一次来」问题入口（10-17 施工窗 2） ---- */
+.firsttime{max-width:1024px;margin:0 auto;padding:0 32px 58px}
+.ft-h{margin:0 0 7px;color:var(--ink);font-size:20px;font-weight:700;letter-spacing:.06em;text-align:center}
+.ft-sub{margin:0 0 26px;color:var(--muted);font-size:12.5px;text-align:center;letter-spacing:.03em}
+.ftcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
+.ftcard{border:1px solid var(--line);border-radius:14px;background:var(--paper2);padding:20px 18px 15px}
+.ft-t{margin:0 0 8px;color:var(--ink);font-size:16.5px;font-weight:700;line-height:1.5}
+.ft-scene{margin:0;color:var(--muted);font-size:13px;line-height:1.85}
+.ft-quote{margin:14px 0 12px;padding:0 0 0 12px;border-left:2px solid var(--gold);color:var(--quote);font-size:13px;line-height:1.8}
+.ft-quote p{margin:0}
+.ft-quote cite{display:block;margin-top:5px;color:var(--muted);font-size:11.5px;font-style:normal;line-height:1.6}
+.ft-quote cite a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--gold)}
+.ft-quote cite a:hover{color:var(--link)}
+.ft-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 13px}
+.ft-chip{padding:3px 11px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);font-size:12px;line-height:1.7;cursor:pointer;font-family:inherit}
+.ft-chip:hover{border-color:var(--gold);color:var(--ink)}
+.ft-reads{margin:0;padding:0;list-style:none}
+.ft-reads li{display:flex;align-items:baseline;gap:9px;margin:7px 0;font-size:13.5px;line-height:1.7}
+.ft-r{flex:none;padding:1px 8px;border-radius:4px;background:var(--cin);color:#faf3ea;font-size:11px;letter-spacing:.08em;white-space:nowrap}
+.ft-reads li:not(:first-child) .ft-r{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.ft-reads a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--gold)}
+.ft-reads a:hover{color:var(--cin);border-color:var(--cin)}
+.ft-notice{margin:12px 0 0;padding-top:9px;border-top:1px dashed var(--line);color:var(--muted);font-size:11.5px;line-height:1.75}
+@media(max-width:960px){.firsttime{padding:0 20px 46px}.ftcards{grid-template-columns:1fr;gap:14px}}

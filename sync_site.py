@@ -30,7 +30,7 @@ run([sys.executable, "mirror_media.py"], env=env)
 run(["git", "add", "index.html", "guihailu.md", "build_site.py",
      "sync_site.py", "mirror_media.py", "style.v5.css", "main.v5.js",
      "search_index.json", "归海录_离线版.html", "id_map.json",
-     "legacy_anchors.json", "media"])
+     "legacy_anchors.json", "guide_data.py", "t2s.json", "media"])
 r = subprocess.run(["git", "commit", "-m", "站点同步：归海录更新"],
                    cwd=HERE, capture_output=True, text=True, encoding="utf-8", errors="replace")
 if r.returncode == 0:
