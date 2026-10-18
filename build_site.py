@@ -240,6 +240,24 @@ def wrap_entries(b):
 
 body_html = wrap_entries(body_html)
 
+# 4.55) 站点条目顺序 = 目录时间线（2026-10-18）：按 TOC 顺序重排 <details class="entry">
+# 背景：Lark 正文里 Phase 3 回填条目仍在 10-18 之后；目录已按时间归位，站点正文也跟随目录。
+def reorder_entries(b, order):
+    pat = re.compile(r'<details class="entry" id="(ghl-\d+)">.*?</details>', re.S)
+    matches = list(pat.finditer(b))
+    if not matches:
+        return b
+    blocks = {m.group(1): m.group(0) for m in matches}
+    prefix, suffix = b[:matches[0].start()], b[matches[-1].end():]
+    ordered = [blocks[i] for i in order if i in blocks]
+    seen = set(order)
+    ordered += [m.group(0) for m in matches if m.group(1) not in seen]
+    return prefix + ''.join(ordered) + suffix
+
+_desired_order = [id_map[bid] for _text, bid in toc_items if bid in id_map]
+body_html = reorder_entries(body_html, _desired_order)
+print(f"OK: 条目顺序按目录重排（{len(_desired_order)} 条）")
+
 # 4.6) 闭合 aside.toc，开启 main.content（4.5 之后才能定位条目起点）
 j = body_html.find('<details class="entry"')
 if j > 0:
