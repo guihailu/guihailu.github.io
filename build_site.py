@@ -300,52 +300,166 @@ for _dspan in re.finditer(r'<span class="date">(.*?)</span>', body_html, re.S):
 _footer_date = f" ｜ 内容更新至 {_latest_date}" if _latest_date else ""
 print(f"页脚日期: {_latest_date or '(未取到，省略)'}")
 
-# 4.9) 「第一次来」问题入口区（10-17 施工窗 2/3）：guide 数据渲染为多卡；首屏 6 卡，其余收进 details；id 缺失即 WARN 并跳过该条
-_guide_html = ""
-try:
-    _known_ids = set(id_map.values())
-    _miss = sorted({r["id"] for g in GUIDE for r in g["reads"]} - _known_ids |
-                   {k for k in ALIASES if k not in _known_ids})
-    if _miss:
-        print("WARN guide/aliases 引用缺失 id:", _miss)
-    _cards = []
-    for g in GUIDE:
-        _reads = [r for r in g["reads"] if r["id"] in _known_ids]
-        if not _reads:
+# 4.9) 分页构建（2026-10-19 施工）：抽取条目 → 按年份分页；首页/年份页/离线版分别组装。
+# 旧单页 layout 脚手架在此丢弃；离线版仍用全集单页（不受 500KB 网页传输线约束）。
+_ENTRY_RE = re.compile(
+    r'((?:<span id="sec-[0-9]+" class="lanchor"></span>)*'
+    r'<details class="entry" id="(ghl-\d+)">.*?</details>)', re.S)
+_entry_blocks = [(m.group(2), m.group(0)) for m in _ENTRY_RE.finditer(body_html)]
+if not _entry_blocks:
+    print("WARN 未抽取到条目，分页构建将为空")
+print(f"OK: 抽取条目 {len(_entry_blocks)} 条")
+
+def _entry_fields(block):
+    tm = re.search(r'<h2>(.*?)</h2>', block, re.S)
+    dm = re.search(r'<span class="date">(.*?)</span>', block, re.S)
+    title = _html.unescape(re.sub(r'<[^>]+>', '', tm.group(1))).strip() if tm else ''
+    meta = _html.unescape(re.sub(r'<[^>]+>', '', dm.group(1))).strip() if dm else ''
+    return title, meta
+
+_toc_text_by_sid = {}
+for _text, _bid in toc_items:
+    _sid = id_map.get(_bid)
+    if _sid and _sid not in _toc_text_by_sid:
+        _toc_text_by_sid[_sid] = _text
+
+def _entry_year(sid, meta):
+    m = re.search(r'(20\d{2})', meta)
+    if m:
+        return m.group(1)
+    _tail = _toc_text_by_sid.get(sid, '').split('｜')[-1].strip()
+    m = re.search(r'(20\d{2})', _tail)
+    return m.group(1) if m else 'NODATE'
+
+def _entry_date(sid, meta):
+    m = re.search(r'20\d{2}-\d{2}-\d{2}', meta)
+    if m:
+        return m.group(0)
+    _tail = _toc_text_by_sid.get(sid, '').split('｜')[-1].strip()
+    m = re.search(r'20\d{2}-\d{2}(?:-\d{2})?|20\d{2}年', _tail)
+    return m.group(0) if m else ''
+
+_YEAR_PAGE = {'2026': '2026.html', '2025': '2025.html', '2024': '2024.html', 'NODATE': 'undated.html'}
+_YEAR_LABEL = {'2026': '2026', '2025': '2025', '2024': '2024', 'NODATE': '未编年'}
+
+_entries = []
+for _sid, _block in _entry_blocks:
+    _title, _meta = _entry_fields(_block)
+    _year = _entry_year(_sid, _meta)
+    _entries.append({
+        'id': _sid, 'block': _block, 'title': _title, 'meta': _meta,
+        'year': _year, 'date': _entry_date(_sid, _meta),
+        'page': _YEAR_PAGE.get(_year, 'undated.html'),
+    })
+_id_page = {e['id']: e['page'] for e in _entries}
+
+_pages = {}
+for _e in _entries:
+    _pages.setdefault(_e['year'], []).append(_e)
+print("OK: 分页 " + " / ".join(f"{_YEAR_LABEL.get(y, y)} {len(v)} 条" for y, v in _pages.items()))
+
+# 简介（首页/离线版保留；年份页不重复放）
+_m_intro = re.search(r'<div class="intro">.*?</div>', body_html, re.S)
+_intro_html = _m_intro.group(0) if _m_intro else ''
+if _m_intro:
+    body_html = body_html.replace(_m_intro.group(0), '', 1)
+
+def _toc_ul(items):
+    return '<ul>' + "".join(
+        f'<li><a href="#{e["id"]}">{_html.escape(_toc_text_by_sid.get(e["id"], e["title"]))}</a></li>'
+        for e in items) + '</ul>'
+
+def _layout_html(items):
+    return ('<div class="layout"><aside class="toc"><details class="tocm">'
+            '<summary>📋 目录</summary>' + _toc_ul(items) +
+            '</details></aside><main class="content">' +
+            "".join(e['block'] for e in items) + '</main></div>')
+
+def _latest_section(n=10):
+    lis = []
+    for e in _entries[:n]:
+        _disp = e['date'] or _YEAR_LABEL.get(e['year'], '')
+        lis.append(
+            '<li class="latest-item"><a href="' + e['page'] + '#' + e['id'] + '">'
+            '<span class="latest-date">' + _html.escape(_disp) + '</span>'
+            '<span class="latest-title">' + _html.escape(e['title']) + '</span></a></li>')
+    return ('<section class="latest" id="latest"><h2>最新更新</h2>'
+            '<ul class="latest-list">' + "".join(lis) + '</ul></section>')
+
+def _years_section():
+    cards = []
+    for y in ('2026', '2025', '2024', 'NODATE'):
+        if y not in _pages:
             continue
-        _chips = "".join(
-            f'<button type="button" class="ft-chip" data-q="{_html.escape(c, quote=True)}">{_html.escape(c)}</button>'
-            for c in g["chips"])
-        _ritems = "".join(
-            f'<li><span class="ft-r">{_html.escape(r["role"])}</span>'
-            f'<a href="#{r["id"]}">{_html.escape(r["label"])}</a></li>'
-            for r in _reads)
-        _cards.append(
-            f'<article class="ftcard"><h3 class="ft-t">{_html.escape(g["title"])}</h3>'
-            f'<p class="ft-scene">{_html.escape(g["scene"])}</p>'
-            f'<blockquote class="ft-quote"><p>{_html.escape(g["quote"])}</p>'
-            f'<cite>— <a href="#{_reads[0]["id"]}">{_html.escape(_reads[0]["label"])}</a></cite></blockquote>'
-            f'<div class="ft-chips">{_chips}</div>'
-            f'<ul class="ft-reads">{_ritems}</ul>'
-            f'<p class="ft-notice">{_html.escape(g["notice"])}</p></article>')
-    if _cards:
+        cards.append(
+            '<a class="year-card" href="' + _YEAR_PAGE[y] + '">'
+            '<strong>' + _YEAR_LABEL[y] + '</strong>'
+            '<span>' + str(len(_pages[y])) + ' 篇</span></a>')
+    return ('<section class="years" id="years"><h2>按年份浏览</h2>'
+            '<div class="year-grid">' + "".join(cards) + '</div></section>')
+
+def _guide_section(href_for):
+    try:
+        _known_ids = set(id_map.values())
+        _miss = sorted({r["id"] for g in GUIDE for r in g["reads"]} - _known_ids |
+                       {k for k in ALIASES if k not in _known_ids})
+        if _miss:
+            print("WARN guide/aliases 引用缺失 id:", _miss)
+        _cards = []
+        for g in GUIDE:
+            _reads = [r for r in g["reads"] if r["id"] in _known_ids]
+            if not _reads:
+                continue
+            _chips = "".join(
+                f'<button type="button" class="ft-chip" data-q="{_html.escape(c, quote=True)}">{_html.escape(c)}</button>'
+                for c in g["chips"])
+            _ritems = "".join(
+                f'<li><span class="ft-r">{_html.escape(r["role"])}</span>'
+                f'<a href="{href_for(r["id"])}">{_html.escape(r["label"])}</a></li>'
+                for r in _reads)
+            _cards.append(
+                f'<article class="ftcard"><h3 class="ft-t">{_html.escape(g["title"])}</h3>'
+                f'<p class="ft-scene">{_html.escape(g["scene"])}</p>'
+                f'<blockquote class="ft-quote"><p>{_html.escape(g["quote"])}</p>'
+                f'<cite>— <a href="{href_for(_reads[0]["id"])}">{_html.escape(_reads[0]["label"])}</a></cite></blockquote>'
+                f'<div class="ft-chips">{_chips}</div>'
+                f'<ul class="ft-reads">{_ritems}</ul>'
+                f'<p class="ft-notice">{_html.escape(g["notice"])}</p></article>')
+        if not _cards:
+            return ""
         _primary = "".join(_cards[:6])
         _more = ""
         if len(_cards) > 6:
             _more = ('<details class="ftmore"><summary>展开其余 '
                      f'{len(_cards) - 6} 条路线</summary>'
                      '<div class="ftcards">' + "".join(_cards[6:]) + '</div></details>')
-        _guide_html = ('<section class="firsttime" id="firsttime"><h2 class="ft-h">第一次来？从这里出发</h2>'
-                       '<p class="ft-sub">按场景导航 · 推荐与提示为编辑整理，非原典内容</p>'
-                       '<div class="ftcards">' + _primary + '</div>' + _more + '</section>')
-    _anchor = '<div class="layout">'
-    if _guide_html and _anchor in body_html:
-        body_html = body_html.replace(_anchor, _guide_html + _anchor, 1)
-        print(f"OK: 「第一次来」区已插入（{len(_cards)} 卡，首屏 6 卡）")
-    else:
-        print("WARN 「第一次来」区未插入（anchor 缺失或无卡）")
-except Exception as e:
-    print("WARN 「第一次来」区生成失败:", e)
+        print(f"OK: 「第一次来」区 {len(_cards)} 卡")
+        return ('<section class="firsttime" id="firsttime"><h2 class="ft-h">第一次来？从这里出发</h2>'
+                '<p class="ft-sub">按场景导航 · 推荐与提示为编辑整理，非原典内容</p>'
+                '<div class="ftcards">' + _primary + '</div>' + _more + '</section>')
+    except Exception as e:
+        print("WARN 「第一次来」区生成失败:", e)
+        return ""
+
+def _online_href(sid):
+    return _id_page.get(sid, 'index.html') + '#' + sid
+
+def _offline_href(sid):
+    return '#' + sid
+
+_guide_online = _guide_section(_online_href)
+_guide_offline = _guide_section(_offline_href)
+
+# 首页/年份页正文
+_home_body = _intro_html + _guide_online + _latest_section(10) + _years_section()
+_year_bodies = {}
+_yearch_head = {}
+for _y, _items in _pages.items():
+    _label = _YEAR_LABEL.get(_y, _y)
+    _yearch_head[_y] = ('<div class="yearhead"><a class="back" href="index.html">← 返回首页</a>'
+                        f'<h1>{_label}</h1><p>共 {len(_items)} 篇 · 按时间倒序</p></div>')
+    _year_bodies[_y] = _yearch_head[_y] + _layout_html(_items)
+_offline_body = _intro_html + _guide_offline + _layout_html(_entries)
 
 # 5) 组装 index.html（Apple CN 排版 + Medium 阅读 + 侧栏目录）
 css = """
@@ -502,6 +616,29 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 .ft-reads a:hover{color:var(--cin);border-color:var(--cin)}
 .ft-notice{margin:12px 0 0;padding-top:9px;border-top:1px dashed var(--line);color:var(--muted);font-size:11.5px;line-height:1.75}
 @media(max-width:960px){.firsttime{padding:0 20px 46px}.ftcards{grid-template-columns:1fr;gap:14px}}
+/* ---- 分页导航（10-19 施工）：首页最新/年份卡 + 年份页头 ---- */
+.latest,.years{max-width:1024px;margin:0 auto;padding:0 32px 56px}
+.latest h2,.years h2{margin:0 0 18px;color:var(--ink);font-size:20px;font-weight:700;letter-spacing:.06em;text-align:center}
+.latest-list{margin:0;padding:0;list-style:none;border-top:1px solid var(--line)}
+.latest-item{border-bottom:1px solid var(--line)}
+.latest-item a{display:flex;align-items:baseline;gap:18px;padding:14px 4px;color:var(--ink);text-decoration:none}
+.latest-date{flex:none;width:92px;color:var(--muted);font-size:12px;letter-spacing:.02em}
+.latest-title{min-width:0;font-size:15.5px;font-weight:600;line-height:1.7}
+.latest-item a:hover .latest-title{color:var(--cin)}
+.year-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.year-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:20px 12px;border:1px solid var(--line);border-radius:14px;background:var(--paper2);color:var(--ink);text-decoration:none;transition:border-color .2s,color .2s}
+.year-card strong{font-size:20px;font-weight:700;letter-spacing:.06em}
+.year-card span{color:var(--muted);font-size:12px}
+.year-card:hover{border-color:var(--gold);color:var(--cin)}
+.hero.compact .doctitle{padding:64px 24px 46px}
+.hero.compact h1{font-size:56px}
+.yearhead{max-width:720px;margin:0 auto;padding:44px 24px 8px;text-align:center;color:var(--muted)}
+.yearhead .back{color:var(--gold);font-size:13px;text-decoration:none}
+.yearhead .back:hover{color:var(--cin)}
+.yearhead h1{margin:10px 0 4px;color:var(--ink);font-size:34px;font-weight:700;letter-spacing:.08em}
+.yearhead p{margin:0;font-size:12.5px;letter-spacing:.05em}
+@media(max-width:960px){.latest,.years{padding:0 20px 44px}.year-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.latest-item a{gap:10px;padding:12px 2px;align-items:flex-start}.latest-date{width:72px;font-size:11.5px}.latest-title{font-size:14.5px}.hero.compact .doctitle{padding:42px 22px 30px}.hero.compact h1{font-size:40px}.yearhead{padding:30px 20px 6px}.yearhead h1{font-size:28px}}
 """
 
 js = """
@@ -550,10 +687,13 @@ document.getElementById('toReading').addEventListener('click',function(){
   window.scrollTo({top:0,behavior:'smooth'});
 });
 document.addEventListener('toggle',function(ev){if(ev.target&&ev.target.classList&&ev.target.classList.contains('entry')){updateNav();}},true);
-var saved=0;try{saved=parseInt(localStorage.getItem('ghl_scroll')||'0',10)}catch(e){}
+var SCROLL_KEY='ghl_scroll_'+(window.__GHL_PAGE__||'index.html');
+var saved=0;try{saved=parseInt(localStorage.getItem(SCROLL_KEY)||'0',10)}catch(e){}
 if(saved>0&&!location.hash){window.scrollTo(0,saved)}
-var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(function(){try{localStorage.setItem('ghl_scroll',String(window.scrollY))}catch(e){}},400);findCur();updateNav();},{passive:true});
+var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(function(){try{localStorage.setItem(SCROLL_KEY,String(window.scrollY))}catch(e){}},400);findCur();updateNav();},{passive:true});
 })();
+/* 跨页锚点（10-19 分页）：旧 #sec-NN / #ghl 若不在本页，按 id→page 表重定向（保留原 hash） */
+(function(){var h=(location.hash||'').slice(1);if(!h)return;if(document.getElementById(h))return;var LG=(window.__GHL_LEGACY__||{});var t=/^sec-[0-9]+$/.test(h)?LG[h]:h;if(!t||!/^ghl-[0-9]+$/.test(t))return;var pg=(window.__GHL_IDPAGE__||{})[t];if(pg&&pg!==(window.__GHL_PAGE__||''))location.replace(pg+'#'+h);})();
 /* 旧 #sec-NN / 新 #ghl 直链（10-14）：载入时展开命中条目（原生锚点负责滚动，这里补展开） */
 (function(){var LG=(window.__GHL_LEGACY__||{});var h=(location.hash||'').slice(1);if(!h)return;var t=/^sec-[0-9]+$/.test(h)?LG[h]:h;if(!t||!/^ghl-[0-9]+$/.test(t))return;var d=document.getElementById(t);if(d){d.open=true;}})();
 (function(){var d=document.querySelector('details.tocm');if(d){var wide=null;function sync(){var now=window.innerWidth>960;if(now!==wide){d.open=now;wide=now;}}sync();window.addEventListener('resize',sync);}})();
@@ -607,7 +747,7 @@ var h='';
 if(soft)h+='<div class="qnote">没有与「'+esc(q)+'」完全匹配的内容，以下按关键词近似检索：</div>';
 h+='<div class="qcount">'+out.length+' 条结果'+(soft?'（近似）':'')+'</div>';
 for(i=0;i<out.length;i++){var e3=out[i];var lw=(soft&&e3._bg)?e3._bg:qs;
-  h+='<div class="qitem" data-id="'+e3.id+'"><div class="qhead"><span class="qt">'+hl(String(e3.title||''),e3._tl,lw)+'</span><span class="qd">'+esc(e3.date||'')+'</span></div><div class="qs">'+snipH(String(e3.text||''),e3._xl,lw)+'</div></div>';
+  h+='<div class="qitem" data-id="'+e3.id+'" data-page="'+esc(e3.page||'')+'"><div class="qhead"><span class="qt">'+hl(String(e3.title||''),e3._tl,lw)+'</span><span class="qd">'+esc(e3.date||'')+'</span></div><div class="qs">'+snipH(String(e3.text||''),e3._xl,lw)+'</div></div>';
 }
 res.innerHTML=h;res.classList.add('on');});}
 box.addEventListener('input',function(){render(box.value)});
@@ -615,8 +755,10 @@ box.addEventListener('focus',function(){if(box.value.trim())render(box.value)});
 res.addEventListener('click',function(ev){var n=ev.target;
 while(n&&n!==res&&!(n.classList&&(n.classList.contains('qitem')||n.classList.contains('qgr'))))n=n.parentNode;
 if(!n||n===res)return;
-if(n.classList.contains('qgr')){res.classList.remove('on');var ft=document.getElementById('firsttime');if(ft)ft.scrollIntoView({behavior:'smooth',block:'start'});return;}
-var id=n.getAttribute('data-id');res.classList.remove('on');var a=document.querySelector('.toc a[href="#'+id+'"]');if(a)a.click();var el=document.getElementById(id);if(el){setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},60);}});
+if(n.classList.contains('qgr')){res.classList.remove('on');var ft=document.getElementById('firsttime');if(ft){ft.scrollIntoView({behavior:'smooth',block:'start'});}else{location.href='index.html#firsttime';}return;}
+var id=n.getAttribute('data-id');var pg=n.getAttribute('data-page')||'';res.classList.remove('on');var el=document.getElementById(id);
+if(!el&&pg&&pg!==(window.__GHL_PAGE__||'')){location.href=pg+'#'+id;return;}
+var a=document.querySelector('.toc a[href="#'+id+'"]');if(a)a.click();if(el){setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},60);}});
 document.addEventListener('click',function(ev){var n=ev.target;while(n){if(n.classList&&n.classList.contains('searchbar'))return;n=n.parentNode;}res.classList.remove('on');});
 document.querySelectorAll('.ft-chip').forEach(function(b){b.addEventListener('click',function(){box.value=b.getAttribute('data-q');render(box.value);box.scrollIntoView({behavior:'smooth',block:'center'});try{box.focus({preventScroll:true})}catch(e){}});});
 })();
@@ -624,59 +766,7 @@ document.querySelectorAll('.ft-chip').forEach(function(b){b.addEventListener('cl
 (function(){document.querySelectorAll('.firsttime a[href^="#ghl-"]').forEach(function(a){a.addEventListener('click',function(){var d=document.getElementById(a.getAttribute('href').slice(1));if(d)d.open=true;});});})();
 """
 
-html = f"""<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>📿 归海录 · 志远行空</title>
-<meta name="description" content="归海录：志远行空的日常分享与 YouTube 视频讲法合集——每一段语音，一个故事，一个道理，润物无声。按时间倒序，持续更新。">
-<meta property="og:title" content="📿 归海录 · 志远行空">
-<meta property="og:description" content="志远行空的日常分享与 YouTube 视频讲法合集。因果、修行、认知、人间智慧——百川归海，智慧汇流。">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://guihailu.github.io/cover.jpg">
-<script>try{{if(localStorage.getItem('ghl_theme')==='dark')document.documentElement.classList.add('dark')}}catch(e){{}}</script>
-<script>window.__GHL_LEGACY__={legacy_json};</script>
-<link rel="stylesheet" href="style.v5.css">
-</head>
-<body id="top">
-<div id="progress"></div>
-<header class="hero">
-  <div class="doctitle">
-    <div class="titleline"><h1>归海录<span class="seal" aria-hidden="true">归<br>海</span></h1></div>
-    <p class="sub">归海2026 · 志远行空</p>
-    <a class="yt" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ YouTube</a>
-  </div>
-</header>
-<div class="searchbar"><div class="searchwrap"><input id="q" type="search" placeholder="搜索全文…" autocomplete="off" aria-label="搜索全文"><div id="qres"></div></div></div>
-<div class="paper">
-{body_html}
-</div>
-<footer>
-  <div class="flinks">
-    <a class="fbtn" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ 志远行空 YouTube 频道</a>
-    <a class="fbtn" href="https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a>
-    <a class="fbtn" href="https://www.oceanwards.com/" target="_blank" rel="noopener">🌊 归海论坛</a>
-    <a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>
-  </div>
-  <div class="fmeta">归海录 · 持续更新中{_footer_date}</div>
-</footer>
-<div class="navstack">
-  <button class="navbtn" id="toReading" aria-label="回到本篇开头">↩ 本篇开头</button>
-  <button class="navbtn" id="toTop" aria-label="回到文档顶部">↑ 顶部</button>
-</div>
-<button id="toggle" aria-label="切换深浅色">🌙</button>
-<script src="main.v5.js" defer></script>
-</body>
-</html>"""
-
-# 三文件输出：LF 行尾；CSS/主 JS 外置，页头保留主题初始化内联脚本
-(HERE / "style.v5.css").write_text(css, encoding="utf-8", newline="\n")
-(HERE / "main.v5.js").write_text(js, encoding="utf-8", newline="\n")
-out = HERE / "index.html"
-out.write_text(html, encoding="utf-8", newline="\n")
-
-# 6) 全文检索索引 + 离线单文件版（10-07 新增；失败不阻塞主链路，退出码仍 0）
+# 6) 全文检索索引（先于页面组装：离线版要内嵌）——条目带 page 字段供跨页跳转
 def _note(msg):
     with open(HERE / "sync_log.txt", "a", encoding="utf-8") as f:
         f.write(msg + "\n")
@@ -703,19 +793,19 @@ def _plain(s):
 
 try:
     _items = []
-    for m in re.finditer(r'<details class="entry" id="(ghl-\d+)">(.*?)</details>', body_html, re.S):
-        sid, blk = m.group(1), m.group(2)
-        tm = re.search(r'<h2>(.*?)</h2>', blk, re.S)
-        dm = re.search(r'<span class="date">(.*?)</span>', blk, re.S)
+    for _e in _entries:
+        sid = _e['id']; blk = _e['block']
         bm = re.search(r'<div class="entry-body">(.*)$', blk, re.S)
-        _title = _plain(tm.group(1) if tm else '')
-        # 10-14：date=首个合法 YYYY-MM-DD（不定则空，不伪造）；meta=徽章原文整串留档
-        _meta = _plain(dm.group(1) if dm else '').replace('📌', '').strip()
-        _dmm = re.search(r'20\d{2}-\d{2}-\d{2}', _meta)
+        _title = _plain(_e['title'])
+        # 10-14：date=首个合法 YYYY-MM-DD（不定则空，不伪造）；10-19 起徽章缺失时用目录日期补
+        _meta = _plain(_e['meta']).replace('📌', '').strip()
+        _dmm = (re.search(r'20\d{2}-\d{2}-\d{2}', _meta)
+                or re.search(r'20\d{2}-\d{2}-\d{2}', _e['date']))
         _date = _dmm.group(0) if _dmm else ''
         _text = _plain(bm.group(1) if bm else '')
         if sid and _title:
-            _it = {"id": sid, "title": _title, "date": _date, "meta": _meta, "text": _text}
+            _it = {"id": sid, "title": _title, "date": _date, "meta": _meta,
+                   "text": _text, "page": _e['page'], "year": _e['year']}
             # 10-17 施工窗 2：简繁归一增量（差异补丁，见 _norm_extra）+ 检索别名
             _te = _norm_extra(_title)
             if _te:
@@ -727,7 +817,7 @@ try:
             if _al:
                 _it["aliases"] = list(_al)
             _items.append(_it)
-    # 顶层新增 guide / t2s（10-17 施工窗 2）；指纹覆盖全部内容，保幂等
+    # 顶层新增 guide / t2s（10-17 施工窗 2）；指纹覆盖全部内容（含 page/year），保幂等
     _payload = {"guide": GUIDE, "t2s": _t2s_pairs, "entries": _items}
     _fp = hashlib.sha256(json.dumps(_payload, ensure_ascii=False, sort_keys=True,
                                     separators=(',', ':')).encode('utf-8')).hexdigest()[:12]
@@ -739,22 +829,100 @@ try:
 except Exception as e:
     _note("WARN search_index 生成失败: %r" % (e,))
     print("WARN: search_index.json 生成失败:", e)
+    _idx_json = json.dumps({"generated": "", "count": 0, "guide": GUIDE,
+                            "t2s": _t2s_pairs, "entries": []}, ensure_ascii=False,
+                           separators=(",", ":"))
 
+# 5) 多页组装：首页 / 年份页 / 离线版（2026-10-19 分页施工）
+_idpage_json = json.dumps(_id_page, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+
+def _render_page(page_name, page_title, page_desc, body, *, compact=False, inline=False):
+    hero_cls = "hero compact" if compact else "hero"
+    if inline:
+        css_tag = "<style>\n" + css + "</style>"
+        js_tag = ('<script>window.__GHL_INDEX__=' + _idx_json.replace('</', '<\\/') + ';</script>\n'
+                  '<script>' + js + '</script>')
+        dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
+        globals_tag = ''
+    else:
+        css_tag = '<link rel="stylesheet" href="style.v5.css">'
+        js_tag = '<script src="main.v5.js" defer></script>'
+        dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
+        globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
+                       ';window.__GHL_IDPAGE__=' + _idpage_json + ';</script>')
+    _t = _html.escape(page_title, quote=True)
+    _d = _html.escape(page_desc, quote=True)
+    return f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{_t}</title>
+<meta name="description" content="{_d}">
+<meta property="og:title" content="{_t}">
+<meta property="og:description" content="{_d}">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://guihailu.github.io/cover.jpg">
+<script>try{{if(localStorage.getItem('ghl_theme')==='dark')document.documentElement.classList.add('dark')}}catch(e){{}}</script>
+<script>window.__GHL_LEGACY__={legacy_json};</script>
+{globals_tag}
+{css_tag}
+</head>
+<body id="top">
+<div id="progress"></div>
+<header class="{hero_cls}">
+  <div class="doctitle">
+    <div class="titleline"><h1>归海录<span class="seal" aria-hidden="true">归<br>海</span></h1></div>
+    <p class="sub">归海2026 · 志远行空</p>
+    <a class="yt" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ YouTube</a>
+  </div>
+</header>
+<div class="searchbar"><div class="searchwrap"><input id="q" type="search" placeholder="搜索全文…" autocomplete="off" aria-label="搜索全文"><div id="qres"></div></div></div>
+<div class="paper">
+{body}
+</div>
+<footer>
+  <div class="flinks">
+    <a class="fbtn" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ 志远行空 YouTube 频道</a>
+    <a class="fbtn" href="https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a>
+    <a class="fbtn" href="https://www.oceanwards.com/" target="_blank" rel="noopener">🌊 归海论坛</a>
+    {dl_tag}
+  </div>
+  <div class="fmeta">归海录 · 持续更新中{_footer_date}</div>
+</footer>
+<div class="navstack">
+  <button class="navbtn" id="toReading" aria-label="回到本篇开头">↩ 本篇开头</button>
+  <button class="navbtn" id="toTop" aria-label="回到文档顶部">↑ 顶部</button>
+</div>
+<button id="toggle" aria-label="切换深浅色">🌙</button>
+{js_tag}
+</body>
+</html>"""
+
+(HERE / "style.v5.css").write_text(css, encoding="utf-8", newline="\n")
+(HERE / "main.v5.js").write_text(js, encoding="utf-8", newline="\n")
+
+_HOME_DESC = ("归海录：志远行空的日常分享与 YouTube 视频讲法合集——每一段语音，一个故事，"
+              "一个道理，润物无声。按时间倒序，持续更新。")
+_HOME_TITLE = "📿 归海录 · 志远行空"
+(HERE / "index.html").write_text(
+    _render_page("index.html", _HOME_TITLE, _HOME_DESC, _home_body), encoding="utf-8", newline="\n")
+print(f"OK: index.html {(HERE/'index.html').stat().st_size} B")
+
+for _y, _items in _pages.items():
+    _label = _YEAR_LABEL.get(_y, _y)
+    _fn = _YEAR_PAGE[_y]
+    _title = f"📿 归海录 · {_label} · 志远行空"
+    _desc = f"归海录 · {_label}：志远行空的日常分享与 YouTube 视频讲法合集，共 {len(_items)} 篇。"
+    (HERE / _fn).write_text(
+        _render_page(_fn, _title, _desc, _year_bodies[_y], compact=True),
+        encoding="utf-8", newline="\n")
+    print(f"OK: {_fn} {(HERE/_fn).stat().st_size} B ({len(_items)} 条)")
+
+# 离线单文件版：全集单页 + 内联 CSS/JS/索引（file:// 可搜索）
 try:
-    _off = html.replace('<link rel="stylesheet" href="style.v5.css">',
-                        "<style>\n" + css + "</style>", 1)
-    if '<style>' not in _off:
-        raise ValueError('style 内联替换失败')
-    _off = _off.replace('<script src="main.v5.js" defer></script>',
-                        '<script>window.__GHL_INDEX__=' + _idx_json.replace('</', '<\\/') + ';</script>\n<script>' + js + '</script>', 1)
-    if 'window.__GHL_INDEX__=' not in _off:
-        raise ValueError('js 内联替换失败')
-    _dl = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
-    if _dl not in _off:
-        raise ValueError('下载入口锚点缺失')
-    _off = _off.replace(_dl, '<span class="fbtn">📥 本页即离线版</span>', 1)
-    # 离线版图片走在线链接：feishu 原链 → 站点已镜像的公开图（与 mirror_media 同源缓存；
-    # 未命中则保留原链回落，不下载、不阻塞）
+    _off = _render_page("归海录_离线版.html", _HOME_TITLE, _HOME_DESC, _offline_body, inline=True)
+    # 离线版图片走在线链接：feishu 原链 → 站点已镜像的公开图（未命中则保留原链回落）
     _resolved = 0
     for _tok in dict.fromkeys(re.findall(r'https://feishu\.cn/file/([A-Za-z0-9]+)', _off)):
         _stem = hashlib.sha256(_tok.encode('ascii')).hexdigest()[:20]
@@ -769,4 +937,4 @@ try:
 except Exception as e:
     _note("WARN 离线版生成失败: %r" % (e,))
     print("WARN: 归海录_离线版.html 生成失败:", e)
-print(f"OK: index.html {out.stat().st_size} B | style.v5.css {(HERE/'style.v5.css').stat().st_size} B | main.v5.js {(HERE/'main.v5.js').stat().st_size} B")
+print(f"OK: style.v5.css {(HERE/'style.v5.css').stat().st_size} B | main.v5.js {(HERE/'main.v5.js').stat().st_size} B")

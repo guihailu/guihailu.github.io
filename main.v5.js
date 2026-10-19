@@ -44,10 +44,13 @@ document.getElementById('toReading').addEventListener('click',function(){
   window.scrollTo({top:0,behavior:'smooth'});
 });
 document.addEventListener('toggle',function(ev){if(ev.target&&ev.target.classList&&ev.target.classList.contains('entry')){updateNav();}},true);
-var saved=0;try{saved=parseInt(localStorage.getItem('ghl_scroll')||'0',10)}catch(e){}
+var SCROLL_KEY='ghl_scroll_'+(window.__GHL_PAGE__||'index.html');
+var saved=0;try{saved=parseInt(localStorage.getItem(SCROLL_KEY)||'0',10)}catch(e){}
 if(saved>0&&!location.hash){window.scrollTo(0,saved)}
-var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(function(){try{localStorage.setItem('ghl_scroll',String(window.scrollY))}catch(e){}},400);findCur();updateNav();},{passive:true});
+var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(function(){try{localStorage.setItem(SCROLL_KEY,String(window.scrollY))}catch(e){}},400);findCur();updateNav();},{passive:true});
 })();
+/* 跨页锚点（10-19 分页）：旧 #sec-NN / #ghl 若不在本页，按 id→page 表重定向（保留原 hash） */
+(function(){var h=(location.hash||'').slice(1);if(!h)return;if(document.getElementById(h))return;var LG=(window.__GHL_LEGACY__||{});var t=/^sec-[0-9]+$/.test(h)?LG[h]:h;if(!t||!/^ghl-[0-9]+$/.test(t))return;var pg=(window.__GHL_IDPAGE__||{})[t];if(pg&&pg!==(window.__GHL_PAGE__||''))location.replace(pg+'#'+h);})();
 /* 旧 #sec-NN / 新 #ghl 直链（10-14）：载入时展开命中条目（原生锚点负责滚动，这里补展开） */
 (function(){var LG=(window.__GHL_LEGACY__||{});var h=(location.hash||'').slice(1);if(!h)return;var t=/^sec-[0-9]+$/.test(h)?LG[h]:h;if(!t||!/^ghl-[0-9]+$/.test(t))return;var d=document.getElementById(t);if(d){d.open=true;}})();
 (function(){var d=document.querySelector('details.tocm');if(d){var wide=null;function sync(){var now=window.innerWidth>960;if(now!==wide){d.open=now;wide=now;}}sync();window.addEventListener('resize',sync);}})();
@@ -101,7 +104,7 @@ var h='';
 if(soft)h+='<div class="qnote">没有与「'+esc(q)+'」完全匹配的内容，以下按关键词近似检索：</div>';
 h+='<div class="qcount">'+out.length+' 条结果'+(soft?'（近似）':'')+'</div>';
 for(i=0;i<out.length;i++){var e3=out[i];var lw=(soft&&e3._bg)?e3._bg:qs;
-  h+='<div class="qitem" data-id="'+e3.id+'"><div class="qhead"><span class="qt">'+hl(String(e3.title||''),e3._tl,lw)+'</span><span class="qd">'+esc(e3.date||'')+'</span></div><div class="qs">'+snipH(String(e3.text||''),e3._xl,lw)+'</div></div>';
+  h+='<div class="qitem" data-id="'+e3.id+'" data-page="'+esc(e3.page||'')+'"><div class="qhead"><span class="qt">'+hl(String(e3.title||''),e3._tl,lw)+'</span><span class="qd">'+esc(e3.date||'')+'</span></div><div class="qs">'+snipH(String(e3.text||''),e3._xl,lw)+'</div></div>';
 }
 res.innerHTML=h;res.classList.add('on');});}
 box.addEventListener('input',function(){render(box.value)});
@@ -109,8 +112,10 @@ box.addEventListener('focus',function(){if(box.value.trim())render(box.value)});
 res.addEventListener('click',function(ev){var n=ev.target;
 while(n&&n!==res&&!(n.classList&&(n.classList.contains('qitem')||n.classList.contains('qgr'))))n=n.parentNode;
 if(!n||n===res)return;
-if(n.classList.contains('qgr')){res.classList.remove('on');var ft=document.getElementById('firsttime');if(ft)ft.scrollIntoView({behavior:'smooth',block:'start'});return;}
-var id=n.getAttribute('data-id');res.classList.remove('on');var a=document.querySelector('.toc a[href="#'+id+'"]');if(a)a.click();var el=document.getElementById(id);if(el){setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},60);}});
+if(n.classList.contains('qgr')){res.classList.remove('on');var ft=document.getElementById('firsttime');if(ft){ft.scrollIntoView({behavior:'smooth',block:'start'});}else{location.href='index.html#firsttime';}return;}
+var id=n.getAttribute('data-id');var pg=n.getAttribute('data-page')||'';res.classList.remove('on');var el=document.getElementById(id);
+if(!el&&pg&&pg!==(window.__GHL_PAGE__||'')){location.href=pg+'#'+id;return;}
+var a=document.querySelector('.toc a[href="#'+id+'"]');if(a)a.click();if(el){setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},60);}});
 document.addEventListener('click',function(ev){var n=ev.target;while(n){if(n.classList&&n.classList.contains('searchbar'))return;n=n.parentNode;}res.classList.remove('on');});
 document.querySelectorAll('.ft-chip').forEach(function(b){b.addEventListener('click',function(){box.value=b.getAttribute('data-q');render(box.value);box.scrollIntoView({behavior:'smooth',block:'center'});try{box.focus({preventScroll:true})}catch(e){}});});
 })();

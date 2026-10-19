@@ -27,7 +27,8 @@ run([sys.executable, "build_site.py"], env=env)
 # 3) 将需要登录的 Lark 图片镜像成公开静态资源
 run([sys.executable, "mirror_media.py"], env=env)
 # 4) git 提交推送（无变化则静默跳过；页面与资源必须同一次提交）
-run(["git", "add", "index.html", "guihailu.md", "build_site.py",
+run(["git", "add", "index.html", "2026.html", "2025.html", "2024.html", "undated.html",
+     "guihailu.md", "build_site.py",
      "sync_site.py", "mirror_media.py", "style.v5.css", "main.v5.js",
      "search_index.json", "归海录_离线版.html", "id_map.json",
      "legacy_anchors.json", "guide_data.py", "t2s.json", "media"])

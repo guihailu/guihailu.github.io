@@ -12,7 +12,8 @@ import tempfile
 
 HERE = pathlib.Path(__file__).resolve().parent
 MEDIA = HERE / "media"
-INDEX = HERE / "index.html"
+PAGES = [HERE / name for name in
+         ("index.html", "2026.html", "2025.html", "2024.html", "undated.html")]
 IMAGE = re.compile(r'(<img\b[^>]*?\bsrc=")https://feishu\.cn/file/([A-Za-z0-9]+)("[^>]*>)')
 EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
 
@@ -65,27 +66,33 @@ def local_image(token):
 
 
 def main():
-    html = INDEX.read_text(encoding="utf-8")
-    tokens = set(IMAGE.findall(html))
-    if not tokens:
+    mirrored = 0
+    for page in PAGES:
+        if not page.exists():
+            continue
+        html = page.read_text(encoding="utf-8")
+        tokens = set(IMAGE.findall(html))
+        if not tokens:
+            continue
+        replacements = {}
+        for _, token, _ in tokens:
+            replacements[token] = "media/" + local_image(token).name
+
+        def replace(match):
+            beginning, token, ending = match.groups()
+            if "loading=" not in ending:
+                ending = ending.replace(" />", ' loading="lazy" decoding="async" />')
+            path = replacements[token]
+            image = beginning + path + ending
+            return f'<a href="{path}" target="_blank" rel="noopener" aria-label="打开原图">{image}</a>'
+
+        updated = IMAGE.sub(replace, html)
+        if updated != html:
+            page.write_text(updated, encoding="utf-8", newline="")
+        print(f"Mirrored {len(replacements)} unique images in {page.name}")
+        mirrored += len(replacements)
+    if not mirrored:
         print("No Lark images to mirror")
-        return
-    replacements = {}
-    for _, token, _ in tokens:
-        replacements[token] = "media/" + local_image(token).name
-
-    def replace(match):
-        beginning, token, ending = match.groups()
-        if "loading=" not in ending:
-            ending = ending.replace(" />", ' loading="lazy" decoding="async" />')
-        path = replacements[token]
-        image = beginning + path + ending
-        return f'<a href="{path}" target="_blank" rel="noopener" aria-label="打开原图">{image}</a>'
-
-    updated = IMAGE.sub(replace, html)
-    if updated != html:
-        INDEX.write_text(updated, encoding="utf-8", newline="")
-    print(f"Mirrored {len(replacements)} unique images")
 
 
 if __name__ == "__main__":
