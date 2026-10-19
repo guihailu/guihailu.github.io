@@ -339,8 +339,11 @@ def _entry_date(sid, meta):
     m = re.search(r'20\d{2}-\d{2}(?:-\d{2})?|20\d{2}年', _tail)
     return m.group(0) if m else ''
 
-_YEAR_PAGE = {'2026': '2026.html', '2025': '2025.html', '2024': '2024.html', 'NODATE': 'undated.html'}
-_YEAR_LABEL = {'2026': '2026', '2025': '2025', '2024': '2024', 'NODATE': '未编年'}
+_YEAR_LABEL = {'NODATE': '未编年'}
+
+def _page_for_year(y):
+    """年份页文件名：任意 20xx 自动生成；无日期统一 undated.html（10-19 动态化，防未来年份落错页）。"""
+    return f"{y}.html" if re.fullmatch(r"20\d{2}", str(y)) else 'undated.html'
 
 _entries = []
 for _sid, _block in _entry_blocks:
@@ -349,7 +352,7 @@ for _sid, _block in _entry_blocks:
     _entries.append({
         'id': _sid, 'block': _block, 'title': _title, 'meta': _meta,
         'year': _year, 'date': _entry_date(_sid, _meta),
-        'page': _YEAR_PAGE.get(_year, 'undated.html'),
+        'page': _page_for_year(_year),
     })
 _id_page = {e['id']: e['page'] for e in _entries}
 
@@ -378,7 +381,7 @@ def _layout_html(items):
 def _latest_section(n=10):
     lis = []
     for e in _entries[:n]:
-        _disp = e['date'] or _YEAR_LABEL.get(e['year'], '')
+        _disp = e['date'] or _YEAR_LABEL.get(e['year'], e['year'] if e['year'] != 'NODATE' else '')
         lis.append(
             '<li class="latest-item"><a href="' + e['page'] + '#' + e['id'] + '">'
             '<span class="latest-date">' + _html.escape(_disp) + '</span>'
@@ -388,12 +391,13 @@ def _latest_section(n=10):
 
 def _years_section():
     cards = []
-    for y in ('2026', '2025', '2024', 'NODATE'):
-        if y not in _pages:
-            continue
+    _ys = sorted((y for y in _pages if y != 'NODATE'), reverse=True)
+    if 'NODATE' in _pages:
+        _ys.append('NODATE')
+    for y in _ys:
         cards.append(
-            '<a class="year-card" href="' + _YEAR_PAGE[y] + '">'
-            '<strong>' + _YEAR_LABEL[y] + '</strong>'
+            '<a class="year-card" href="' + _page_for_year(y) + '">'
+            '<strong>' + _YEAR_LABEL.get(y, y) + '</strong>'
             '<span>' + str(len(_pages[y])) + ' 篇</span></a>')
     return ('<section class="years" id="years"><h2>按年份浏览</h2>'
             '<div class="year-grid">' + "".join(cards) + '</div></section>')
@@ -911,7 +915,7 @@ print(f"OK: index.html {(HERE/'index.html').stat().st_size} B")
 
 for _y, _items in _pages.items():
     _label = _YEAR_LABEL.get(_y, _y)
-    _fn = _YEAR_PAGE[_y]
+    _fn = _page_for_year(_y)
     _title = f"📿 归海录 · {_label} · 志远行空"
     _desc = f"归海录 · {_label}：志远行空的日常分享与 YouTube 视频讲法合集，共 {len(_items)} 篇。"
     (HERE / _fn).write_text(

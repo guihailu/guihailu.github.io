@@ -12,8 +12,8 @@ import tempfile
 
 HERE = pathlib.Path(__file__).resolve().parent
 MEDIA = HERE / "media"
-PAGES = [HERE / name for name in
-         ("index.html", "2026.html", "2025.html", "2024.html", "undated.html")]
+PAGES = ([HERE / "index.html", HERE / "undated.html"] +
+         sorted(HERE.glob("20[0-9][0-9].html")))
 IMAGE = re.compile(r'(<img\b[^>]*?\bsrc=")https://feishu\.cn/file/([A-Za-z0-9]+)("[^>]*>)')
 EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
 
