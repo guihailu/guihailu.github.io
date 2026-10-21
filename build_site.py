@@ -704,7 +704,29 @@ var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout
 (function(){var p=document.querySelector('.intro p');if(p&&p.firstChild&&p.firstChild.nodeType===3){p.firstChild.textContent=p.firstChild.textContent.replace('💜 ','');}})();
 /* ---- 全文检索 v2（10-17 施工窗 2）：简繁归一 + 多字段排序 + 问题入口引导 ---- */
 (function(){var box=document.getElementById('q'),res=document.getElementById('qres');if(!box||!res)return;var idx=null;var p=null;
-function getIdx(){if(!p)p=(window.__GHL_INDEX__)?Promise.resolve(window.__GHL_INDEX__):fetch('search_index.json').then(function(r){if(!r.ok)throw 0;return r.json()}).catch(function(){return{entries:[],count:0,err:1}});return p;}
+function getIdx(){
+if(p)return p;
+if(window.__GHL_INDEX__){p=Promise.resolve(window.__GHL_INDEX__);return p;}
+var ss=window.__GHL_SHARDS__||[];
+var jobs=[];
+jobs.push(fetch('search_shared.json').then(function(r){if(!r.ok)throw 0;return r.json();}).catch(function(){return null;}));
+for(var si=0;si<ss.length;si++){
+  (function(u){
+    jobs.push(fetch(u).then(function(r){if(!r.ok)throw 0;return r.json();}).catch(function(){return null;}));
+  })(ss[si]);
+}
+p=Promise.all(jobs).then(function(a){
+  var sh=a[0]||{};
+  var es=[];
+  var ok=0;
+  for(var i=1;i<a.length;i++){
+    if(a[i]&&a[i].entries){es=es.concat(a[i].entries);ok++;}
+  }
+  if(!ok&&ss.length)throw 0;
+  return {generated:sh.generated||'',count:es.length,guide:sh.guide||[],t2s:sh.t2s||'',entries:es};
+}).catch(function(){return {entries:[],count:0,err:1};});
+return p;
+}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 var _t2s=null;
 function norm(s){if(!_t2s){_t2s={};var pr=(idx&&idx.t2s)||'';for(var i=0;i<pr.length;i+=2)_t2s[pr[i]]=pr[i+1];}var o='';for(var j=0;j<s.length;j++){o+=(_t2s[s[j]]||s[j]);}return o;}
@@ -795,6 +817,7 @@ def _plain(s):
            .replace('&quot;', '"').replace('&#39;', "'"))
     return re.sub(r'\s+', ' ', s).strip()
 
+_shards_json = "[]"
 try:
     _items = []
     for _e in _entries:
@@ -825,14 +848,47 @@ try:
     _payload = {"guide": GUIDE, "t2s": _t2s_pairs, "entries": _items}
     _fp = hashlib.sha256(json.dumps(_payload, ensure_ascii=False, sort_keys=True,
                                     separators=(',', ':')).encode('utf-8')).hexdigest()[:12]
+    # 离线版内嵌完整索引（file:// 可搜索）；在线版按年分片（10-21 C 方案）
     _idx_json = json.dumps({"generated": _fp, "count": len(_items), "guide": GUIDE,
                             "t2s": _t2s_pairs, "entries": _items},
                            ensure_ascii=False, separators=(',', ':'))
-    (HERE / "search_index.json").write_text(_idx_json + "\n", encoding="utf-8", newline="\n")
-    print(f"OK: search_index.json {len(_items)} entries, fingerprint {_fp}")
+    _shared_fp = hashlib.sha256(json.dumps({"guide": GUIDE, "t2s": _t2s_pairs},
+                                           ensure_ascii=False, sort_keys=True,
+                                           separators=(',', ':')).encode('utf-8')).hexdigest()[:12]
+    _shared_obj = {"generated": _shared_fp, "guide": GUIDE, "t2s": _t2s_pairs}
+    _shared_txt = json.dumps(_shared_obj, ensure_ascii=False, separators=(',', ':'))
+    (HERE / "search_shared.json").write_text(_shared_txt + "\n", encoding="utf-8", newline="\n")
+    _by_page = {}
+    for _it in _items:
+        _by_page.setdefault(_it.get("page") or "undated.html", []).append(_it)
+    _shard_names, _manifest_shards = [], []
+    _page_order = sorted(_by_page, key=lambda p: (p == "undated.html",
+                                                  -int(p[:-5]) if p[:-5].isdigit() else 0))
+    for _pg in _page_order:
+        _slug = _pg[:-5] if _pg.endswith(".html") else _pg
+        _fn = f"search_index_{_slug}.json"
+        _shard_items = _by_page[_pg]
+        _shard_fp = hashlib.sha256(json.dumps(_shard_items, ensure_ascii=False, sort_keys=True,
+                                              separators=(',', ':')).encode('utf-8')).hexdigest()[:12]
+        _shard_obj = {"generated": _shard_fp, "count": len(_shard_items), "entries": _shard_items}
+        _shard_txt = json.dumps(_shard_obj, ensure_ascii=False, separators=(',', ':'))
+        (HERE / _fn).write_text(_shard_txt + "\n", encoding="utf-8", newline="\n")
+        _shard_names.append(_fn)
+        _manifest_shards.append({"file": _fn, "page": _pg, "count": len(_shard_items),
+                                 "bytes": len(_shard_txt.encode("utf-8"))})
+        print(f"OK: {_fn} {len(_shard_items)} entries, {len(_shard_txt.encode('utf-8'))} B")
+    _shards_json = json.dumps(_shard_names, ensure_ascii=False, separators=(',', ':'))
+    _manifest = {"generated": _fp, "count": len(_items), "shared": "search_shared.json",
+                 "shards": _manifest_shards}
+    (HERE / "search_manifest.json").write_text(
+        json.dumps(_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+    _old_idx = HERE / "search_index.json"
+    if _old_idx.exists():
+        _old_idx.unlink()
+    print(f"OK: search shards {len(_shard_names)} files, total {len(_items)} entries, fingerprint {_fp}")
 except Exception as e:
-    _note("WARN search_index 生成失败: %r" % (e,))
-    print("WARN: search_index.json 生成失败:", e)
+    _note("WARN search shards 生成失败: %r" % (e,))
+    print("WARN: search shards 生成失败:", e)
     _idx_json = json.dumps({"generated": "", "count": 0, "guide": GUIDE,
                             "t2s": _t2s_pairs, "entries": []}, ensure_ascii=False,
                            separators=(",", ":"))
@@ -853,7 +909,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         js_tag = '<script src="main.v5.js" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
-                       ';window.__GHL_IDPAGE__=' + _idpage_json + ';</script>')
+                       ';window.__GHL_IDPAGE__=' + _idpage_json +
+                       ';window.__GHL_SHARDS__=' + _shards_json + ';</script>')
     _t = _html.escape(page_title, quote=True)
     _d = _html.escape(page_desc, quote=True)
     return f"""<!DOCTYPE html>

@@ -12524,7 +12524,29 @@ var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout
 (function(){var p=document.querySelector('.intro p');if(p&&p.firstChild&&p.firstChild.nodeType===3){p.firstChild.textContent=p.firstChild.textContent.replace('💜 ','');}})();
 /* ---- 全文检索 v2（10-17 施工窗 2）：简繁归一 + 多字段排序 + 问题入口引导 ---- */
 (function(){var box=document.getElementById('q'),res=document.getElementById('qres');if(!box||!res)return;var idx=null;var p=null;
-function getIdx(){if(!p)p=(window.__GHL_INDEX__)?Promise.resolve(window.__GHL_INDEX__):fetch('search_index.json').then(function(r){if(!r.ok)throw 0;return r.json()}).catch(function(){return{entries:[],count:0,err:1}});return p;}
+function getIdx(){
+if(p)return p;
+if(window.__GHL_INDEX__){p=Promise.resolve(window.__GHL_INDEX__);return p;}
+var ss=window.__GHL_SHARDS__||[];
+var jobs=[];
+jobs.push(fetch('search_shared.json').then(function(r){if(!r.ok)throw 0;return r.json();}).catch(function(){return null;}));
+for(var si=0;si<ss.length;si++){
+  (function(u){
+    jobs.push(fetch(u).then(function(r){if(!r.ok)throw 0;return r.json();}).catch(function(){return null;}));
+  })(ss[si]);
+}
+p=Promise.all(jobs).then(function(a){
+  var sh=a[0]||{};
+  var es=[];
+  var ok=0;
+  for(var i=1;i<a.length;i++){
+    if(a[i]&&a[i].entries){es=es.concat(a[i].entries);ok++;}
+  }
+  if(!ok&&ss.length)throw 0;
+  return {generated:sh.generated||'',count:es.length,guide:sh.guide||[],t2s:sh.t2s||'',entries:es};
+}).catch(function(){return {entries:[],count:0,err:1};});
+return p;
+}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 var _t2s=null;
 function norm(s){if(!_t2s){_t2s={};var pr=(idx&&idx.t2s)||'';for(var i=0;i<pr.length;i+=2)_t2s[pr[i]]=pr[i+1];}var o='';for(var j=0;j<s.length;j++){o+=(_t2s[s[j]]||s[j]);}return o;}

@@ -29,10 +29,12 @@ run([sys.executable, "mirror_media.py"], env=env)
 # 4) git 提交推送（无变化则静默跳过；页面与资源必须同一次提交）
 _page_files = (["index.html", "undated.html"] +
                sorted(p.name for p in HERE.glob("20[0-9][0-9].html")))
-run(["git", "add", *_page_files,
+_index_files = (["search_shared.json", "search_manifest.json", "search_index.json"] +
+                sorted(p.name for p in HERE.glob("search_index_*.json")))
+run(["git", "add", "-A", "--", *_page_files,
      "guihailu.md", "build_site.py",
      "sync_site.py", "mirror_media.py", "style.v5.css", "main.v5.js",
-     "search_index.json", "归海录_离线版.html", "id_map.json",
+     *_index_files, "归海录_离线版.html", "id_map.json",
      "legacy_anchors.json", "guide_data.py", "t2s.json", "media"])
 r = subprocess.run(["git", "commit", "-m", "站点同步：归海录更新"],
                    cwd=HERE, capture_output=True, text=True, encoding="utf-8", errors="replace")
