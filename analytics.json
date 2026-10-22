@@ -1,0 +1,5 @@
+{
+  "provider": "none",
+  "id": "",
+  "note": "provider: none | goatcounter | umami | baidu | 51la；填入 id 后重新构建即可启用；默认 none 不加载任何第三方脚本"
+}

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """归海录静态站构建：guihailu.md -> index.html（pandoc 转换）
 设计语言（照抄顶级站手法）：Apple CN 超大标题+留白 / Medium 衬线窄栏阅读 / VitePress 侧栏目录"""
-import re, pathlib, subprocess, sys, json, hashlib, html as _html
+import re, pathlib, subprocess, sys, json, hashlib, html as _html, urllib.parse
 from guide_data import GUIDE, ALIASES  # 问题入口数据（10-17 施工窗 2）
 
 HERE = pathlib.Path(__file__).parent
@@ -17,6 +17,32 @@ except Exception as _e:
 
 def norm_s(s):
     return "".join(T2S.get(c, c) for c in s)
+
+# 分析服务（A/B/C）：默认 none，不加载任何第三方；填 analytics.json 后构建即启用
+ANALYTICS = {}
+try:
+    ANALYTICS = json.loads((HERE / "analytics.json").read_text(encoding="utf-8"))
+except Exception as _e:
+    print("WARN analytics.json 读取失败，按 none 处理:", _e)
+
+def analytics_head():
+    p = str(ANALYTICS.get("provider", "none")).strip().lower()
+    i = str(ANALYTICS.get("id", "")).strip()
+    if not i or p in ("", "none"):
+        return ""
+    if p == "goatcounter":
+        return ('<script data-goatcounter="https://' + _html.escape(i, quote=True) +
+                '.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>')
+    if p == "umami":
+        return ('<script async src="https://cloud.umami.is/script.js" data-website-id="' +
+                _html.escape(i, quote=True) + '"></script>')
+    if p == "baidu":
+        return ('<script>(function(){var hm=document.createElement("script");hm.src="https://hm.baidu.com/hm.js?' +
+                _html.escape(i, quote=True) + '";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm,s);})();</script>')
+    if p == "51la":
+        return ('<script charset="UTF-8" id="LA_COLLECT" src="https://sdk.51.la/js-sdk-pro.min.js?id=' +
+                _html.escape(i, quote=True) + '"></script>')
+    return ""
 
 md = SRC.read_text(encoding="utf-8")
 
@@ -326,6 +352,9 @@ def wrap_entries(b):
             badge += ' · ' + dur_txt
         date_html = f'<span class="date">{_html.escape(badge)}</span>'
         ex_html = f'<span class="excerpt">{_html.escape(excerpt)}</span>' if excerpt else ''
+        _title_text = _html.unescape(re.sub(r'<[^>]+>', '', title)).strip()
+        _fb_url = 'feedback.html?title=' + urllib.parse.quote(_title_text, safe='')
+        chunk += f'<p class="entry-feedback"><a href="{_fb_url}">📮 这篇有错字或问题？反馈一下</a></p>'
         out.append(
             f'<details class="entry" id="{sid}">'
             f'<summary><h2>{title}</h2>{date_html}{ex_html}</summary>'
@@ -622,6 +651,23 @@ html.dark .entry-body h3{color:#d68476}html.dark .entry-body h4{color:var(--gold
 .entry-body th,.entry-body td{border:1px solid var(--line);padding:9px 13px;text-align:left}
 .entry-body th{background:var(--paper2);font-weight:600}.entry-body pre{max-width:100%;overflow-x:auto}
 .entry-body hr{margin:48px 0;border:0;border-top:1px solid var(--line)}.entry-body img{max-width:100%;height:auto}
+.entry-feedback{margin:34px 0 0;padding-top:16px;border-top:1px dashed var(--line);font-size:13px;color:var(--muted)}
+.entry-feedback a{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--gold)}
+.entry-feedback a:hover{color:var(--cin);border-color:var(--cin)}
+.feedback-wrap{max-width:720px;margin:0 auto;padding:0 24px 70px}
+.feedback-card{border:1px solid var(--line);border-radius:14px;background:var(--paper2);padding:24px 22px}
+.feedback-card label{display:block;margin:0 0 6px;color:var(--ink);font-size:14px;font-weight:650}
+.feedback-card .fld{margin:0 0 18px}
+.feedback-card input,.feedback-card select,.feedback-card textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font:inherit;font-size:14px}
+.feedback-card textarea{min-height:150px;resize:vertical;line-height:1.8}
+.feedback-card .hint{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.7}
+.feedback-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.feedback-actions button{padding:10px 18px;border:1px solid var(--gold);border-radius:999px;background:var(--deep);color:var(--gold2);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.feedback-actions button.secondary{background:transparent;color:var(--muted);border-color:var(--line)}
+.feedback-status{margin:14px 0 0;color:var(--cin);font-size:13px;line-height:1.7;min-height:1.4em}
+.qfeedback{padding:10px 14px;border-top:1px solid rgba(178,139,74,.2);font-size:13px}
+.qfeedback a{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--gold)}
+@media(max-width:640px){.feedback-wrap{padding:0 20px 54px}.feedback-card{padding:20px 16px}}
 footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:center;font-size:13px;letter-spacing:.05em;line-height:1.9}
 .flinks{margin-bottom:24px}.fbtn{display:inline-flex;align-items:center;justify-content:center;max-width:100%;margin:6px 9px;padding:10px 25px;border:1px solid var(--gold);border-radius:999px;color:var(--gold2);font-size:13px;font-weight:600;line-height:1.6;text-decoration:none;transition:background .2s,color .2s}
 .fbtn:hover{background:var(--gold2);color:var(--deep)}.fmeta{color:#a99d86}
@@ -742,6 +788,12 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 """
 
 js = """
+/* 事件钩子（A/B/C）：未接分析服务时静默；接 GoatCounter/Umami/百度/51LA 后自动上报 */
+window.ghlTrack=function(name,data){try{
+  if(window.goatcounter&&window.goatcounter.count)window.goatcounter.count({path:name,title:name,event:true});
+  if(window.umami&&window.umami.track)window.umami.track(name,data||{});
+  if(window._hmt)window._hmt.push(['_trackEvent',name,'click',JSON.stringify(data||{})]);
+}catch(e){}};
 (function(){var p=document.getElementById('progress');function upd(){var h=document.documentElement;var d=h.scrollHeight-h.clientHeight;p.style.width=(d>0?(h.scrollTop/d)*100:0)+'%';}document.addEventListener('scroll',upd,{passive:true});upd();})();
 (function(){var b=document.getElementById('toggle');var MOON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';var SUN='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.6M12 19.4V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.6M19.4 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';function sync(){var d=document.documentElement.classList.contains('dark');b.innerHTML=d?SUN:MOON;}b.addEventListener('click',function(){document.documentElement.classList.toggle('dark');try{localStorage.setItem('ghl_theme',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){}sync();});sync();})();
 (function(){var LG=(window.__GHL_LEGACY__||{});var read=[];try{read=JSON.parse(localStorage.getItem('ghl_read')||'[]')}catch(e){}
@@ -761,7 +813,7 @@ document.querySelectorAll('.toc a[href^="#ghl-"]').forEach(function(a){
   });
 });
 document.querySelectorAll('.entry summary').forEach(function(s){
-  s.addEventListener('click',function(){var e=s.parentElement;if(e&&e.id){cur=e.id;}});
+  s.addEventListener('click',function(){var e=s.parentElement;if(e&&e.id){cur=e.id;window.ghlTrack('entry_open',{id:e.id});}});
 });
 function findCur(){var best=null;document.querySelectorAll('.entry').forEach(function(e){var r=e.getBoundingClientRect();if(r.top<=120){best=e;}});if(best){cur=best.id;var a=document.querySelector('.toc a[href="#'+cur+'"]');if(a&&!a.classList.contains('here')){document.querySelectorAll('.toc a.here').forEach(function(x){x.classList.remove('here')});a.classList.add('here');}}return cur;}
 document.getElementById('toTop').addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
@@ -862,7 +914,9 @@ if(!out.length&&qs.length>=3){
 }
 if(!out.length){
   var gg='';if(gh.length){gg='<div class="qguide"><div class="qgt">也可以从这里出发：</div>';for(i=0;i<gh.length;i++){gg+='<div class="qgr" data-goto="firsttime">'+esc(gh[i].title)+'</div>';}gg+='</div>';}
-  res.innerHTML='<div class="qnone">没有找到与「'+esc(q)+'」相关的内容</div>'+gg;res.classList.add('on');return;
+  var fb='<div class="qfeedback"><a href="feedback.html?type=search&q='+encodeURIComponent(q)+'">没找到？告诉我们你想找什么</a></div>';
+  window.ghlTrack('search_zero',{q:q});
+  res.innerHTML='<div class="qnone">没有找到与「'+esc(q)+'」相关的内容</div>'+gg+fb;res.classList.add('on');return;
 }
 out.sort(function(a,b){return (b._s-a._s)||(a._i-b._i);});
 var h='';
@@ -1070,6 +1124,7 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
 <link rel="manifest" href="manifest.json">
 <link rel="alternate" type="application/atom+xml" title="归海录" href="feed.xml">
 {_ld_tag}
+{analytics_head()}
 <script>try{{if(localStorage.getItem('ghl_theme')==='dark')document.documentElement.classList.add('dark')}}catch(e){{}}</script>
 <script>window.__GHL_LEGACY__={legacy_json};</script>
 {globals_tag}
@@ -1093,6 +1148,7 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
     <a class="fbtn" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ 志远行空 YouTube 频道</a>
     <a class="fbtn" href="https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a>
     <a class="fbtn" href="https://www.oceanwards.com/" target="_blank" rel="noopener">🌊 归海论坛</a>
+    <a class="fbtn" href="feedback.html">✉️ 反馈 / 报错</a>
     {dl_tag}
   </div>
   <div class="fmeta">归海录 · 持续更新中{_footer_date}</div>
@@ -1193,6 +1249,59 @@ _404_body = ('<div class="yearhead"><a class="back" href="index.html">← 返回
 (HERE / "404.html").write_text(
     _render_page("404.html", "页面不存在 · 归海录", "这个页面不存在，或链接已失效。",
                  _404_body, compact=True, noindex=True),
+    encoding="utf-8", newline="\n")
+
+# 反馈页（A 方案：无后端、无第三方；复制模板后发微信/Lark）
+_FEEDBACK_BODY = '''<div class="yearhead"><a class="back" href="index.html">← 返回首页</a>
+<h1>反馈 / 报错</h1><p>错字、链接失效、搜索找不到，或对站点有建议 · 复制后发微信/Lark 即可</p></div>
+<div class="feedback-wrap"><div class="feedback-card">
+<div class="fld"><label for="fb-type">类型</label><select id="fb-type">
+<option>内容纠错</option><option>搜索无结果</option><option>功能建议</option><option>其他</option>
+</select></div>
+<div class="fld"><label for="fb-title">文章标题 / 搜索词</label><input id="fb-title" type="text" placeholder="例：脑海像滴了清凉油 / 搜索：怎么改命"></div>
+<div class="fld"><label for="fb-page">页面链接（可选）</label><input id="fb-page" type="text" placeholder="从浏览器地址栏复制"></div>
+<div class="fld"><label for="fb-detail">详情</label><textarea id="fb-detail" placeholder="错字请写原文和正确写法；搜索问题请写你想找的内容。"></textarea>
+<p class="hint">不会自动提交；点“复制反馈内容”后，粘贴到微信/Lark 发给志远行空或归海群。</p></div>
+<div class="fld"><label for="fb-contact">联系方式（可选）</label><input id="fb-contact" type="text" placeholder="Lark / 微信，方便回复"></div>
+<div class="feedback-actions"><button type="button" id="fb-copy">复制反馈内容</button><button type="button" id="fb-clear" class="secondary">清空</button></div>
+<p class="feedback-status" id="fb-status"></p>
+</div></div>
+<script>
+(function(){
+ var p=new URLSearchParams(location.search);
+ var type=p.get('type')||'', q=p.get('q')||'', t=p.get('title')||'';
+ if(type==='search'||q){document.getElementById('fb-type').value='搜索无结果';}
+ if(q){document.getElementById('fb-title').value='搜索：'+q;}
+ else if(t){document.getElementById('fb-title').value=t;}
+ var page=p.get('page')||'';if(page){document.getElementById('fb-page').value=page;}
+ var st=document.getElementById('fb-status');
+ function v(id){return (document.getElementById(id).value||'').trim();}
+ function text(){
+  var lines=['【归海录反馈】','类型：'+v('fb-type'),'标题/搜索词：'+v('fb-title')];
+  if(v('fb-page'))lines.push('页面：'+v('fb-page'));
+  lines.push('详情：'+v('fb-detail'));
+  if(v('fb-contact'))lines.push('联系方式：'+v('fb-contact'));
+  return lines.join('\\n');
+ }
+ function ok(){st.textContent='已复制。请粘贴到微信/Lark 发给志远行空或归海群。';window.ghlTrack('feedback_copy',{type:v('fb-type')});}
+ function fail(){
+  var ta=document.createElement('textarea');ta.value=text();document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');ok();}catch(e){st.textContent='复制失败，请手动选择文本复制。';}
+  ta.remove();
+ }
+ document.getElementById('fb-copy').addEventListener('click',function(){
+  var tx=text();
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(tx).then(ok,fail);}else{fail();}
+ });
+ document.getElementById('fb-clear').addEventListener('click',function(){
+  ['fb-title','fb-page','fb-detail','fb-contact'].forEach(function(id){document.getElementById(id).value='';});
+  st.textContent='';
+ });
+})();
+</script>'''
+(HERE / "feedback.html").write_text(
+    _render_page("feedback.html", "反馈 / 报错 · 归海录", "发现错字、链接失效或搜索找不到，复制反馈内容发给志远行空。",
+                 _FEEDBACK_BODY, compact=True, noindex=True),
     encoding="utf-8", newline="\n")
 
 def _atom_dt(d):
