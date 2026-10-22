@@ -189,6 +189,14 @@ def toc_repl(m):
 
 md = toc_pat.sub(toc_repl, md)
 
+# 3.3) 目录日期回退表（10-22 P0）：无 📌 callout 的老条目，用目录日期补卡片日期
+TOC_DATE_BY_SID = {}
+for _text, _bid in toc_items:
+    _sid = id_map.get(_bid)
+    _m = re.search(r'(20\d{2}-\d{2}-\d{2})', _text)
+    if _sid and _m:
+        TOC_DATE_BY_SID.setdefault(_sid, _m.group(1))
+
 # 正文标题加锚点（按标题原文唯一替换；id 随 doxjp 注册，永不漂移）
 _injected = set()
 for ht, sid in id_of_title.items():
@@ -211,12 +219,88 @@ if res.returncode != 0:
     sys.exit(1)
 body_html = res.stdout
 
+# 4.1) 图片 alt（10-22 P0）：Lark 导出的图片无 alt，按图片内容补可读说明；未知图给通用兜底
+_IMG_ALT = {
+    "media/ff592852be3dd91e6f93.webp": "破万法思维模型配图 1：四象限与十五格示意",
+    "media/4cf9ecaef13902f8be4d.webp": "破万法思维模型配图 2：四阶段与十五格示意",
+    "media/57b7241e0386910443d4.jpg": "破万法思维模型配图 3：遇人遇事的判断方法示意",
+    "media/54fab1e95a6ec900f46f.png": "破万法思维模型配图 4：逆行与核心叮嘱示意",
+    "media/28805e6eb4d7d6829123.webp": "破万法思维模型配图 5：信息减法示意",
+}
+_FEISHU_ALT = {
+    "FMz4b0Gt1ocKX5xGymvjJdtHpUf": "破万法思维模型配图 1：四象限与十五格示意",
+    "MQWbb1mVToVb3zxLxX0jprQTpcd": "破万法思维模型配图 2：四阶段与十五格示意",
+    "ROYpb7RsKoDC8bxVFR8jfMVFpjg": "破万法思维模型配图 3：遇人遇事的判断方法示意",
+    "UiImbvHBDo2EiRxIlMujwOKvpJf": "破万法思维模型配图 4：逆行与核心叮嘱示意",
+    "ABLhbyfAGohUWkxkKBiju4s6pXF": "破万法思维模型配图 5：信息减法示意",
+}
+def _add_img_alt(m):
+    tag = m.group(0)
+    if re.search(r'\balt=', tag, re.I):
+        return tag
+    sm = re.search(r'\bsrc="([^"]+)"', tag, re.I)
+    alt = "归海录文章配图"
+    if sm:
+        src = sm.group(1)
+        alt = _IMG_ALT.get(src, alt)
+        fm = re.search(r'https://feishu\.cn/file/([A-Za-z0-9]+)', src)
+        if fm:
+            alt = _FEISHU_ALT.get(fm.group(1), alt)
+    add = f' alt="{_html.escape(alt, quote=True)}"'
+    if tag.endswith("/>"):
+        return tag[:-2].rstrip() + add + " />"
+    return tag[:-1].rstrip() + add + ">"
+body_html = re.sub(r'<img\b[^>]*>', _add_img_alt, body_html)
+
 # 4.4) 目录开头包进 layout+aside（闭合在 4.6 处理）
 body_html = body_html.replace(
     '<h2 id="目录">📋 目录</h2>',
     '<div class="layout"><aside class="toc"><details class="tocm"><summary>📋 目录</summary>', 1)
 
-# 4.5) 每条目包成折叠卡片：id 移到 details 上，日期徽章移进 summary（h2/h3 两种锚点都处理）
+# 4.5) 每条目包成折叠卡片：id 移到 details 上，日期徽章 + 2 行摘要（h2/h3 两种锚点都处理）
+# 10-22 P0：旧版把整个 📌 callout 塞进 span.date，导致 span 内出现 <p>；现拆成 date / excerpt 两个 phrasing 元素。
+def _clean_p_text(phtml):
+    t = re.sub(r'<br\s*/?>', '\n', phtml or '', flags=re.I)
+    t = re.sub(r'<[^>]+>', '', t)
+    return _html.unescape(t)
+
+def _meta_parts(block_html):
+    """从 📌 blockquote 取 (date, duration, excerpt)。"""
+    inner = re.sub(r'^<blockquote[^>]*>\s*', '', block_html, flags=re.S)
+    inner = re.sub(r'\s*</blockquote>$', '', inner, flags=re.S)
+    lines = []
+    for p in re.findall(r'<p[^>]*>(.*?)</p>', inner, re.S):
+        for line in _clean_p_text(p).split('\n'):
+            line = re.sub(r'\s+', ' ', line).strip()
+            if line and line != '📌':
+                lines.append(line)
+    text = ' '.join(lines)
+    date_m = re.search(r'20\d{2}-\d{2}-\d{2}', text)
+    dur = ''
+    pm = re.search(r'[（(]([^）)]+)[）)]', text)
+    if pm:
+        tm = re.search(r'(?:约\s*)?\d{1,2}:\d{2}(?::\d{2})?|(?:约\s*)?\d+(?:\.\d+)?\s*小时(?:\s*\d+\s*分钟)?|(?:约\s*)?\d+(?:\.\d+)?\s*分钟', pm.group(1))
+        dur = tm.group(0) if tm else ''
+    # 摘要：截到第一个右括号（通常是时长）；没有括号则尝试去掉「归海录 · 日期 ·」前缀
+    desc = text
+    close = min([x for x in (text.find('）'), text.find(')')) if x >= 0] or [-1])
+    if 0 <= close <= 100:
+        desc = text[close + 1:].lstrip(' ·-—')
+    else:
+        pm2 = re.match(r'^归海录\s*·\s*20\d{2}-\d{2}-\d{2}\s*·\s*', text)
+        if pm2:
+            desc = text[pm2.end():]
+    desc = re.sub(r'版权归属[:：].*$', '', desc).strip()
+    desc = re.sub(r'转载请注明来源。?\s*$', '', desc).strip()
+    return (date_m.group(0) if date_m else ''), dur, desc
+
+def _first_para_text(html):
+    for m in re.finditer(r'<p[^>]*>(.*?)</p>', html, re.S):
+        t = re.sub(r'\s+', ' ', _clean_p_text(m.group(1))).strip()
+        if t and t != '📌':
+            return t
+    return ''
+
 def wrap_entries(b):
     pat = re.compile(r'<h([23])\s+id="(ghl-\d+)">(.*?)</h\1>\n', re.S)
     matches = list(pat.finditer(b))
@@ -227,14 +311,24 @@ def wrap_entries(b):
         lv, sid, title = m.group(1), m.group(2), m.group(3)
         end = matches[idx + 1].start() if idx + 1 < len(matches) else len(b)
         chunk = b[m.end():end]
-        date_html = ""
-        db = re.search(r'<blockquote>\s*<p>(📌.*?)</p>\s*</blockquote>', chunk, re.S)
+        date_txt = TOC_DATE_BY_SID.get(sid, '')
+        dur_txt = ''
+        excerpt = ''
+        db = re.search(r'<blockquote[^>]*>\s*<p>📌.*?</blockquote>', chunk, re.S)
         if db:
-            date_html = '<span class="date">' + db.group(1) + '</span>'
+            date_txt, dur_txt, excerpt = _meta_parts(db.group(0))
+            date_txt = date_txt or TOC_DATE_BY_SID.get(sid, '')
             chunk = chunk[:db.start()] + chunk[db.end():]
+        if not excerpt:
+            excerpt = _first_para_text(chunk)
+        badge = date_txt or '未编年'
+        if dur_txt:
+            badge += ' · ' + dur_txt
+        date_html = f'<span class="date">{_html.escape(badge)}</span>'
+        ex_html = f'<span class="excerpt">{_html.escape(excerpt)}</span>' if excerpt else ''
         out.append(
             f'<details class="entry" id="{sid}">'
-            f'<summary><h2>{title}</h2>{date_html}</summary>'
+            f'<summary><h2>{title}</h2>{date_html}{ex_html}</summary>'
             f'<div class="entry-body">' + chunk + '</div></details>')
     return ''.join(out)
 
@@ -513,7 +607,8 @@ main.content{min-width:0;max-width:720px;width:100%;justify-self:center}
 .entry[open]>summary::before{content:"−"}
 .entry>summary h2{grid-column:2;grid-row:1;min-width:0;width:100%;margin:0;color:var(--ink);font-size:21px;font-weight:650;letter-spacing:.015em;line-height:1.65;overflow-wrap:anywhere;transition:color .2s}
 .entry>summary:hover h2{color:var(--cin)}
-.entry>summary .date{grid-column:2;grid-row:2;justify-self:start;min-width:0;max-width:100%;margin-top:10px;padding:3px 9px;border-radius:4px;background:var(--paper2);color:var(--muted);font-size:12px;font-weight:500;letter-spacing:.02em;line-height:1.65;white-space:normal;overflow-wrap:anywhere}
+.entry>summary .date{grid-column:2;grid-row:2;justify-self:start;min-width:0;max-width:100%;margin-top:10px;padding:2px 9px;border-radius:999px;background:var(--paper2);color:var(--muted);font-size:12px;font-weight:500;letter-spacing:.02em;line-height:1.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry>summary .excerpt{grid-column:2;grid-row:3;margin-top:9px;color:var(--muted);font-size:13px;line-height:1.8;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:100%}
 .date p{display:inline;margin:0}.date strong{font-weight:500}
 .entry-body{padding:0 0 46px;color:var(--ink);font-family:"Songti SC","Noto Serif SC","STSong","SimSun",serif;font-size:17.5px;line-height:2.08;overflow-wrap:anywhere}
 .entry-body p{margin:16px 0}.entry-body h3,.entry-body h4{color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.55}
@@ -554,11 +649,12 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
   .doctitle .sub{margin-top:16px;font-size:12px;letter-spacing:.1em}.yt{margin-top:20px}
   .intro{padding:42px 23px 38px;font-size:14.5px;line-height:1.95}.intro::before{margin-bottom:19px}.intro strong{font-size:16px}.intro .intro-copy{text-align:center}
   .layout{padding:0 20px 84px}.tocm>summary{padding:14px 0}.entry>summary{column-gap:11px;padding:20px 0}
-  .entry>summary h2{font-size:18px;line-height:1.65}.entry>summary .date{font-size:11.5px}
+  .entry>summary h2{font-size:18px;line-height:1.65}.entry>summary .date{font-size:11.5px}.entry>summary .excerpt{font-size:12px;line-height:1.75}
   .entry-body{padding-bottom:37px;font-size:16.5px;line-height:2.05}.entry-body h3{font-size:18px}
   .entry-body blockquote{padding-left:15px;font-size:15.5px}
   footer{padding:48px 20px 56px}.fbtn{display:flex;width:max-content;margin:10px auto}
-  .navstack{right:12px;bottom:calc(16px + env(safe-area-inset-bottom));gap:8px}
+  .navstack{right:12px;bottom:calc(16px + env(safe-area-inset-bottom));gap:8px;opacity:0;pointer-events:none;transition:opacity .2s}
+  .navstack.show{opacity:1;pointer-events:auto}
   .navbtn{min-width:40px;height:40px;padding:0 13px;font-size:13px}#toggle{width:40px;height:40px;font-size:16px;top:12px;right:12px}
 }
 @media(max-width:380px){.doctitle h1{font-size:42px}.doctitle .sub{letter-spacing:.05em}}
@@ -790,6 +886,8 @@ document.querySelectorAll('.ft-chip').forEach(function(b){b.addEventListener('cl
 })();
 /* 「第一次来」区文章链接（10-17 施工窗 2）：点击时展开对应条目（原生锚点负责滚动） */
 (function(){document.querySelectorAll('.firsttime a[href^="#ghl-"]').forEach(function(a){a.addEventListener('click',function(){var d=document.getElementById(a.getAttribute('href').slice(1));if(d)d.open=true;});});})();
+/* 10-22 P0：移动端浮动按钮滚动后才出现，避免遮挡卡片摘要 */
+(function(){var ns=document.querySelector('.navstack');if(!ns)return;function v(){ns.classList.toggle('show',window.scrollY>600);}window.addEventListener('scroll',v,{passive:true});v();})();
 """
 
 # 6) 全文检索索引（先于页面组装：离线版要内嵌）——条目带 page 字段供跨页跳转
@@ -896,7 +994,7 @@ except Exception as e:
 # 5) 多页组装：首页 / 年份页 / 离线版（2026-10-19 分页施工）
 _idpage_json = json.dumps(_id_page, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
 
-def _render_page(page_name, page_title, page_desc, body, *, compact=False, inline=False):
+def _render_page(page_name, page_title, page_desc, body, *, compact=False, inline=False, ld_items=None, noindex=False):
     hero_cls = "hero compact" if compact else "hero"
     if inline:
         css_tag = "<style>\n" + css + "</style>"
@@ -913,6 +1011,35 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
                        ';window.__GHL_SHARDS__=' + _shards_json + ';</script>')
     _t = _html.escape(page_title, quote=True)
     _d = _html.escape(page_desc, quote=True)
+    _base = "https://guihailu.github.io/"
+    if page_name == "index.html":
+        _canonical = _base
+    elif page_name in ("404.html", "归海录_离线版.html"):
+        _canonical = ""
+    else:
+        _canonical = _base + page_name
+    _ld = None
+    if page_name == "index.html":
+        _ld = {"@context": "https://schema.org", "@type": "WebSite",
+               "name": "归海录 · 志远行空", "url": _base,
+               "description": page_desc, "inLanguage": "zh-CN"}
+    elif ld_items:
+        _ld = {"@context": "https://schema.org", "@type": "CollectionPage",
+               "name": page_title, "url": _canonical, "description": page_desc,
+               "inLanguage": "zh-CN",
+               "isPartOf": {"@type": "WebSite", "name": "归海录 · 志远行空", "url": _base},
+               "mainEntity": {"@type": "ItemList", "numberOfItems": len(ld_items),
+                              "itemListElement": [
+                                  {"@type": "ListItem", "position": _i + 1,
+                                   "name": _plain(_e["title"]),
+                                   "url": f"{_base}{_e['page']}#{_e['id']}"}
+                                  for _i, _e in enumerate(ld_items)]}}
+    _ld_tag = ('<script type="application/ld+json">' +
+               json.dumps(_ld, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/") +
+               '</script>') if _ld else ''
+    _canon_tag = f'<link rel="canonical" href="{_canonical}">' if _canonical else ''
+    _ogurl_tag = f'<meta property="og:url" content="{_canonical}">' if _canonical else ''
+    _robots_tag = '<meta name="robots" content="noindex,follow">' if noindex else ''
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -920,10 +1047,29 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{_t}</title>
 <meta name="description" content="{_d}">
+<meta name="author" content="志远行空">
+<meta name="theme-color" content="#0f1a2b">
+{_canon_tag}
+{_ogurl_tag}
+{_robots_tag}
 <meta property="og:title" content="{_t}">
 <meta property="og:description" content="{_d}">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="归海录 · 志远行空">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://guihailu.github.io/cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="450">
+<meta property="og:image:alt" content="归海录 · 志远行空">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{_t}">
+<meta name="twitter:description" content="{_d}">
+<meta name="twitter:image" content="https://guihailu.github.io/cover.jpg">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="manifest" href="manifest.json">
+<link rel="alternate" type="application/atom+xml" title="归海录" href="feed.xml">
+{_ld_tag}
 <script>try{{if(localStorage.getItem('ghl_theme')==='dark')document.documentElement.classList.add('dark')}}catch(e){{}}</script>
 <script>window.__GHL_LEGACY__={legacy_json};</script>
 {globals_tag}
@@ -976,13 +1122,13 @@ for _y, _items in _pages.items():
     _title = f"📿 归海录 · {_label} · 志远行空"
     _desc = f"归海录 · {_label}：志远行空的日常分享与 YouTube 视频讲法合集，共 {len(_items)} 篇。"
     (HERE / _fn).write_text(
-        _render_page(_fn, _title, _desc, _year_bodies[_y], compact=True),
+        _render_page(_fn, _title, _desc, _year_bodies[_y], compact=True, ld_items=_items),
         encoding="utf-8", newline="\n")
     print(f"OK: {_fn} {(HERE/_fn).stat().st_size} B ({len(_items)} 条)")
 
 # 离线单文件版：全集单页 + 内联 CSS/JS/索引（file:// 可搜索）
 try:
-    _off = _render_page("归海录_离线版.html", _HOME_TITLE, _HOME_DESC, _offline_body, inline=True)
+    _off = _render_page("归海录_离线版.html", _HOME_TITLE, _HOME_DESC, _offline_body, inline=True, noindex=True)
     # 离线版图片走在线链接：feishu 原链 → 站点已镜像的公开图（未命中则保留原链回落）
     _resolved = 0
     for _tok in dict.fromkeys(re.findall(r'https://feishu\.cn/file/([A-Za-z0-9]+)', _off)):
@@ -999,3 +1145,79 @@ except Exception as e:
     _note("WARN 离线版生成失败: %r" % (e,))
     print("WARN: 归海录_离线版.html 生成失败:", e)
 print(f"OK: style.v5.css {(HERE/'style.v5.css').stat().st_size} B | main.v5.js {(HERE/'main.v5.js').stat().st_size} B")
+
+# 7) SEO / 分享辅助文件（10-22 P0）：favicon / manifest / robots / sitemap / 404 / Atom feed
+_FAVICON_SVG = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<rect width="64" height="64" rx="12" fill="#8c1f28"/>
+<text x="32" y="44" text-anchor="middle" font-family="serif" font-size="36" fill="#fff6e9">归</text>
+</svg>
+'''
+(HERE / "favicon.svg").write_text(_FAVICON_SVG, encoding="utf-8", newline="\n")
+_MANIFEST = {
+    "name": "归海录 · 志远行空",
+    "short_name": "归海录",
+    "description": _HOME_DESC,
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#0f1a2b",
+    "theme_color": "#0f1a2b",
+    "lang": "zh-CN",
+    "icons": [{"src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}],
+}
+(HERE / "manifest.json").write_text(
+    json.dumps(_MANIFEST, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+(HERE / "robots.txt").write_text(
+    "User-agent: *\nAllow: /\n\nSitemap: https://guihailu.github.io/sitemap.xml\n",
+    encoding="utf-8", newline="\n")
+
+def _page_lastmod(items):
+    ds = [e["date"] for e in items if re.fullmatch(r"20\d{2}-\d{2}-\d{2}", e.get("date") or "")]
+    return max(ds) if ds else _latest_date
+
+_sitemap_urls = [("https://guihailu.github.io/", _latest_date, "weekly", "1.0")]
+for _y in sorted(_pages, key=lambda y: (y == "NODATE", -int(y) if re.fullmatch(r"20\d{2}", str(y)) else 0)):
+    _fn = _page_for_year(_y)
+    _sitemap_urls.append((("https://guihailu.github.io/" + _fn), _page_lastmod(_pages[_y]), "monthly", "0.8"))
+_sitemap = ['<?xml version="1.0" encoding="UTF-8"?>',
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+for _loc, _lm, _cf, _pr in _sitemap_urls:
+    _lm_tag = f"<lastmod>{_html.escape(_lm)}</lastmod>" if _lm else ""
+    _sitemap.append(f"<url><loc>{_html.escape(_loc)}</loc>{_lm_tag}<changefreq>{_cf}</changefreq><priority>{_pr}</priority></url>")
+_sitemap.append("</urlset>")
+(HERE / "sitemap.xml").write_text("\n".join(_sitemap) + "\n", encoding="utf-8", newline="\n")
+
+_404_body = ('<div class="yearhead"><a class="back" href="index.html">← 返回首页</a>'
+             '<h1>404</h1><p>这个页面不存在，或链接已失效。</p></div>'
+             '<div class="intro"><p class="intro-copy">可以试试：<a href="index.html">首页</a>'
+             ' · <a href="index.html#firsttime">从问题入口出发</a> · 用上方搜索找一篇。</p></div>')
+(HERE / "404.html").write_text(
+    _render_page("404.html", "页面不存在 · 归海录", "这个页面不存在，或链接已失效。",
+                 _404_body, compact=True, noindex=True),
+    encoding="utf-8", newline="\n")
+
+def _atom_dt(d):
+    return (d or _latest_date or "2026-10-22") + "T00:00:00+08:00"
+_feed_items = _entries[:20]
+_feed_entries = []
+for _e in _feed_items:
+    _url = f"https://guihailu.github.io/{_e['page']}#{_e['id']}"
+    _bm = re.search(r'<div class="entry-body">(.*)$', _e['block'], re.S)
+    _sum = _plain(_bm.group(1))[:180] if _bm else ""
+    _feed_entries.append(
+        "<entry><title>" + _html.escape(_plain(_e["title"])) + "</title>"
+        + '<link href="' + _html.escape(_url, quote=True) + '"/>'
+        + "<id>" + _html.escape(_url) + "</id>"
+        + "<updated>" + _atom_dt(_e.get("date")) + "</updated>"
+        + "<summary>" + _html.escape(_sum) + "</summary></entry>")
+_feed = ('<?xml version="1.0" encoding="utf-8"?>\n'
+         '<feed xmlns="http://www.w3.org/2005/Atom">\n'
+         '<title>归海录 · 志远行空</title>\n'
+         '<subtitle>' + _html.escape(_HOME_DESC) + '</subtitle>\n'
+         '<link href="https://guihailu.github.io/"/>\n'
+         '<link rel="self" href="https://guihailu.github.io/feed.xml"/>\n'
+         '<id>https://guihailu.github.io/</id>\n'
+         '<updated>' + _atom_dt(_latest_date) + '</updated>\n'
+         '<author><name>志远行空</name></author>\n'
+         + "\n".join(_feed_entries) + '\n</feed>\n')
+(HERE / "feed.xml").write_text(_feed, encoding="utf-8", newline="\n")
+print(f"OK: SEO 辅助文件 favicon/manifest/robots/sitemap/404/feed 已生成（{len(_sitemap_urls)} URL）")

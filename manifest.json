@@ -1,0 +1,18 @@
+{
+  "name": "归海录 · 志远行空",
+  "short_name": "归海录",
+  "description": "归海录：志远行空的日常分享与 YouTube 视频讲法合集——每一段语音，一个故事，一个道理，润物无声。按时间倒序，持续更新。",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f1a2b",
+  "theme_color": "#0f1a2b",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

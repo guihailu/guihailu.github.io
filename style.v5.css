@@ -45,7 +45,8 @@ main.content{min-width:0;max-width:720px;width:100%;justify-self:center}
 .entry[open]>summary::before{content:"−"}
 .entry>summary h2{grid-column:2;grid-row:1;min-width:0;width:100%;margin:0;color:var(--ink);font-size:21px;font-weight:650;letter-spacing:.015em;line-height:1.65;overflow-wrap:anywhere;transition:color .2s}
 .entry>summary:hover h2{color:var(--cin)}
-.entry>summary .date{grid-column:2;grid-row:2;justify-self:start;min-width:0;max-width:100%;margin-top:10px;padding:3px 9px;border-radius:4px;background:var(--paper2);color:var(--muted);font-size:12px;font-weight:500;letter-spacing:.02em;line-height:1.65;white-space:normal;overflow-wrap:anywhere}
+.entry>summary .date{grid-column:2;grid-row:2;justify-self:start;min-width:0;max-width:100%;margin-top:10px;padding:2px 9px;border-radius:999px;background:var(--paper2);color:var(--muted);font-size:12px;font-weight:500;letter-spacing:.02em;line-height:1.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry>summary .excerpt{grid-column:2;grid-row:3;margin-top:9px;color:var(--muted);font-size:13px;line-height:1.8;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:100%}
 .date p{display:inline;margin:0}.date strong{font-weight:500}
 .entry-body{padding:0 0 46px;color:var(--ink);font-family:"Songti SC","Noto Serif SC","STSong","SimSun",serif;font-size:17.5px;line-height:2.08;overflow-wrap:anywhere}
 .entry-body p{margin:16px 0}.entry-body h3,.entry-body h4{color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.55}
@@ -86,11 +87,12 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
   .doctitle .sub{margin-top:16px;font-size:12px;letter-spacing:.1em}.yt{margin-top:20px}
   .intro{padding:42px 23px 38px;font-size:14.5px;line-height:1.95}.intro::before{margin-bottom:19px}.intro strong{font-size:16px}.intro .intro-copy{text-align:center}
   .layout{padding:0 20px 84px}.tocm>summary{padding:14px 0}.entry>summary{column-gap:11px;padding:20px 0}
-  .entry>summary h2{font-size:18px;line-height:1.65}.entry>summary .date{font-size:11.5px}
+  .entry>summary h2{font-size:18px;line-height:1.65}.entry>summary .date{font-size:11.5px}.entry>summary .excerpt{font-size:12px;line-height:1.75}
   .entry-body{padding-bottom:37px;font-size:16.5px;line-height:2.05}.entry-body h3{font-size:18px}
   .entry-body blockquote{padding-left:15px;font-size:15.5px}
   footer{padding:48px 20px 56px}.fbtn{display:flex;width:max-content;margin:10px auto}
-  .navstack{right:12px;bottom:calc(16px + env(safe-area-inset-bottom));gap:8px}
+  .navstack{right:12px;bottom:calc(16px + env(safe-area-inset-bottom));gap:8px;opacity:0;pointer-events:none;transition:opacity .2s}
+  .navstack.show{opacity:1;pointer-events:auto}
   .navbtn{min-width:40px;height:40px;padding:0 13px;font-size:13px}#toggle{width:40px;height:40px;font-size:16px;top:12px;right:12px}
 }
 @media(max-width:380px){.doctitle h1{font-size:42px}.doctitle .sub{letter-spacing:.05em}}

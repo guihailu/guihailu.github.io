@@ -143,3 +143,5 @@ document.querySelectorAll('.ft-chip').forEach(function(b){b.addEventListener('cl
 })();
 /* 「第一次来」区文章链接（10-17 施工窗 2）：点击时展开对应条目（原生锚点负责滚动） */
 (function(){document.querySelectorAll('.firsttime a[href^="#ghl-"]').forEach(function(a){a.addEventListener('click',function(){var d=document.getElementById(a.getAttribute('href').slice(1));if(d)d.open=true;});});})();
+/* 10-22 P0：移动端浮动按钮滚动后才出现，避免遮挡卡片摘要 */
+(function(){var ns=document.querySelector('.navstack');if(!ns)return;function v(){ns.classList.toggle('show',window.scrollY>600);}window.addEventListener('scroll',v,{passive:true});v();})();
