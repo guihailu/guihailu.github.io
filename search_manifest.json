@@ -1,6 +1,6 @@
 {
-  "generated": "d6ebc93decdf",
-  "count": 92,
+  "generated": "8324148b3b66",
+  "count": 95,
   "shared": "search_shared.json",
   "shards": [
     {
@@ -18,8 +18,8 @@
     {
       "file": "search_index_2024.json",
       "page": "2024.html",
-      "count": 16,
-      "bytes": 219854
+      "count": 19,
+      "bytes": 243826
     },
     {
       "file": "search_index_undated.json",
