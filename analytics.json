@@ -1,5 +1,6 @@
 {
-  "provider": "goatcounter",
-  "id": "guihailu",
-  "note": "B 已启用：GoatCounter guihailu；脚本自托管 goatcounter.js 以避开 gc.zgo.at 大陆访问超时；计数端点 https://guihailu.goatcounter.com/count"
+  "provider": "51la",
+  "id": "3Rb0SorOly4C8Cts",
+  "ck": "3Rb0SorOly4C8Cts",
+  "note": "C 已启用：51LA（id=ck=3Rb0SorOly4C8Cts）；B GoatCounter guihailu 配置保留在 git 历史/优化台账，当前不加载；B/C 长期二选一"
 }

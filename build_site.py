@@ -41,8 +41,11 @@ def analytics_head():
         return ('<script>(function(){var hm=document.createElement("script");hm.src="https://hm.baidu.com/hm.js?' +
                 _html.escape(i, quote=True) + '";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm,s);})();</script>')
     if p == "51la":
-        return ('<script charset="UTF-8" id="LA_COLLECT" src="https://sdk.51.la/js-sdk-pro.min.js?id=' +
-                _html.escape(i, quote=True) + '"></script>')
+        ck = str(ANALYTICS.get("ck") or i).strip()
+        if not re.fullmatch(r"[A-Za-z0-9]+", i) or not re.fullmatch(r"[A-Za-z0-9]+", ck):
+            return ""
+        return ('<script charset="UTF-8" id="LA_COLLECT" src="https://sdk.51.la/js-sdk-pro.min.js"></script>'
+                '<script>LA.init({id:"' + i + '",ck:"' + ck + '"})</script>')
     return ""
 
 md = SRC.read_text(encoding="utf-8")
