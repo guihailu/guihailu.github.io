@@ -1,5 +1,5 @@
 {
-  "generated": "225bcbd100bd",
+  "generated": "03108d007875",
   "count": 95,
   "shared": "search_shared.json",
   "shards": [
@@ -7,25 +7,25 @@
       "file": "search_index_2026.json",
       "page": "2026.html",
       "count": 45,
-      "bytes": 641661
+      "bytes": 639636
     },
     {
       "file": "search_index_2025.json",
       "page": "2025.html",
       "count": 9,
-      "bytes": 128703
+      "bytes": 128298
     },
     {
       "file": "search_index_2024.json",
       "page": "2024.html",
       "count": 19,
-      "bytes": 238879
+      "bytes": 238024
     },
     {
       "file": "search_index_undated.json",
       "page": "undated.html",
       "count": 22,
-      "bytes": 198108
+      "bytes": 197118
     }
   ]
 }

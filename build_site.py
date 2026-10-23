@@ -1017,7 +1017,9 @@ try:
         _dmm = (re.search(r'20\d{2}-\d{2}-\d{2}', _meta)
                 or re.search(r'20\d{2}-\d{2}-\d{2}', _e['date']))
         _date = _dmm.group(0) if _dmm else ''
-        _text = _plain(bm.group(1) if bm else '')
+        # 反馈链接含长 percent-encoded 标题，不进检索正文（省体积、去噪）
+        _bm_html = re.sub(r'<p class="entry-feedback">.*?</p>', '', bm.group(1) if bm else '', flags=re.S)
+        _text = _plain(_bm_html)
         if sid and _title:
             _it = {"id": sid, "title": _title, "date": _date, "meta": _meta,
                    "text": _text, "page": _e['page'], "year": _e['year']}
