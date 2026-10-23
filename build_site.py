@@ -44,8 +44,13 @@ def analytics_head():
         ck = str(ANALYTICS.get("ck") or i).strip()
         if not re.fullmatch(r"[A-Za-z0-9]+", i) or not re.fullmatch(r"[A-Za-z0-9]+", ck):
             return ""
-        return ('<script charset="UTF-8" id="LA_COLLECT" src="https://sdk.51.la/js-sdk-pro.min.js"></script>'
-                '<script>LA.init({id:"' + i + '",ck:"' + ck + '"})</script>')
+        # 异步加载 + onload 初始化：sdk.51.la 慢/被拦时不阻塞页面、不抛 LA is not defined
+        return ('<script>(function(){var s=document.createElement("script");'
+                's.id="LA_COLLECT";s.charset="UTF-8";s.async=true;'
+                's.src="https://sdk.51.la/js-sdk-pro.min.js";'
+                's.onload=function(){try{if(window.LA&&window.LA.init)'
+                'window.LA.init({id:"' + i + '",ck:"' + ck + '"})}catch(e){}};'
+                'document.head.appendChild(s);})();</script>')
     return ""
 
 md = SRC.read_text(encoding="utf-8")
