@@ -486,6 +486,30 @@ for _sid, _block in _entry_blocks:
         'year': _year, 'date': _entry_date(_sid, _meta),
         'page': _page_for_year(_year),
     })
+def _series_for_title(t):
+    if "独家访谈" in t: return "独家访谈"
+    if "因果故事会" in t: return "因果故事会"
+    if "100个职业" in t: return "100个职业"
+    if "阴阳师漫谈" in t: return "阴阳师漫谈"
+    if "奥德赛" in t: return "奥德赛专题"
+    if "香包" in t: return "香包专题"
+    if "景甜" in t or "孙宇晨" in t: return "景甜/孙宇晨"
+    if "婴灵" in t or "堕胎" in t or "试管" in t: return "婴灵/堕胎"
+    if "太岁" in t: return "太岁/流年"
+    return "单篇/其他"
+
+def _entry_chars(block):
+    bm = re.search(r'<div class="entry-body">(.*)$', block, re.S)
+    if not bm: return 0
+    txt = re.sub(r'<p class="entry-feedback">.*?</p>', '', bm.group(1), flags=re.S)
+    txt = _html.unescape(re.sub(r'<[^>]+>', '', txt))
+    return len(re.sub(r'\s+', '', txt))
+
+for _e in _entries:
+    _e['series'] = _series_for_title(_e['title'])
+    _e['chars'] = _entry_chars(_e['block'])
+    _e['minutes'] = max(1, round(_e['chars'] / 400))
+
 _id_page = {e['id']: e['page'] for e in _entries}
 
 _pages = {}
@@ -532,7 +556,8 @@ def _years_section():
             '<strong>' + _YEAR_LABEL.get(y, y) + '</strong>'
             '<span>' + str(len(_pages[y])) + ' 篇</span></a>')
     return ('<section class="years" id="years"><h2>按年份浏览</h2>'
-            '<div class="year-grid">' + "".join(cards) + '</div></section>')
+            '<div class="year-grid">' + "".join(cards) + '</div>'
+            '<p class="years-more"><a href="all.html">查看全部 ' + str(len(_entries)) + ' 篇 →</a></p></section>')
 
 def _guide_section(href_for):
     try:
@@ -785,6 +810,31 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 .year-card strong{font-size:20px;font-weight:700;letter-spacing:.06em}
 .year-card span{color:var(--muted);font-size:12px}
 .year-card:hover{border-color:var(--gold);color:var(--cin)}
+.years-more{text-align:center;margin:18px 0 0;font-size:13px}
+.years-more a{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--gold)}
+/* ---- 全部条目（10-23 P1）：目录/系列筛选 ---- */
+.catalog-wrap{max-width:1024px;margin:0 auto;padding:0 32px 70px}
+.catalog-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 18px}
+#cat-q{flex:1 1 240px;min-width:0;height:40px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink);font:inherit;font-size:14px}
+#cat-series{height:40px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink);font:inherit;font-size:14px}
+.cat-years{display:flex;flex-wrap:wrap;gap:6px}
+.cat-year-btn{height:36px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);font:inherit;font-size:13px;cursor:pointer}
+.cat-year-btn.on{background:var(--cin);border-color:var(--cin);color:#faf3ea}
+.cat-count{color:var(--muted);font-size:13px;margin-left:auto;white-space:nowrap}
+.cat-list{border-top:1px solid var(--line)}
+.cat-item{display:grid;grid-template-columns:94px minmax(0,1fr) 110px 52px 58px;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--line);font-size:14px}
+.cat-item[hidden]{display:none}
+.cat-date{color:var(--muted);font-size:12.5px;white-space:nowrap}
+.cat-title{min-width:0;line-height:1.7}
+.cat-title a{color:var(--ink);text-decoration:none;overflow-wrap:anywhere}
+.cat-title a:hover{color:var(--cin)}
+.cat-series{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat-time{color:var(--muted);font-size:12px;text-align:right;white-space:nowrap}
+.cat-copy{padding:4px 9px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);font:inherit;font-size:12px;cursor:pointer}
+.cat-copy:hover{border-color:var(--gold);color:var(--ink)}
+.cat-empty{padding:30px 10px;text-align:center;color:var(--muted);font-size:14px}
+.cat-empty[hidden]{display:none}
+@media(max-width:640px){.catalog-wrap{padding:0 20px 54px}.cat-item{grid-template-columns:66px minmax(0,1fr) 44px 56px;gap:8px;font-size:13.5px}.cat-series{display:none}.cat-count{width:100%;margin-left:0}.cat-date{font-size:11.5px}.cat-time{font-size:11.5px}.cat-copy{padding:3px 7px;font-size:11px}}
 .hero.compact .doctitle{padding:64px 24px 46px}
 .hero.compact h1{font-size:56px}
 .yearhead{max-width:720px;margin:0 auto;padding:44px 24px 8px;text-align:center;color:var(--muted)}
@@ -1186,6 +1236,7 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
     <a class="fbtn" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ 志远行空 YouTube 频道</a>
     <a class="fbtn" href="https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a>
     <a class="fbtn" href="https://www.oceanwards.com/" target="_blank" rel="noopener">🌊 归海论坛</a>
+    <a class="fbtn" href="all.html">📚 全部条目</a>
     <a class="fbtn" href="feedback.html">✉️ 反馈 / 报错</a>
     {dl_tag}
   </div>
@@ -1203,12 +1254,98 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
 (HERE / "style.v5.css").write_text(css, encoding="utf-8", newline="\n")
 (HERE / "main.v5.js").write_text(js, encoding="utf-8", newline="\n")
 
+# 7.5) 全部条目页（10-23 P1）：目录 + 年份/系列/标题筛选 + 阅读时长 + 复制链接
+_catalog_items = sorted(_entries, key=lambda e: (e.get('date') or '0000-00-00'), reverse=True)
+_series_counts = {}
+for _e in _catalog_items:
+    _series_counts[_e['series']] = _series_counts.get(_e['series'], 0) + 1
+_series_opts = "".join(
+    f'<option value="{_html.escape(k, quote=True)}">{_html.escape(k)}（{v}）</option>'
+    for k, v in sorted(_series_counts.items(), key=lambda kv: (-kv[1], kv[0])))
+_year_btns = '<button type="button" class="cat-year-btn on" data-year="">全部</button>'
+for _y in sorted((y for y in _pages if y != 'NODATE'), reverse=True):
+    _year_btns += f'<button type="button" class="cat-year-btn" data-year="{_y}">{_y}</button>'
+if 'NODATE' in _pages:
+    _year_btns += '<button type="button" class="cat-year-btn" data-year="NODATE">未编年</button>'
+_cat_rows = []
+for _e in _catalog_items:
+    _date = _e['date'] or '未编年'
+    _href = _e['page'] + '#' + _e['id']
+    _link = 'https://guihailu.github.io/' + _href
+    _search = _html.escape((_e['title'] + ' ' + _e['series'] + ' ' + _date).lower(), quote=True)
+    _cat_rows.append(
+        '<div class="cat-item" data-year="' + _e['year'] + '" data-series="' + _html.escape(_e['series'], quote=True) +
+        '" data-search="' + _search + '">'
+        '<span class="cat-date">' + _html.escape(_date) + '</span>'
+        '<span class="cat-title"><a href="' + _href + '">' + _html.escape(_e['title']) + '</a></span>'
+        '<span class="cat-series">' + _html.escape(_e['series']) + '</span>'
+        '<span class="cat-time">' + str(_e['minutes']) + '′</span>'
+        '<button type="button" class="cat-copy" data-link="' + _html.escape(_link, quote=True) + '">复制</button></div>')
+_catalog_tpl = '''<div class="yearhead"><a class="back" href="index.html">← 返回首页</a>
+<h1>全部条目</h1><p>共 __TOTAL__ 篇 · 按标题 / 系列 / 年份筛选</p></div>
+<div class="catalog-wrap">
+<div class="catalog-controls">
+<input id="cat-q" type="search" placeholder="筛选标题或系列…" autocomplete="off" aria-label="筛选条目">
+<select id="cat-series" aria-label="按系列筛选"><option value="">全部系列</option>__SERIES__</select>
+<div class="cat-years" role="group" aria-label="按年份筛选">__YEARS__</div>
+<span class="cat-count" id="cat-count">__TOTAL__ 篇</span>
+</div>
+<div class="cat-list" id="cat-list">__ROWS__</div>
+<div class="cat-empty" id="cat-empty" hidden>没有匹配的条目，换个关键词试试。</div>
+</div>
+<script>
+(function(){
+ var q=document.getElementById('cat-q'), sel=document.getElementById('cat-series');
+ var items=[].slice.call(document.querySelectorAll('.cat-item'));
+ var count=document.getElementById('cat-count'), empty=document.getElementById('cat-empty');
+ var curYear='';
+ function apply(){
+  var term=(q.value||'').trim().toLowerCase(), sy=sel.value, n=0;
+  items.forEach(function(el){
+   var ok=(!curYear||el.getAttribute('data-year')===curYear)&&(!sy||el.getAttribute('data-series')===sy)&&(!term||el.getAttribute('data-search').indexOf(term)>-1);
+   el.hidden=!ok; if(ok)n++;
+  });
+  count.textContent=n+' 篇'; empty.hidden=n>0;
+ }
+ q.addEventListener('input',apply); sel.addEventListener('change',apply);
+ [].slice.call(document.querySelectorAll('.cat-year-btn')).forEach(function(b){
+  b.addEventListener('click',function(){
+   curYear=b.getAttribute('data-year');
+   [].slice.call(document.querySelectorAll('.cat-year-btn')).forEach(function(x){x.classList.toggle('on',x===b);});
+   apply();
+  });
+ });
+ var sp=new URLSearchParams(location.search), qq=sp.get('q'), ss=sp.get('series'), yy=sp.get('year');
+ if(qq)q.value=qq; if(ss)sel.value=ss;
+ if(yy){curYear=yy;[].slice.call(document.querySelectorAll('.cat-year-btn')).forEach(function(x){x.classList.toggle('on',x.getAttribute('data-year')===yy);});}
+ apply();
+ [].slice.call(document.querySelectorAll('.cat-copy')).forEach(function(b){
+  b.addEventListener('click',function(){
+   var link=b.getAttribute('data-link');
+   function done(){b.textContent='已复制';setTimeout(function(){b.textContent='复制';},1200);}
+   function fallback(){var t=document.createElement('textarea');t.value=link;document.body.appendChild(t);t.select();try{document.execCommand('copy');done();}catch(e){}t.remove();}
+   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(link).then(done,fallback);}else{fallback();}
+  });
+ });
+})();
+</script>'''
+_catalog_body = (_catalog_tpl.replace('__TOTAL__', str(len(_entries)))
+                 .replace('__SERIES__', _series_opts)
+                 .replace('__YEARS__', _year_btns)
+                 .replace('__ROWS__', "".join(_cat_rows)))
+
 _HOME_DESC = ("归海录：志远行空的日常分享与 YouTube 视频讲法合集——每一段语音，一个故事，"
               "一个道理，润物无声。按时间倒序，持续更新。")
 _HOME_TITLE = "📿 归海录 · 志远行空"
 (HERE / "index.html").write_text(
     _render_page("index.html", _HOME_TITLE, _HOME_DESC, _home_body), encoding="utf-8", newline="\n")
 print(f"OK: index.html {(HERE/'index.html').stat().st_size} B")
+
+(HERE / "all.html").write_text(
+    _render_page("all.html", "📚 全部条目 · 归海录", f"归海录全部 {len(_entries)} 篇：按标题、系列、年份筛选，含阅读时长与复制链接。",
+                 _catalog_body, compact=True, ld_items=_catalog_items),
+    encoding="utf-8", newline="\n")
+print(f"OK: all.html {(HERE/'all.html').stat().st_size} B ({len(_entries)} 条)")
 
 for _y, _items in _pages.items():
     _label = _YEAR_LABEL.get(_y, _y)
@@ -1268,7 +1405,8 @@ def _page_lastmod(items):
     ds = [e["date"] for e in items if re.fullmatch(r"20\d{2}-\d{2}-\d{2}", e.get("date") or "")]
     return max(ds) if ds else _latest_date
 
-_sitemap_urls = [("https://guihailu.github.io/", _latest_date, "weekly", "1.0")]
+_sitemap_urls = [("https://guihailu.github.io/", _latest_date, "weekly", "1.0"),
+                 ("https://guihailu.github.io/all.html", _latest_date, "weekly", "0.9")]
 for _y in sorted(_pages, key=lambda y: (y == "NODATE", -int(y) if re.fullmatch(r"20\d{2}", str(y)) else 0)):
     _fn = _page_for_year(_y)
     _sitemap_urls.append((("https://guihailu.github.io/" + _fn), _page_lastmod(_pages[_y]), "monthly", "0.8"))

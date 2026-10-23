@@ -27,7 +27,7 @@ run([sys.executable, "build_site.py"], env=env)
 # 3) 将需要登录的 Lark 图片镜像成公开静态资源
 run([sys.executable, "mirror_media.py"], env=env)
 # 4) git 提交推送（无变化则静默跳过；页面与资源必须同一次提交）
-_page_files = (["index.html", "undated.html", "404.html", "feedback.html"] +
+_page_files = (["index.html", "undated.html", "404.html", "feedback.html", "all.html"] +
                sorted(p.name for p in HERE.glob("20[0-9][0-9].html")))
 _index_files = (["search_shared.json", "search_manifest.json"] +
                 sorted(p.name for p in HERE.glob("search_index_*.json")))

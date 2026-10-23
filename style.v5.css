@@ -185,6 +185,31 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 .year-card strong{font-size:20px;font-weight:700;letter-spacing:.06em}
 .year-card span{color:var(--muted);font-size:12px}
 .year-card:hover{border-color:var(--gold);color:var(--cin)}
+.years-more{text-align:center;margin:18px 0 0;font-size:13px}
+.years-more a{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--gold)}
+/* ---- 全部条目（10-23 P1）：目录/系列筛选 ---- */
+.catalog-wrap{max-width:1024px;margin:0 auto;padding:0 32px 70px}
+.catalog-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 18px}
+#cat-q{flex:1 1 240px;min-width:0;height:40px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink);font:inherit;font-size:14px}
+#cat-series{height:40px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink);font:inherit;font-size:14px}
+.cat-years{display:flex;flex-wrap:wrap;gap:6px}
+.cat-year-btn{height:36px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);font:inherit;font-size:13px;cursor:pointer}
+.cat-year-btn.on{background:var(--cin);border-color:var(--cin);color:#faf3ea}
+.cat-count{color:var(--muted);font-size:13px;margin-left:auto;white-space:nowrap}
+.cat-list{border-top:1px solid var(--line)}
+.cat-item{display:grid;grid-template-columns:94px minmax(0,1fr) 110px 52px 58px;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--line);font-size:14px}
+.cat-item[hidden]{display:none}
+.cat-date{color:var(--muted);font-size:12.5px;white-space:nowrap}
+.cat-title{min-width:0;line-height:1.7}
+.cat-title a{color:var(--ink);text-decoration:none;overflow-wrap:anywhere}
+.cat-title a:hover{color:var(--cin)}
+.cat-series{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat-time{color:var(--muted);font-size:12px;text-align:right;white-space:nowrap}
+.cat-copy{padding:4px 9px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);font:inherit;font-size:12px;cursor:pointer}
+.cat-copy:hover{border-color:var(--gold);color:var(--ink)}
+.cat-empty{padding:30px 10px;text-align:center;color:var(--muted);font-size:14px}
+.cat-empty[hidden]{display:none}
+@media(max-width:640px){.catalog-wrap{padding:0 20px 54px}.cat-item{grid-template-columns:66px minmax(0,1fr) 44px 56px;gap:8px;font-size:13.5px}.cat-series{display:none}.cat-count{width:100%;margin-left:0}.cat-date{font-size:11.5px}.cat-time{font-size:11.5px}.cat-copy{padding:3px 7px;font-size:11px}}
 .hero.compact .doctitle{padding:64px 24px 46px}
 .hero.compact h1{font-size:56px}
 .yearhead{max-width:720px;margin:0 auto;padding:44px 24px 8px;text-align:center;color:var(--muted)}
