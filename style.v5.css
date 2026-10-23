@@ -11,6 +11,8 @@ html.dark{
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--deep);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+.skip{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+.skip:focus{left:12px;top:12px;width:auto;height:auto;padding:9px 15px;background:var(--deep);color:var(--gold2);border:1px solid var(--gold);border-radius:8px;z-index:9999;font-size:14px;text-decoration:none}
 button,a,summary{-webkit-tap-highlight-color:transparent}
 button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
 #progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--gold2);z-index:101}
@@ -125,6 +127,7 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 #qres.on{display:block}
 .qcount{padding:9px 14px;border-bottom:1px solid rgba(178,139,74,.2);color:#c8baa0;font-size:12px}
 .qitem{padding:11px 14px;border-bottom:1px solid rgba(178,139,74,.14);cursor:pointer}
+.qitem.active{background:rgba(178,139,74,.12)}
 .qitem:last-child{border-bottom:0}
 .qitem:hover{background:rgba(178,139,74,.08)}
 .qhead{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px}
