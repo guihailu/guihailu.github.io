@@ -1,5 +1,5 @@
 {
-  "provider": "none",
-  "id": "",
-  "note": "provider: none | goatcounter | umami | baidu | 51la；填入 id 后重新构建即可启用；默认 none 不加载任何第三方脚本"
+  "provider": "goatcounter",
+  "id": "guihailu",
+  "note": "B 已启用：GoatCounter guihailu；脚本自托管 goatcounter.js 以避开 gc.zgo.at 大陆访问超时；计数端点 https://guihailu.goatcounter.com/count"
 }

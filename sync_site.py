@@ -31,7 +31,7 @@ _page_files = (["index.html", "undated.html", "404.html", "feedback.html"] +
                sorted(p.name for p in HERE.glob("20[0-9][0-9].html")))
 _index_files = (["search_shared.json", "search_manifest.json"] +
                 sorted(p.name for p in HERE.glob("search_index_*.json")))
-_aux_files = ["sitemap.xml", "robots.txt", "favicon.svg", "favicon.ico", "manifest.json", "feed.xml", "cover.jpg"]
+_aux_files = ["sitemap.xml", "robots.txt", "favicon.svg", "favicon.ico", "manifest.json", "feed.xml", "cover.jpg", "goatcounter.js"]
 run(["git", "add", "-A", "--", *_page_files,
      "guihailu.md", "build_site.py",
      "sync_site.py", "mirror_media.py", "style.v5.css", "main.v5.js",

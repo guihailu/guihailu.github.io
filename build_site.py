@@ -31,8 +31,9 @@ def analytics_head():
     if not i or p in ("", "none"):
         return ""
     if p == "goatcounter":
+        # 自托管 goatcounter.js：gc.zgo.at 在本机/大陆网络实测连接超时；计数端点仍走官方
         return ('<script data-goatcounter="https://' + _html.escape(i, quote=True) +
-                '.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>')
+                '.goatcounter.com/count" async src="goatcounter.js"></script>')
     if p == "umami":
         return ('<script async src="https://cloud.umami.is/script.js" data-website-id="' +
                 _html.escape(i, quote=True) + '"></script>')
