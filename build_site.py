@@ -228,7 +228,7 @@ md = toc_pat.sub(toc_repl, md)
 TOC_DATE_BY_SID = {}
 for _text, _bid in toc_items:
     _sid = id_map.get(_bid)
-    _m = re.search(r'(20\d{2}-\d{2}-\d{2})', _text)
+    _m = re.search(r'(20\d{2}-\d{2}(?:-\d{2})?)', _text)
     if _sid and _m:
         TOC_DATE_BY_SID.setdefault(_sid, _m.group(1))
 
@@ -310,7 +310,7 @@ def _meta_parts(block_html):
             if line and line != '📌':
                 lines.append(line)
     text = ' '.join(lines)
-    date_m = re.search(r'20\d{2}-\d{2}-\d{2}', text)
+    date_m = re.search(r'20\d{2}-\d{2}(?:-\d{2})?', text)
     dur = ''
     pm = re.search(r'[（(]([^）)]+)[）)]', text)
     if pm:
@@ -464,7 +464,7 @@ def _entry_year(sid, meta):
     return m.group(1) if m else 'NODATE'
 
 def _entry_date(sid, meta):
-    m = re.search(r'20\d{2}-\d{2}-\d{2}', meta)
+    m = re.search(r'20\d{2}-\d{2}(?:-\d{2})?', meta)
     if m:
         return m.group(0)
     _tail = _toc_text_by_sid.get(sid, '').split('｜')[-1].strip()
@@ -1078,8 +1078,8 @@ try:
         _title = _plain(_e['title'])
         # 10-14：date=首个合法 YYYY-MM-DD（不定则空，不伪造）；10-19 起徽章缺失时用目录日期补
         _meta = _plain(_e['meta']).replace('📌', '').strip()
-        _dmm = (re.search(r'20\d{2}-\d{2}-\d{2}', _meta)
-                or re.search(r'20\d{2}-\d{2}-\d{2}', _e['date']))
+        _dmm = (re.search(r'20\d{2}-\d{2}(?:-\d{2})?', _meta)
+                or re.search(r'20\d{2}-\d{2}(?:-\d{2})?', _e['date']))
         _date = _dmm.group(0) if _dmm else ''
         # 反馈链接含长 percent-encoded 标题，不进检索正文（省体积、去噪）
         _bm_html = re.sub(r'<p class="entry-feedback">.*?</p>', '', bm.group(1) if bm else '', flags=re.S)
