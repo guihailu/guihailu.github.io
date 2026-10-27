@@ -100,8 +100,9 @@ run([sys.executable, "mirror_media.py"], env=env)
 # 3.5) P0-1 发布门禁：构建之后、git add 之前；失败则直接退出，不提交、不推送
 check_release_gate(HERE)
 # 4) git 提交推送（无变化则静默跳过；页面与资源必须同一次提交）
-_page_files = (["index.html", "undated.html", "404.html", "feedback.html", "all.html"] +
-               sorted(p.name for p in HERE.glob("20[0-9][0-9].html")))
+_page_files = (["index.html", "undated.html", "404.html", "feedback.html", "all.html", "newcomer.html"] +
+               sorted(p.name for p in HERE.glob("20[0-9][0-9].html")) +
+               sorted(p.name for p in HERE.glob("newcomer-*.html")))
 _index_files = (["search_shared.json", "search_manifest.json"] +
                 sorted(p.name for p in HERE.glob("search_index_*.json")))
 _aux_files = ["sitemap.xml", "robots.txt", "favicon.svg", "favicon.ico", "manifest.json", "feed.xml", "cover.jpg", "goatcounter.js"]
