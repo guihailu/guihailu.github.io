@@ -621,36 +621,30 @@ _NEWCOMER_HTML = (
     '3. 再去“最新更新”看看最近在讲什么。</p>'
     '<p class="newcomer-note">以上为编辑整理的新人指引，非原典内容。</p></section>'
 )
-# 新人前门（试点 10 篇）：编辑整理层，与正文源 guihailu.md 分离。
-# 数据只用试点选材表的篇目信息（标题、目录日期、挑选理由方向）；不编造原文没有的情节、
-# 不编播放量与链接；全文链接层一律写“发布时由站内目录对应填入”。
+# 新人前门（试点 10 篇）重做版：公开页上不写任何模板标签与钩子文案。
+# 第 1 页已按新写法重写（标题 → 一句简介 → 最多三个要点 → 一个下一步 → 有真实链接才写全文链接）；
+# 第 2–10 页数据不动、旧字段不再渲染，只显示标题、日期与“正在重写”，等第 1 页通过后再重写；
+# 没有核实过的单篇全文锚点一律不写，不编地址、不写占位话。
 _NEWCOMER_DOOR_HTML = (
     '<p class="newcomer-note">新人入口：<a href="newcomer.html">10 篇试点新人页 →</a>'
     '（看完视频后的下一站，不是视频文字的重播）</p>'
 )
+# 新人入口临时隐藏（用户 2026-10-27 决定：重做通过前不公开）。False 时不生成新人页、首页不放新人条带与入口链接、全部页不放新人入口提示。
+_NEWCOMER_ENABLED = False
+
 _NEWCOMER_PAGES = [
     {
         "title": "普通人能修炼开天眼吗？马斯克的脑机接口、诺贝尔奖离天眼还差多远｜天眼和法眼详解",
         "date": "2026-10-20",
-        "anchor": "你刚看的那支视频：志远行空 2026-10-20《普通人能修炼开天眼吗？马斯克的脑机接口、诺贝尔奖离天眼还差多远｜天眼和法眼详解》（视频原长 23:49）。这一页是那支视频的下一站，不是视频文字的重播。",
-        "hook": "普通人能修炼开天眼吗？从诺贝尔奖的光控脑细胞、马斯克的脑机接口讲起，讲到天眼的一天和识破假菩萨的法眼，最后结论却不浪漫——先天的神通，靠后天是练不出来的。",
-        "taste_q": "一个问题：科学都快摸到玄学了，普通人是不是很快就能人人开天眼？",
-        "taste_story": "故事梗概：讲述者先拿科学实验打比方——光点亮老鼠脑细胞、脑机接口靠意念打字，再讲到天眼的一天：街上穿人的鬼、寺庙半空的招聘启事、饭桌上每个人身上冒的光，最后讲到连顶级天眼也看不穿的幻境。",
-        "heart": "一句心性落点：把神通看明白了，不依赖它，也不向往它——这才是这一期真正想留下的东西。",
+        "rewritten": True,
+        "intro": "这一篇讲的是天眼和法眼：先从诺贝尔奖的光控脑细胞和马斯克的脑机接口说起，再讲天眼能看见什么、法眼和天眼有什么不一样，最后讲先天的神通靠后天练不出来。",
         "points": [
-            "科学那边是光点亮脑细胞、脑机接口靠意念打字，讲述者把这和法界的“打念”放在一起比较，但这只是他体系内的比较，不是科学结论。",
-            "天眼有“有迹可查”的验证说法（信封里的字、隔空写的字都能看出来），而“有感觉”“眼前有亮光”不算开天眼，市面上的开天眼课程在他看来很可疑。",
-            "法眼看的不是更远，而是“规则成像”，并且能识破幻化成菩萨样子的幻境；但先天的天眼、法眼靠后天练不出来，感觉不等于神通，练习得来的敏锐感知也不能当成神通去给人看事。",
+            "科学那边有两个例子：用光点亮老鼠的脑细胞，还有脑机接口靠意念打字。这一篇把这两个例子和法界说的“打念”放在一起比较，但这只是讲述者自己体系里的比较，不是科学结论。",
+            "天眼有没有开，有一个“有迹可查”的说法：信封里的字、隔空写的字能不能看出来。光是有感觉、眼前有亮光不算开天眼，市面上卖的开天眼课程在这一篇里也被认为可疑。",
+            "法眼和天眼不一样：法眼看的是规则怎么成像，能识破幻化成菩萨样子的幻境。但先天的天眼和法眼靠后天练不出来，练出来的敏锐感觉也不能当成神通去给人看事。把神通看明白了，不依赖它，也不向往它。",
         ],
-        "related": [
-            ("普通人还可以修仙吗？动物、鬼又是怎么修炼的？｜阴阳师聊六道诸界", "2026-10-10"),
-            ("你遇到的鬼，最多只是“高启强”——认知层级与法界资源", "2026-09-12"),
-        ],
-        "self_q": "你有没有把“有感觉”当成过“有能力”？在哪件事上？先写下来，不用急着下结论。",
-        "source": "内容整理自志远行空分享，编辑整理部分非原典内容。来源：归海录主文档《普通人能修炼开天眼吗？马斯克的脑机接口、诺贝尔奖离天眼还差多远｜天眼和法眼详解》一节（目录日期 2026-10-20，志远行空 YouTube 视频，原长 23:49）。",
-        "tier": "公开层（前门味道层 + 路径层）。本页涉及法界天机类内容，只给味道，不写任何“如何开天眼”的操作步骤，不写符箓、法器使用细节。",
-        "boundary": "文中关于天眼、法眼、打念、幻境的说法，属于讲述者个人经验与信仰解释，不是科学结论。本页为故事与修行分享整理，不构成医疗、财务或人生决策建议；编辑整理部分非原典内容。若持续出现幻视、幻听、失眠、焦虑或被害感，请优先寻求精神科、心理或医疗专业帮助。",
-        "draft": False,
+        "next_text": "去全部条目里找这一篇的全文接着读。",
+        "next_href": "all.html",
     },
     {
         "title": "马斯克会飞的车，能让人类更好吗？偷梅艳芳骨灰，真能借运？｜文明的两面 · 九月九登天门 · 三魂七魄",
@@ -864,55 +858,47 @@ _NEWCOMER_PAGES = [
 
 def _newcomer_page_body(p):
     e = _html.escape
-    points = "".join(f"<li>{e(x)}</li>" for x in p["points"])
-    related = "".join(f"<li>{e(t)}（{e(d)}）</li>" for t, d in p["related"])
-    draft_note = ("<p class=\"newcomer-note\">本页为内部草稿，内容待审，试读三问未做。</p>"
-                  if p.get("draft") else
-                  "<p class=\"newcomer-note\">本页试读三问未做，记账未做。</p>")
-    draft_banner = ("<p class=\"newcomer-note\">内部草稿：要点为方向性草稿，细节待编辑对照原文审定后补齐。</p>"
-                    if p.get("draft") else "")
-    return (
+    parts = [
         f'<div class="yearhead"><a class="back" href="newcomer.html">← 新人入口</a>'
-        f'<h1>{e(p["title"])}</h1><p>{e(p["date"])} · 新人页 · 约 3 分钟</p></div>'
-        '<section class="newcomer">'
-        + draft_banner +
-        f'<h2>视频锚点</h2><p>{e(p["anchor"])}</p>'
-        f'<h2>钩子</h2><p>{e(p["hook"])}</p>'
-        '<h2>第 1 层：30 秒味道层</h2>'
-        f'<p>{e(p["taste_q"])}</p><p>{e(p["taste_story"])}</p><p>{e(p["heart"])}</p>'
-        '<h2>第 2 层：3 分钟路径层</h2><ol>' + points + '</ol>'
-        + (f'<p>相关条目：</p><ul>{related}</ul>' if related else '')
-        + (f'<p>一个可做的小自问：{e(p["self_q"])}</p>' if p.get("self_q") else '')
-        + '<h2>下一步</h2><p>主按钮：读完本页第 2 层（3 分钟路径层）即完成本页。</p>'
-        '<p>次选：进群讨论、提问；或点上面相关条目继续。</p>'
-        '<h2>时间标尺</h2><p>本页路径层约 3 分钟读完；全文在第三层，不在本页平铺；页内分钟数是按字数估算的阅读时长，不是视频时长。</p>'
-        f'<h2>来源标注</h2><p>{e(p["source"])}</p>'
-        f'<h2>分层标记</h2><p>{e(p["tier"])}</p>'
-        f'<h2>边界说明</h2><p>{e(p["boundary"])}</p>'
-        '<h2>全文链接层</h2><p>全文链接：发布时由站内目录对应填入（本页不编造链接地址，不指向需登录的 Lark 原文）。</p>'
-        + draft_note +
-        '<p>学了一段时间、想直接查全文？去<a href="all.html">全部条目复习</a>。</p>'
-        '<p class="newcomer-note">以上为编辑整理的新人页，非原典内容。</p></section>'
-    )
+        f'<h1>{e(p["title"])}</h1><p>{e(p["date"])}</p></div>',
+        '<section class="newcomer">',
+    ]
+    if not p.get("rewritten"):
+        parts.append('<p>这一页正在重写。</p>')
+    else:
+        if p.get("intro"):
+            parts.append(f'<p>{e(p["intro"])}</p>')
+        pts = (p.get("points") or [])[:3]
+        if pts:
+            parts.append('<ul>' + ''.join(f'<li>{e(x)}</li>' for x in pts) + '</ul>')
+        if p.get("next_text") and p.get("next_href"):
+            parts.append(f'<p><a href="{e(p["next_href"], quote=True)}">{e(p["next_text"])}</a></p>')
+        elif p.get("next_text"):
+            parts.append(f'<p>{e(p["next_text"])}</p>')
+        if p.get("link"):
+            parts.append(f'<p><a href="{e(p["link"], quote=True)}">全文</a></p>')
+    parts.append('<p class="newcomer-foot">本页是故事和修行分享的整理，不是医疗、财务或人生决定的建议。</p></section>')
+    return ''.join(parts)
 
 
 def _newcomer_index_body():
     e = _html.escape
-    items = "".join(
-        f'<li><a href="newcomer-{i + 1:02d}.html">{e(p["date"])} · {e(p["title"])}</a></li>'
-        for i, p in enumerate(_NEWCOMER_PAGES))
+    items = []
+    for i, p in enumerate(_NEWCOMER_PAGES):
+        row = (f'<li><a href="newcomer-{i + 1:02d}.html">{e(p["title"])}</a> '
+               f'<span class="newcomer-date">{e(p["date"])}</span>')
+        if p.get("rewritten") and p.get("intro"):
+            row += f'<p>{e(p["intro"])}</p>'
+        row += '</li>'
+        items.append(row)
     return (
         '<div class="yearhead"><a class="back" href="index.html">← 返回首页</a>'
-        '<h1>新人入口</h1><p>看完视频后的下一站 · 10 篇试点新人页 · 每页约 3 分钟</p></div>'
-        '<section class="newcomer">'
-        '<p><strong>给谁看：</strong>刚看完志远行空视频、觉得有意思的新人，不需要任何前置知识。</p>'
-        '<p><strong>怎么读：</strong>每页先给味道（30 秒），再给路径（3 分钟），全文在第三层，不在本页平铺。</p>'
-        '<ol>' + items + '</ol>'
-        '<p>学了一段时间、想直接查全文？去<a href="all.html">全部条目复习</a>。</p>'
-        '<p class="newcomer-note">以上为编辑整理的新人指引，非原典内容。试点页为内部草稿，内容待审。</p></section>'
+        '<h1>新人入口</h1></div>'
+        '<section class="newcomer"><ul class="newcomer-list">' + ''.join(items) + '</ul></section>'
     )
 
-_home_body = _intro_html + _NEWCOMER_HTML + _NEWCOMER_DOOR_HTML + _guide_online + _latest_section(10) + _years_section()
+
+_home_body = _intro_html + ((_NEWCOMER_HTML + _NEWCOMER_DOOR_HTML) if _NEWCOMER_ENABLED else "") + _guide_online + _latest_section(10) + _years_section()
 _year_bodies = {}
 _yearch_head = {}
 for _y, _items in _pages.items():
@@ -1148,8 +1134,11 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 @media(max-width:960px){.latest,.years{padding:0 20px 44px}.year-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.latest-item a{gap:10px;padding:12px 2px;align-items:flex-start}.latest-date{width:72px;font-size:11.5px}.latest-title{font-size:14.5px}.hero.compact .doctitle{padding:42px 22px 30px}.hero.compact h1{font-size:40px}.yearhead{padding:30px 20px 6px}.yearhead h1{font-size:28px}}
 .newcomer{max-width:760px;margin:0 auto;padding:0 32px 40px;color:var(--ink);font-size:15.5px;line-height:1.9}
-.newcomer h2{margin:0 0 14px;color:var(--ink);font-size:20px;font-weight:700;letter-spacing:.06em;text-align:center}
-.newcomer p{margin:0 0 8px}.newcomer-note{color:var(--muted);font-size:13px}
+.newcomer p{margin:0 0 8px}
+.newcomer-list{margin:0;padding:0;list-style:none}
+.newcomer-list li{margin:0 0 16px}
+.newcomer-date{color:var(--muted);font-size:13px}
+.newcomer-foot{color:var(--muted);font-size:13px}
 .ft-num{display:inline-block;margin-bottom:8px;padding:2px 10px;border:1px solid var(--gold);border-radius:999px;color:var(--gold);font-size:12px;font-weight:600;letter-spacing:.05em}
 .ft-min{margin-left:8px;color:var(--muted);font-size:12px;white-space:nowrap}
 .ftcard:hover{border-color:var(--gold)}
@@ -1615,7 +1604,6 @@ _catalog_tpl = '''<div class="yearhead"><a class="back" href="index.html">← �
 <span class="cat-count" id="cat-count">__TOTAL__ 篇</span>
 </div>
 <p class="cat-note">时长为按字数估算的阅读时长（约 400 字 / 分钟），不是视频时长。</p>
-<p class="cat-note">第一次来？先看<a href="newcomer.html">新人入口</a>，3 分钟先有个方向。</p>
 <div class="cat-list" id="cat-list">__ROWS__</div>
 <div class="cat-empty" id="cat-empty" hidden>没有匹配的条目，换个关键词试试。</div>
 </div>
@@ -1673,19 +1661,20 @@ print(f"OK: index.html {(HERE/'index.html').stat().st_size} B")
     encoding="utf-8", newline="\n")
 print(f"OK: all.html {(HERE/'all.html').stat().st_size} B ({len(_entries)} 条)")
 
-# 新人前门：由构建生成新人入口页与 10 篇试点新人页（不手写生成页）。
-(HERE / "newcomer.html").write_text(
-    _render_page("newcomer.html", "新人入口 · 归海录", "看完志远行空视频后的下一站：10 篇试点新人页，每页约 3 分钟。",
-                 _newcomer_index_body()),
-    encoding="utf-8", newline="\n")
-print(f"OK: newcomer.html {(HERE/'newcomer.html').stat().st_size} B")
-for _i, _p in enumerate(_NEWCOMER_PAGES):
-    _fn = f"newcomer-{_i + 1:02d}.html"
-    (HERE / _fn).write_text(
-        _render_page(_fn, f"{_p['title']} · 新人页 · 归海录", f"新人页：{_p['title']}（{_p['date']}），约 3 分钟。",
-                     _newcomer_page_body(_p)),
+if _NEWCOMER_ENABLED:
+    # 新人前门：由构建生成新人入口页与 10 篇试点新人页（不手写生成页）。
+    (HERE / "newcomer.html").write_text(
+        _render_page("newcomer.html", "新人入口 · 归海录", "新人页列表。",
+                     _newcomer_index_body()),
         encoding="utf-8", newline="\n")
-    print(f"OK: {_fn} {(HERE/_fn).stat().st_size} B")
+    print(f"OK: newcomer.html {(HERE/'newcomer.html').stat().st_size} B")
+    for _i, _p in enumerate(_NEWCOMER_PAGES):
+        _fn = f"newcomer-{_i + 1:02d}.html"
+        (HERE / _fn).write_text(
+            _render_page(_fn, f"{_p['title']} · 新人页 · 归海录", f"新人页：{_p['title']}（{_p['date']}）。",
+                         _newcomer_page_body(_p)),
+            encoding="utf-8", newline="\n")
+        print(f"OK: {_fn} {(HERE/_fn).stat().st_size} B")
 
 for _y, _items in _pages.items():
     _label = _YEAR_LABEL.get(_y, _y)
