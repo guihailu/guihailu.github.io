@@ -1,13 +1,13 @@
 {
-  "generated": "5e2899b9995e",
-  "count": 104,
+  "generated": "a27339f169a4",
+  "count": 105,
   "shared": "search_shared.json",
   "shards": [
     {
       "file": "search_index_2026.json",
       "page": "2026.html",
-      "count": 45,
-      "bytes": 639636
+      "count": 46,
+      "bytes": 659873
     },
     {
       "file": "search_index_2025.json",
