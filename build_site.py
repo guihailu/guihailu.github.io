@@ -912,7 +912,39 @@ def _newcomer_index_body():
         '<p class="newcomer-note">以上为编辑整理的新人指引，非原典内容。试点页为内部草稿，内容待审。</p></section>'
     )
 
-_home_body = _intro_html + _NEWCOMER_HTML + _NEWCOMER_DOOR_HTML + _guide_online + _latest_section(10) + _years_section()
+_home_search = ('<div class="searchbar" id="searchbar" role="search"><div class="searchwrap">'
+                '<input id="q" type="search" placeholder="搜索全文… 试试：怎么看人 / 烧纸 / 改命" autocomplete="off" '
+                'aria-label="搜索全文" role="combobox" aria-autocomplete="list" aria-controls="qres" aria-expanded="false">'
+                '<div id="qres" aria-live="polite" aria-label="搜索结果"></div>'
+                '<p class="search-hint">试试搜：怎么看人 · 烧纸 · 改命 · 因果</p></div></div>')
+
+_home_body = (
+    '<section class="home-welcome">'
+    '<p class="home-copy">从一个故事开始，随时阅读公开分享的原文与整理。</p>'
+    '<div class="home-actions">'
+    '<a class="home-action home-action-primary" href="#recent-topics">看看最近在讲什么</a>'
+    '<a class="home-action" href="#searchbar">查找完整原文</a>'
+    '</div>'
+    '</section>'
+    '<section class="recent-topics" id="recent-topics">'
+    '<h2>最近在讲</h2>'
+    '<div class="recent-placeholder">最新视频切片正在整理，完成后会在这里出现。</div>'
+    '</section>'
+    '<nav class="home-paths" aria-label="继续浏览">'
+    '<a href="#latest"><strong>继续看这样的故事</strong><span>从最新整理开始</span></a>'
+    '<a href="all.html"><strong>想知道老师还讲些什么</strong><span>浏览完整分享</span></a>'
+    '<a href="#searchbar"><strong>我有一个问题，查查老师以前有没有讲过</strong><span>搜索完整原文</span></a>'
+    '</nav>'
+    '<section class="home-archive" id="archive">'
+    '<h2>完整资料库</h2>'
+    '<p>适合查找、复习和阅读完整上下文。</p>'
+    + _home_search + _latest_section(10) +
+    '<div class="home-archive-links">'
+    '<a href="#searchbar">全文搜索</a><a href="#years">按年份浏览</a><a href="all.html">全部条目</a>'
+    '</div>'
+    '</section>'
+    + _years_section()
+)
 _year_bodies = {}
 _yearch_head = {}
 for _y, _items in _pages.items():
@@ -954,6 +986,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var
 .intro::before{content:"";display:block;width:38px;height:2px;margin:0 auto 25px;background:var(--gold)}
 .intro p{margin:0}.intro .intro-title{margin-bottom:16px}.intro strong{display:block;color:var(--ink);font-size:17px;font-weight:600}
 .intro .intro-copy+.intro-copy{margin-top:12px}.intro .intro-note{margin-top:18px;font-size:13px;line-height:1.8}.intro .intro-note+.intro-copy{margin-top:16px}
+.home-welcome{max-width:700px;margin:0 auto;padding:74px 24px 64px;text-align:center}.home-copy{margin:0;color:var(--muted);font-size:15px;line-height:1.9}.home-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:28px}.home-action{display:inline-flex;align-items:center;justify-content:center;padding:11px 20px;border:1px solid var(--gold);border-radius:999px;color:var(--gold);font-size:14px;font-weight:600;text-decoration:none}.home-action:hover,.home-action-primary{background:var(--gold);color:var(--deep)}
+.recent-topics,.home-archive{max-width:1024px;margin:0 auto;padding:0 32px 56px}.recent-topics h2,.home-archive h2{margin:0 0 18px;color:var(--ink);font-size:20px;font-weight:700;letter-spacing:.06em;text-align:center}.recent-placeholder{padding:30px 20px;border:1px dashed var(--line);color:var(--muted);font-size:14px;text-align:center}.home-paths{display:grid;grid-template-columns:repeat(3,1fr);max-width:1024px;margin:0 auto;padding:0 32px 62px;gap:14px}.home-paths a{display:flex;flex-direction:column;gap:8px;padding:22px 20px;border:1px solid var(--line);color:var(--ink);text-decoration:none;transition:border-color .2s,transform .2s}.home-paths a:hover{border-color:var(--gold);transform:translateY(-2px)}.home-paths strong{font-size:15px;line-height:1.6}.home-paths span{color:var(--muted);font-size:13px}.home-archive{text-align:center;padding-bottom:28px}.home-archive .searchbar{margin:24px 0 32px;padding:24px 20px;border-radius:12px}.home-archive .search-hint{margin:10px 0 0;color:#c8baa0}.home-archive .latest{text-align:left;padding:0 0 32px}.home-archive p{margin:0;color:var(--muted);font-size:14px}.home-archive-links{display:flex;justify-content:center;flex-wrap:wrap;gap:20px;margin-top:18px}.home-archive-links a{color:var(--gold);font-size:14px;text-decoration:none;border-bottom:1px dotted var(--gold)}
 .layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:clamp(32px,4vw,64px);align-items:start;max-width:1160px;margin:auto;padding:0 32px 128px}
 aside.toc{position:sticky;top:32px;max-height:calc(100vh - 64px);overflow-y:auto;scrollbar-width:thin}
 .tocm>summary{display:block;margin:0 0 18px;list-style:none;cursor:pointer;font-size:0;line-height:1.5}
@@ -1146,7 +1180,9 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 .yearhead h1{margin:10px 0 4px;color:var(--ink);font-size:34px;font-weight:700;letter-spacing:.08em}
 .yearhead p{margin:0;font-size:12.5px;letter-spacing:.05em}
 @media(max-width:960px){.latest,.years{padding:0 20px 44px}.year-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:960px){.recent-topics,.home-archive{padding-left:20px;padding-right:20px}.home-paths{grid-template-columns:1fr;padding-left:20px;padding-right:20px}}
 @media(max-width:640px){.latest-item a{gap:10px;padding:12px 2px;align-items:flex-start}.latest-date{width:72px;font-size:11.5px}.latest-title{font-size:14.5px}.hero.compact .doctitle{padding:42px 22px 30px}.hero.compact h1{font-size:40px}.yearhead{padding:30px 20px 6px}.yearhead h1{font-size:28px}}
+@media(max-width:640px){.home-welcome{padding:44px 20px 42px}.home-actions{flex-direction:column}.home-action{width:100%;box-sizing:border-box}.recent-topics,.home-archive{padding-bottom:42px}}
 .newcomer{max-width:760px;margin:0 auto;padding:0 32px 40px;color:var(--ink);font-size:15.5px;line-height:1.9}
 .newcomer h2{margin:0 0 14px;color:var(--ink);font-size:20px;font-weight:700;letter-spacing:.06em;text-align:center}
 .newcomer p{margin:0 0 8px}.newcomer-note{color:var(--muted);font-size:13px}
@@ -1301,7 +1337,7 @@ function renderNow(q,pending){
  }
  if(!out.length){
   if(pending){res.innerHTML='<div class="qnone">正在加载全部年份…</div>';res.classList.add('on');box.setAttribute('aria-expanded','true');return;}
-  var gg='';if(gh.length){gg='<div class="qguide"><div class="qgt">也可以从这里出发：</div>';for(i=0;i<gh.length;i++){gg+='<div class="qgr" data-goto="firsttime">'+esc(gh[i].title)+'</div>';}gg+='</div>';}
+  var gg='';
   var fb='<div class="qfeedback"><a href="feedback.html?type=search&q='+encodeURIComponent(q)+'">没找到？告诉我们你想找什么</a></div>';
   window.ghlTrack('search_zero',{q:q});
   res.innerHTML='<div class="qnone">没有找到与「'+esc(q)+'」相关的内容</div>'+gg+fb;res.classList.add('on');box.setAttribute('aria-expanded','true');return;
@@ -1505,6 +1541,7 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
     _canon_tag = f'<link rel="canonical" href="{_canonical}">' if _canonical else ''
     _ogurl_tag = f'<meta property="og:url" content="{_canonical}">' if _canonical else ''
     _robots_tag = '<meta name="robots" content="noindex,follow">' if noindex else ''
+    _hero_sub = '志远行空公开分享整理' if page_name == 'index.html' else '归海2026 · 志远行空'
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1547,11 +1584,11 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
 <header class="{hero_cls}">
   <div class="doctitle">
     <div class="titleline"><h1>归海录<span class="seal" aria-hidden="true">归<br>海</span></h1></div>
-    <p class="sub">归海2026 · 志远行空</p>
-    <a class="yt" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ YouTube</a>
+    <p class="sub">{_hero_sub}</p>
+{'' if page_name == 'index.html' else '    <a class="yt" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ YouTube</a>'}
   </div>
 </header>
-<div class="searchbar" role="search"><div class="searchwrap"><input id="q" type="search" placeholder="搜索全文… 试试：怎么看人 / 烧纸 / 改命" autocomplete="off" aria-label="搜索全文" role="combobox" aria-autocomplete="list" aria-controls="qres" aria-expanded="false"><div id="qres" aria-live="polite" aria-label="搜索结果"></div><p class="search-hint">试试搜：怎么看人 · 烧纸 · 改命 · 因果</p></div></div>
+{'' if page_name == 'index.html' else '<div class="searchbar" role="search"><div class="searchwrap"><input id="q" type="search" placeholder="搜索全文… 试试：怎么看人 / 烧纸 / 改命" autocomplete="off" aria-label="搜索全文" role="combobox" aria-autocomplete="list" aria-controls="qres" aria-expanded="false"><div id="qres" aria-live="polite" aria-label="搜索结果"></div><p class="search-hint">试试搜：怎么看人 · 烧纸 · 改命 · 因果</p></div></div>'}
 <div class="paper" id="main-content">
 {body}
 </div>
@@ -1615,7 +1652,6 @@ _catalog_tpl = '''<div class="yearhead"><a class="back" href="index.html">← �
 <span class="cat-count" id="cat-count">__TOTAL__ 篇</span>
 </div>
 <p class="cat-note">时长为按字数估算的阅读时长（约 400 字 / 分钟），不是视频时长。</p>
-<p class="cat-note">第一次来？先看<a href="newcomer.html">新人入口</a>，3 分钟先有个方向。</p>
 <div class="cat-list" id="cat-list">__ROWS__</div>
 <div class="cat-empty" id="cat-empty" hidden>没有匹配的条目，换个关键词试试。</div>
 </div>
