@@ -566,20 +566,23 @@ def _guide_section(href_for):
                        {k for k in ALIASES if k not in _known_ids})
         if _miss:
             print("WARN guide/aliases 引用缺失 id:", _miss)
+        _min = {e["id"]: e.get("minutes") for e in _entries}
         _cards = []
-        for g in GUIDE:
+        for _gi, g in enumerate(GUIDE, 1):
             _reads = [r for r in g["reads"] if r["id"] in _known_ids]
             if not _reads:
                 continue
             _chips = "".join(
                 f'<button type="button" class="ft-chip" data-q="{_html.escape(c, quote=True)}">{_html.escape(c)}</button>'
                 for c in g["chips"])
-            _ritems = "".join(
-                f'<li><span class="ft-r">{_html.escape(r["role"])}</span>'
-                f'<a href="{href_for(r["id"])}">{_html.escape(r["label"])}</a></li>'
-                for r in _reads)
+            def _ritem(r):
+                _m = _min.get(r["id"])
+                _ms = f'<span class="ft-min">约{_m}分钟阅读</span>' if _m else ""
+                return (f'<li><span class="ft-r">{_html.escape(r["role"])}</span>'
+                        f'<a href="{href_for(r["id"])}">{_html.escape(r["label"])}</a>{_ms}</li>')
+            _ritems = "".join(_ritem(r) for r in _reads)
             _cards.append(
-                f'<article class="ftcard"><h3 class="ft-t">{_html.escape(g["title"])}</h3>'
+                f'<article class="ftcard"><span class="ft-num">第{_gi}条</span><h3 class="ft-t">{_html.escape(g["title"])}</h3>'
                 f'<p class="ft-scene">{_html.escape(g["scene"])}</p>'
                 f'<blockquote class="ft-quote"><p>{_html.escape(g["quote"])}</p>'
                 f'<cite>— <a href="{href_for(_reads[0]["id"])}">{_html.escape(_reads[0]["label"])}</a></cite></blockquote>'
@@ -588,15 +591,11 @@ def _guide_section(href_for):
                 f'<p class="ft-notice">{_html.escape(g["notice"])}</p></article>')
         if not _cards:
             return ""
-        _primary = "".join(_cards[:6])
+        _primary = "".join(_cards)
         _more = ""
-        if len(_cards) > 6:
-            _more = ('<details class="ftmore"><summary>展开其余 '
-                     f'{len(_cards) - 6} 条路线</summary>'
-                     '<div class="ftcards">' + "".join(_cards[6:]) + '</div></details>')
         print(f"OK: 「第一次来」区 {len(_cards)} 卡")
         return ('<section class="firsttime" id="firsttime"><h2 class="ft-h">第一次来？从这里出发</h2>'
-                '<p class="ft-sub">按场景导航 · 推荐与提示为编辑整理，非原典内容</p>'
+                '<p class="ft-sub">按场景导航 · 推荐与提示为编辑整理，非原典内容 · 顺序为编辑建议，可跳读</p>'
                 '<div class="ftcards">' + _primary + '</div>' + _more + '</section>')
     except Exception as e:
         print("WARN 「第一次来」区生成失败:", e)
@@ -612,7 +611,17 @@ _guide_online = _guide_section(_online_href)
 _guide_offline = _guide_section(_offline_href)
 
 # 首页/年份页正文
-_home_body = _intro_html + _guide_online + _latest_section(10) + _years_section()
+_NEWCOMER_HTML = (
+    '<section class="newcomer"><h2>第一次打开归海录？</h2>'
+    f'<p><strong>归海录是什么：</strong>志远行空日常分享与视频讲法的文字合集，'
+    f'共 {len(_entries)} 篇，按时间倒序更新。</p>'
+    '<p><strong>给谁看：</strong>第一次接触的新人，不需要任何前置知识。</p>'
+    '<p><strong>从哪开始（三步）：</strong>1. 在下面 11 条问题路线里选一条最像你现状的；'
+    '2. 先读每条路线里标“先读”的那篇；'
+    '3. 再去“最新更新”看看最近在讲什么。</p>'
+    '<p class="newcomer-note">以上为编辑整理的新人指引，非原典内容。</p></section>'
+)
+_home_body = _intro_html + _NEWCOMER_HTML + _guide_online + _latest_section(10) + _years_section()
 _year_bodies = {}
 _yearch_head = {}
 for _y, _items in _pages.items():
@@ -642,9 +651,9 @@ button,a,summary{-webkit-tap-highlight-color:transparent}
 button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
 #progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--gold2);z-index:101}
 .hero{background:var(--deep);color:var(--paper);text-align:center}
-.doctitle{max-width:900px;margin:auto;padding:112px 24px 104px}
+.doctitle{max-width:900px;margin:auto;padding:84px 24px 72px}
 .titleline{display:flex;justify-content:center}
-.doctitle h1{display:flex;align-items:center;justify-content:center;gap:22px;margin:0;color:#faf8f1;font-size:72px;font-weight:700;letter-spacing:.13em;line-height:1.2}
+.doctitle h1{display:flex;align-items:center;justify-content:center;gap:22px;margin:0;color:#faf8f1;font-size:64px;font-weight:700;letter-spacing:.13em;line-height:1.2}
 .seal{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:42px;height:64px;flex:none;border-radius:8px;background:var(--cin);color:#fff6e9;font-family:"KaiTi","STKaiti",serif;font-size:22px;font-weight:400;letter-spacing:0;line-height:1.1}
 .doctitle .sub{margin:25px 0 0;color:#c8baa0;font-size:14px;letter-spacing:.24em;line-height:1.8}
 .yt{display:inline-flex;align-items:center;justify-content:center;margin-top:34px;padding:9px 23px;border:1px solid var(--gold);border-radius:999px;color:var(--gold2);font-size:13px;font-weight:600;letter-spacing:.09em;text-decoration:none;transition:background .2s,color .2s}
@@ -667,7 +676,7 @@ main.content{min-width:0;max-width:720px;width:100%;justify-self:center}
 .entry{margin:0;border-bottom:1px solid var(--line);scroll-margin-top:24px}
 .entry:first-of-type{border-top:1px solid var(--line)}
 .lanchor{display:block;width:0;height:0;overflow:hidden;scroll-margin-top:24px}
-.entry>summary{display:grid;grid-template-columns:18px minmax(0,1fr);column-gap:16px;align-items:start;padding:27px 0;list-style:none;cursor:pointer}
+.entry>summary{display:grid;grid-template-columns:18px minmax(0,1fr);column-gap:16px;align-items:start;padding:22px 0;list-style:none;cursor:pointer}
 .entry>summary::before{content:"+";grid-column:1;grid-row:1;color:var(--gold);font-size:20px;font-weight:300;line-height:1.55}
 .entry[open]>summary::before{content:"−"}
 .entry>summary h2{grid-column:2;grid-row:1;min-width:0;width:100%;margin:0;color:var(--ink);font-size:21px;font-weight:650;letter-spacing:.015em;line-height:1.65;overflow-wrap:anywhere;transition:color .2s}
@@ -847,6 +856,15 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 .yearhead p{margin:0;font-size:12.5px;letter-spacing:.05em}
 @media(max-width:960px){.latest,.years{padding:0 20px 44px}.year-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.latest-item a{gap:10px;padding:12px 2px;align-items:flex-start}.latest-date{width:72px;font-size:11.5px}.latest-title{font-size:14.5px}.hero.compact .doctitle{padding:42px 22px 30px}.hero.compact h1{font-size:40px}.yearhead{padding:30px 20px 6px}.yearhead h1{font-size:28px}}
+.newcomer{max-width:760px;margin:0 auto;padding:0 32px 40px;color:var(--ink);font-size:15.5px;line-height:1.9}
+.newcomer h2{margin:0 0 14px;color:var(--ink);font-size:20px;font-weight:700;letter-spacing:.06em;text-align:center}
+.newcomer p{margin:0 0 8px}.newcomer-note{color:var(--muted);font-size:13px}
+.ft-num{display:inline-block;margin-bottom:8px;padding:2px 10px;border:1px solid var(--gold);border-radius:999px;color:var(--gold);font-size:12px;font-weight:600;letter-spacing:.05em}
+.ft-min{margin-left:8px;color:var(--muted);font-size:12px;white-space:nowrap}
+.ftcard:hover{border-color:var(--gold)}
+.search-hint{margin:10px 0 0;color:#c8baa0;font-size:12.5px;letter-spacing:.04em;text-align:center}
+.cat-note{margin:0 0 10px;color:var(--muted);font-size:12.5px;text-align:right}
+@media(max-width:640px){.newcomer{padding:0 20px 32px;font-size:14.5px}}
 """
 
 js = """
@@ -1242,7 +1260,7 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
     <a class="yt" href="https://www.youtube.com/@zyxk999" target="_blank" rel="noopener">▶ YouTube</a>
   </div>
 </header>
-<div class="searchbar" role="search"><div class="searchwrap"><input id="q" type="search" placeholder="搜索全文…" autocomplete="off" aria-label="搜索全文" role="combobox" aria-autocomplete="list" aria-controls="qres" aria-expanded="false"><div id="qres" aria-live="polite" aria-label="搜索结果"></div></div></div>
+<div class="searchbar" role="search"><div class="searchwrap"><input id="q" type="search" placeholder="搜索全文… 试试：怎么看人 / 烧纸 / 改命" autocomplete="off" aria-label="搜索全文" role="combobox" aria-autocomplete="list" aria-controls="qres" aria-expanded="false"><div id="qres" aria-live="polite" aria-label="搜索结果"></div><p class="search-hint">试试搜：怎么看人 · 烧纸 · 改命 · 因果</p></div></div>
 <div class="paper" id="main-content">
 {body}
 </div>
@@ -1300,11 +1318,12 @@ _catalog_tpl = '''<div class="yearhead"><a class="back" href="index.html">← �
 <h1>全部条目</h1><p>共 __TOTAL__ 篇 · 按标题 / 系列 / 年份筛选</p></div>
 <div class="catalog-wrap">
 <div class="catalog-controls">
-<input id="cat-q" type="search" placeholder="筛选标题或系列…" autocomplete="off" aria-label="筛选条目">
+<input id="cat-q" type="search" placeholder="筛选标题或系列… 试试：天眼 / 因果" autocomplete="off" aria-label="筛选条目">
 <select id="cat-series" aria-label="按系列筛选"><option value="">全部系列</option>__SERIES__</select>
 <div class="cat-years" role="group" aria-label="按年份筛选">__YEARS__</div>
 <span class="cat-count" id="cat-count">__TOTAL__ 篇</span>
 </div>
+<p class="cat-note">时长为按字数估算的阅读时长（约 400 字 / 分钟），不是视频时长。</p>
 <div class="cat-list" id="cat-list">__ROWS__</div>
 <div class="cat-empty" id="cat-empty" hidden>没有匹配的条目，换个关键词试试。</div>
 </div>
