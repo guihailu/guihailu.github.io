@@ -1,13 +1,19 @@
 {
-  "generated": "bb0261bcd9ce",
-  "count": 114,
+  "generated": "a0b93a732bd5",
+  "count": 115,
   "shared": "search_shared.json",
   "shards": [
     {
       "file": "search_index_2026.json",
       "page": "2026.html",
-      "count": 46,
-      "bytes": 659655
+      "count": 16,
+      "bytes": 402052
+    },
+    {
+      "file": "search_index_2026_2.json",
+      "page": "2026.html",
+      "count": 31,
+      "bytes": 294019
     },
     {
       "file": "search_index_2025.json",
@@ -24,8 +30,14 @@
     {
       "file": "search_index_undated.json",
       "page": "undated.html",
-      "count": 36,
-      "bytes": 565132
+      "count": 31,
+      "bytes": 402709
+    },
+    {
+      "file": "search_index_undated_2.json",
+      "page": "undated.html",
+      "count": 5,
+      "bytes": 162473
     }
   ]
 }

@@ -1539,19 +1539,43 @@ try:
     _shard_names, _manifest_shards = [], []
     _page_order = sorted(_by_page, key=lambda p: (p == "undated.html",
                                                   -int(p[:-5]) if p[:-5].isdigit() else 0))
+    # 10-31：按体积拆分分片（首搜只拉 shared + 当前页首片，其余分片后台合并）。
+    # 背景：单条长文入库后 2026 分片 gzip 首次越过 300KB 首搜门禁；按 ~420KB 原始体积切片，
+    # 全量检索不变，首搜回到 300KB 以内。老分片文件在写完后统一清理，避免 _2 残留。
+    _SHARD_MAX_BYTES = 420_000
+
+    def _chunk_items(_items, _max):
+        _chunks, _cur = [], []
+        for _it in _items:
+            _trial = _cur + [_it]
+            _b = len(json.dumps({"generated": "", "count": len(_trial), "entries": _trial},
+                                ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
+            if _cur and _b > _max:
+                _chunks.append(_cur)
+                _cur = [_it]
+            else:
+                _cur = _trial
+        if _cur:
+            _chunks.append(_cur)
+        return _chunks
+
     for _pg in _page_order:
         _slug = _pg[:-5] if _pg.endswith(".html") else _pg
-        _fn = f"search_index_{_slug}.json"
-        _shard_items = _by_page[_pg]
-        _shard_fp = hashlib.sha256(json.dumps(_shard_items, ensure_ascii=False, sort_keys=True,
-                                              separators=(',', ':')).encode('utf-8')).hexdigest()[:12]
-        _shard_obj = {"generated": _shard_fp, "count": len(_shard_items), "entries": _shard_items}
-        _shard_txt = json.dumps(_shard_obj, ensure_ascii=False, separators=(',', ':'))
-        (HERE / _fn).write_text(_shard_txt + "\n", encoding="utf-8", newline="\n")
-        _shard_names.append(_fn)
-        _manifest_shards.append({"file": _fn, "page": _pg, "count": len(_shard_items),
-                                 "bytes": len(_shard_txt.encode("utf-8"))})
-        print(f"OK: {_fn} {len(_shard_items)} entries, {len(_shard_txt.encode('utf-8'))} B")
+        for _ci, _shard_items in enumerate(_chunk_items(_by_page[_pg], _SHARD_MAX_BYTES)):
+            _fn = (f"search_index_{_slug}.json" if _ci == 0
+                   else f"search_index_{_slug}_{_ci + 1}.json")
+            _shard_fp = hashlib.sha256(json.dumps(_shard_items, ensure_ascii=False, sort_keys=True,
+                                                  separators=(',', ':')).encode('utf-8')).hexdigest()[:12]
+            _shard_obj = {"generated": _shard_fp, "count": len(_shard_items), "entries": _shard_items}
+            _shard_txt = json.dumps(_shard_obj, ensure_ascii=False, separators=(',', ':'))
+            (HERE / _fn).write_text(_shard_txt + "\n", encoding="utf-8", newline="\n")
+            _shard_names.append(_fn)
+            _manifest_shards.append({"file": _fn, "page": _pg, "count": len(_shard_items),
+                                     "bytes": len(_shard_txt.encode("utf-8"))})
+            print(f"OK: {_fn} {len(_shard_items)} entries, {len(_shard_txt.encode('utf-8'))} B")
+    for _old_shard in HERE.glob("search_index_*.json"):
+        if _old_shard.name not in _shard_names:
+            _old_shard.unlink()
     _shards_json = json.dumps(_shard_names, ensure_ascii=False, separators=(',', ':'))
     _manifest = {"generated": _fp, "count": len(_items), "shared": "search_shared.json",
                  "shards": _manifest_shards}
