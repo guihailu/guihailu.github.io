@@ -971,9 +971,9 @@ def _video_card(card):
         '</button></div><div class="video-copy"><p class="reading-label">志远行空 · 视频选段</p>'
         '<h2>' + esc(card['title']) + '</h2><p class="video-intro">' + esc(card.get('intro', card['description'])) + '</p>'
         '<div class="video-links"><a href="' + entry['page'] + '#' + entry['id'] + '">阅读完整原文</a>'
-        '<a href="' + esc(card['tiktok_url'], quote=True) + '" target="_blank" rel="noopener">到原平台观看 · TikTok</a></div>'
-        '<p class="video-help">若视频无法播放，可<a href="' + esc(card['youtube_url'], quote=True) +
-        '" target="_blank" rel="noopener">在 YouTube 打开</a>。</p></div></article>'
+        '<a href="' + esc(card['source_video_url'], quote=True) + '" target="_blank" rel="noopener">观看师父完整视频</a></div>'
+        '<p class="video-help">若视频无法播放，可<a href="' + esc(card['source_video_url'], quote=True) +
+        '" target="_blank" rel="noopener">观看师父完整视频</a>。</p></div></article>'
     )
 _home_videos = ('<section class="home-videos" id="video-clips" aria-label="视频选段">' +
                 ''.join(_video_card(c) for c in _video_data['cards']) + '</section>') if _video_data['cards'] else ''
