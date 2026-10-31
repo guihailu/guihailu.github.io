@@ -1775,8 +1775,13 @@ _catalog_body = (_catalog_tpl.replace('__TOTAL__', str(len(_entries)))
 _HOME_DESC = ("归海录：志远行空的日常分享与 YouTube 视频讲法合集——每一段语音，一个故事，"
               "一个道理，润物无声。按时间倒序，持续更新。")
 _HOME_TITLE = "📿 归海录 · 志远行空"
-(HERE / "index.html").write_text(
-    _render_page("index.html", _HOME_TITLE, _HOME_DESC, _home_body), encoding="utf-8", newline="\n")
+# Version homepage assets so returning visitors do not reuse pre-card CSS/JS.
+import hashlib
+_home_html = _render_page("index.html", _HOME_TITLE, _HOME_DESC, _home_body)
+for _asset in ("style.v5.css", "main.v5.js"):
+    _version = hashlib.sha256((HERE / _asset).read_bytes()).hexdigest()[:12]
+    _home_html = _home_html.replace('"' + _asset + '"', '"' + _asset + '?v=' + _version + '"')
+(HERE / "index.html").write_text(_home_html, encoding="utf-8", newline="\n")
 print(f"OK: index.html {(HERE/'index.html').stat().st_size} B")
 
 (HERE / "all.html").write_text(
