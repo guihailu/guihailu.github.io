@@ -918,33 +918,88 @@ _home_search = ('<div class="searchbar" id="searchbar" role="search"><div class=
                 '<div id="qres" aria-live="polite" aria-label="搜索结果"></div>'
                 '<p class="search-hint">试试搜：怎么看人 · 烧纸 · 改命 · 因果</p></div></div>')
 
+# 首页编辑选读：短题与导读为编辑拟写，原题和原文不变。
+_HOME_READINGS = [
+    ('ghl-000009', '停下比赛，救一个对手', '赛场上的救援', '但这场比赛最让全世界记住的，不是明星，也不是冠军，而是一辆烧起来的法拉利，和一个放弃比赛、冲进火场救人的年轻车手。'),
+    ('ghl-000105', '采药女与戍边士兵', '讲述中的前世故事', '一段山林里的相遇，如何串起讲述者对前世与今生的理解？'),
+    ('ghl-000018', '身份不同，人性就不同吗？', '一位朋友的观察', '从卡车司机群聊到精英交流群，看看原文怎样讨论身份与判断。'),
+]
+
+def _home_reading(item, featured=False):
+    sid, title, context, text = item
+    entry = next(e for e in _entries if e['id'] == sid)
+    if featured:
+        source = _html.unescape(re.sub(r'<[^>]+>', '', entry['block']))
+        if re.sub(r'\s+', '', text) not in re.sub(r'\s+', '', source):
+            raise ValueError('首页摘录与原典不一致: ' + sid)
+    href = entry['page'] + '#' + sid
+    heading = 'h2' if featured else 'h3'
+    body = ('<blockquote><p>' + _html.escape(text) + '</p></blockquote>' if featured
+            else '<p class="reading-intro">' + _html.escape(text) + '</p>')
+    return (
+        '<article class="home-reading' + (' home-reading-featured' if featured else '') + '">'
+        '<p class="reading-label">' + ('从这个故事开始 · ' if featured else '') + context + '</p>'
+        '<' + heading + '><a href="' + href + '">' + _html.escape(title) + '</a></' + heading + '>'
+        + body +
+        ('<p class="reading-source">以上为原文摘录</p>' if featured else '') +
+        '<a class="reading-link" href="' + href + '" aria-label="阅读完整原文：' +
+        _html.escape(entry['title'], quote=True) + '">' + ('读这个故事' if featured else '阅读全文') +
+        ' <span aria-hidden="true">→</span></a></article>'
+    )
+
+_home_recent = ''.join(
+    '<li><span class="recent-date">' + _html.escape(e['date'] or '公开分享') + '</span>'
+    '<a href="' + e['page'] + '#' + e['id'] + '">' + _html.escape(e['title']) + '</a></li>'
+    for e in _entries[:3]
+)
+# 仅收录从 Muse 唯一链接表“已上线”区核实的切片；视频不入库。
+_video_data = json.loads((HERE / 'video_cards.json').read_text(encoding='utf-8'))
+def _video_card(card):
+    entry = next(e for e in _entries if e['id'] == card['article_id'])
+    video_id = card['youtube_url'].rstrip('/').split('/')[-1]
+    if not re.fullmatch(r'[A-Za-z0-9_-]{11}', video_id):
+        raise ValueError('无效YouTube视频ID: ' + card['id'])
+    seconds = round(card['duration_seconds'])
+    duration = f'{seconds // 60}:{seconds % 60:02d}'
+    esc = _html.escape
+    return (
+        '<article class="video-card" data-clip-id="' + esc(card['id'], quote=True) + '">'
+        '<div class="video-stage"><button type="button" class="video-play" data-video-id="' + video_id + '" '
+        'aria-label="播放：' + esc(card['title'], quote=True) + '">'
+        '<img src="' + esc(card['poster'], quote=True) + '" alt="" width="480" height="360" loading="lazy">'
+        '<span class="video-play-icon" aria-hidden="true">▶</span><span class="video-duration">' + duration + '</span>'
+        '</button></div><div class="video-copy"><p class="reading-label">志远行空 · 视频选段</p>'
+        '<h2>' + esc(card['title']) + '</h2><p class="video-intro">' + esc(card.get('intro', card['description'])) + '</p>'
+        '<div class="video-links"><a href="' + entry['page'] + '#' + entry['id'] + '">阅读完整原文</a>'
+        '<a href="' + esc(card['tiktok_url'], quote=True) + '" target="_blank" rel="noopener">到原平台观看 · TikTok</a></div>'
+        '<p class="video-help">若视频无法播放，可<a href="' + esc(card['youtube_url'], quote=True) +
+        '" target="_blank" rel="noopener">在 YouTube 打开</a>。</p></div></article>'
+    )
+_home_videos = ('<section class="home-videos" id="video-clips" aria-label="视频选段">' +
+                ''.join(_video_card(c) for c in _video_data['cards']) + '</section>') if _video_data['cards'] else ''
+
 _home_body = (
     '<section class="home-welcome">'
-    '<p class="home-copy">从一个故事开始，随时阅读公开分享的原文与整理。</p>'
-    '<div class="home-actions">'
-    '<a class="home-action home-action-primary" href="#recent-topics">看看最近在讲什么</a>'
-    '<a class="home-action" href="#searchbar">查找完整原文</a>'
-    '</div>'
+    '<p class="home-copy">从一个故事开始，慢慢认识这里。</p>'
+    '<nav class="home-quick-links" aria-label="快捷入口">'
+    '<a href="#recent-topics">看看最近在讲什么</a><a href="#searchbar">查找完整原文</a>'
+    '</nav></section>'
+    + (_home_videos or ('<section class="home-feature" aria-label="推荐阅读">' + _home_reading(_HOME_READINGS[0], True) + '</section>')) +
+    '<section class="home-stories" id="stories" aria-labelledby="stories-title">'
+    '<div class="home-section-head"><h2 id="stories-title">也许你还想读</h2></div>'
+    '<div class="home-reading-grid">' + ''.join(_home_reading(i) for i in _HOME_READINGS[1:]) + '</div>'
+    '<p class="home-editor-note">短标题与导读为编辑整理，完整原题与内容见原文。</p></section>'
+    '<section class="recent-topics" id="recent-topics" aria-labelledby="recent-title">'
+    '<details class="home-disclosure"><summary id="recent-title">最近在讲<span>最新原文与视频进度</span></summary>'
+    '<ul class="home-recent-list">' + _home_recent + '</ul>'
+    '</details></section>'
+    '<section class="home-archive" id="archive" aria-labelledby="archive-title">'
+    '<h2 id="archive-title">完整资料库</h2><p>找原话、按年份翻阅，或看看全部分享。</p>' + _home_search +
+    '<div class="home-archive-links"><a href="all.html">进入完整资料库 →</a></div>'
+    '<details class="home-disclosure archive-years"><summary>按年份浏览</summary>' + _years_section() + '</details>'
     '</section>'
-    '<section class="recent-topics" id="recent-topics">'
-    '<h2>最近在讲</h2>'
-    '<div class="recent-placeholder">最新视频切片正在整理，完成后会在这里出现。</div>'
-    '</section>'
-    '<nav class="home-paths" aria-label="继续浏览">'
-    '<a href="#latest"><strong>继续看这样的故事</strong><span>从最新整理开始</span></a>'
-    '<a href="all.html"><strong>想知道老师还讲些什么</strong><span>浏览完整分享</span></a>'
-    '<a href="#searchbar"><strong>我有一个问题，查查老师以前有没有讲过</strong><span>搜索完整原文</span></a>'
-    '</nav>'
-    '<section class="home-archive" id="archive">'
-    '<h2>完整资料库</h2>'
-    '<p>适合查找、复习和阅读完整上下文。</p>'
-    + _home_search + _latest_section(10) +
-    '<div class="home-archive-links">'
-    '<a href="#searchbar">全文搜索</a><a href="#years">按年份浏览</a><a href="all.html">全部条目</a>'
-    '</div>'
-    '</section>'
-    + _years_section()
 )
+
 _year_bodies = {}
 _yearch_head = {}
 for _y, _items in _pages.items():
@@ -986,8 +1041,14 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var
 .intro::before{content:"";display:block;width:38px;height:2px;margin:0 auto 25px;background:var(--gold)}
 .intro p{margin:0}.intro .intro-title{margin-bottom:16px}.intro strong{display:block;color:var(--ink);font-size:17px;font-weight:600}
 .intro .intro-copy+.intro-copy{margin-top:12px}.intro .intro-note{margin-top:18px;font-size:13px;line-height:1.8}.intro .intro-note+.intro-copy{margin-top:16px}
-.home-welcome{max-width:700px;margin:0 auto;padding:74px 24px 64px;text-align:center}.home-copy{margin:0;color:var(--muted);font-size:15px;line-height:1.9}.home-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:28px}.home-action{display:inline-flex;align-items:center;justify-content:center;padding:11px 20px;border:1px solid var(--gold);border-radius:999px;color:var(--gold);font-size:14px;font-weight:600;text-decoration:none}.home-action:hover,.home-action-primary{background:var(--gold);color:var(--deep)}
-.recent-topics,.home-archive{max-width:1024px;margin:0 auto;padding:0 32px 56px}.recent-topics h2,.home-archive h2{margin:0 0 18px;color:var(--ink);font-size:20px;font-weight:700;letter-spacing:.06em;text-align:center}.recent-placeholder{padding:30px 20px;border:1px dashed var(--line);color:var(--muted);font-size:14px;text-align:center}.home-paths{display:grid;grid-template-columns:repeat(3,1fr);max-width:1024px;margin:0 auto;padding:0 32px 62px;gap:14px}.home-paths a{display:flex;flex-direction:column;gap:8px;padding:22px 20px;border:1px solid var(--line);color:var(--ink);text-decoration:none;transition:border-color .2s,transform .2s}.home-paths a:hover{border-color:var(--gold);transform:translateY(-2px)}.home-paths strong{font-size:15px;line-height:1.6}.home-paths span{color:var(--muted);font-size:13px}.home-archive{text-align:center;padding-bottom:28px}.home-archive .searchbar{margin:24px 0 32px;padding:24px 20px;border-radius:12px}.home-archive .search-hint{margin:10px 0 0;color:#c8baa0}.home-archive .latest{text-align:left;padding:0 0 32px}.home-archive p{margin:0;color:var(--muted);font-size:14px}.home-archive-links{display:flex;justify-content:center;flex-wrap:wrap;gap:20px;margin-top:18px}.home-archive-links a{color:var(--gold);font-size:14px;text-decoration:none;border-bottom:1px dotted var(--gold)}
+.home-welcome{max-width:960px;margin:auto;padding:30px 24px 26px;text-align:center}.home-copy{margin:0;color:var(--muted);font-size:15px;line-height:1.8}.home-quick-links{display:flex;justify-content:center;flex-wrap:wrap;gap:12px 26px;margin-top:14px}.home-quick-links a{padding:6px 0;color:var(--link);font-size:13px;text-decoration:none;border-bottom:1px solid var(--line)}
+.home-feature,.home-stories,.recent-topics,.home-archive{max-width:960px;margin:auto;padding:0 32px 36px}.home-reading{padding:26px 0;border-top:1px solid var(--line)}.home-reading-featured{padding:34px 40px 32px;background:var(--paper2);border-top:2px solid var(--gold)}.reading-label{margin:0 0 16px;color:var(--muted);font-size:12px;letter-spacing:.08em;line-height:1.7}.home-reading h2,.home-reading h3{margin:0 0 16px;font-size:23px;line-height:1.5;font-weight:600}.home-reading h2{font-size:36px;letter-spacing:.02em}.home-reading h2 a,.home-reading h3 a{color:var(--ink);text-decoration:none}.home-reading h2 a:hover,.home-reading h3 a:hover{color:var(--link)}.home-reading blockquote{max-width:720px;margin:0;padding:0;border:0;font-family:"Songti SC","SimSun",serif;font-size:20px;line-height:1.9;color:var(--quote)}.home-reading blockquote p{margin:0}.reading-source{margin:14px 0 10px;color:var(--muted);font-size:12px}.reading-intro{margin:0 0 16px;color:var(--muted);font-size:15px;line-height:1.85}.reading-link{display:inline-block;padding:10px 0;color:var(--link);font-size:14px;text-underline-offset:5px}.home-reading-featured .reading-link{padding:12px 24px;background:var(--deep);border:1px solid var(--gold);border-radius:3px;color:var(--gold2);text-decoration:none}.home-reading-grid{display:grid;grid-template-columns:1fr 1fr;gap:36px}.home-section-head h2{margin:0 0 20px;font-size:19px;letter-spacing:.04em}.home-editor-note{margin:0;color:var(--muted);font-size:12px;line-height:1.8}.home-stories,.recent-topics,#searchbar{scroll-margin-top:24px}
+.home-disclosure{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.home-disclosure>summary{padding:20px 0;color:var(--ink);font-size:16px;cursor:pointer}.home-disclosure>summary span{margin-left:16px;color:var(--muted);font-size:12px}.home-recent-list{margin:0;padding:0;list-style:none}.home-recent-list li{display:grid;grid-template-columns:86px 1fr;gap:16px;padding:16px 0;border-top:1px solid var(--line)}.recent-date{color:var(--muted);font-size:12px;line-height:1.8}.home-recent-list a{color:var(--ink);font-size:15px;line-height:1.8;text-decoration:none}.recent-placeholder{margin-bottom:20px;padding:16px 20px;background:var(--paper2);color:var(--muted);font-size:13px;line-height:1.7}.recent-placeholder p{margin:6px 0 0}.video-status{color:var(--ink)}
+.home-archive{padding-top:8px;text-align:center}.home-archive h2{margin:0 0 12px;font-size:20px}.home-archive>p{margin:0;color:var(--muted);font-size:14px;line-height:1.8}.home-archive .searchbar{margin:20px 0 12px;padding:20px}.home-archive .search-hint{margin:10px 0 0;color:#c8baa0}.home-archive-links a{display:inline-block;padding:12px;color:var(--link);font-size:14px;text-underline-offset:5px}.archive-years{margin-top:20px;text-align:left}.archive-years .years{padding:16px 0 24px}.archive-years .years>h2{display:none}
+.home-page .doctitle{padding:46px 24px 38px}.home-page .doctitle h1{font-size:50px}.home-page .doctitle .sub{margin-top:18px}
+@media(max-width:640px){.home-feature,.home-stories,.recent-topics,.home-archive{padding-left:20px;padding-right:20px;padding-bottom:28px}.home-reading-featured{padding:26px 24px}.home-reading h2{font-size:28px}.home-reading h3{font-size:21px}.home-reading blockquote{font-size:18px}.home-reading-grid{grid-template-columns:1fr;gap:0}.home-reading:not(.home-reading-featured){padding:22px 0}.home-recent-list li{grid-template-columns:1fr;gap:6px}.home-page .doctitle{padding:34px 20px 28px}.home-page .doctitle h1{font-size:42px}.home-disclosure>summary span{margin-left:10px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.home-videos{max-width:960px;margin:auto;padding:0 32px 36px}.video-card{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);background:var(--paper2);border-top:2px solid var(--gold)}.video-stage{aspect-ratio:4/3;background:#080e18;position:relative}.video-play{display:block;width:100%;height:100%;padding:0;border:0;background:transparent;cursor:pointer;position:relative}.video-play img{display:block;width:100%;height:100%;object-fit:contain}.video-play-icon{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:#0a1220dd;border:1px solid #d9b878;color:#fff;font-size:24px;padding-left:4px}.video-duration{position:absolute;right:12px;bottom:12px;padding:5px 8px;background:#000b;color:#fff;font-size:13px;border-radius:3px}.video-stage.is-playing{aspect-ratio:9/16}.video-stage iframe{display:block;width:100%;height:100%;border:0}.video-copy{padding:30px;align-self:center}.video-copy h2{font-size:30px;line-height:1.4;margin:0 0 18px}.video-intro{font-size:16px;line-height:1.9;color:var(--quote);margin:0 0 20px}.video-links{display:flex;flex-wrap:wrap;gap:12px 20px}.video-links a,.video-help a{color:var(--link);text-underline-offset:4px}.video-links a{font-size:14px;padding:8px 0}.video-help{font-size:12px;line-height:1.8;color:var(--muted);margin-top:12px}@media(max-width:640px){.home-videos{padding:0 20px 28px}.video-card{grid-template-columns:1fr}.video-stage{width:100%}.video-stage.is-playing{aspect-ratio:9/16;max-height:70vh}.video-copy{padding:24px}.video-copy h2{font-size:24px}.video-intro{font-size:15px}}
 .layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:clamp(32px,4vw,64px);align-items:start;max-width:1160px;margin:auto;padding:0 32px 128px}
 aside.toc{position:sticky;top:32px;max-height:calc(100vh - 64px);overflow-y:auto;scrollbar-width:thin}
 .tocm>summary{display:block;margin:0 0 18px;list-style:none;cursor:pointer;font-size:0;line-height:1.5}
@@ -1180,9 +1241,7 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 .yearhead h1{margin:10px 0 4px;color:var(--ink);font-size:34px;font-weight:700;letter-spacing:.08em}
 .yearhead p{margin:0;font-size:12.5px;letter-spacing:.05em}
 @media(max-width:960px){.latest,.years{padding:0 20px 44px}.year-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:960px){.recent-topics,.home-archive{padding-left:20px;padding-right:20px}.home-paths{grid-template-columns:1fr;padding-left:20px;padding-right:20px}}
 @media(max-width:640px){.latest-item a{gap:10px;padding:12px 2px;align-items:flex-start}.latest-date{width:72px;font-size:11.5px}.latest-title{font-size:14.5px}.hero.compact .doctitle{padding:42px 22px 30px}.hero.compact h1{font-size:40px}.yearhead{padding:30px 20px 6px}.yearhead h1{font-size:28px}}
-@media(max-width:640px){.home-welcome{padding:44px 20px 42px}.home-actions{flex-direction:column}.home-action{width:100%;box-sizing:border-box}.recent-topics,.home-archive{padding-bottom:42px}}
 .newcomer{max-width:760px;margin:0 auto;padding:0 32px 40px;color:var(--ink);font-size:15.5px;line-height:1.9}
 .newcomer h2{margin:0 0 14px;color:var(--ink);font-size:20px;font-weight:700;letter-spacing:.06em;text-align:center}
 .newcomer p{margin:0 0 8px}.newcomer-note{color:var(--muted);font-size:13px}
@@ -1195,6 +1254,23 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 """
 
 js = """
+// Load a platform player only after an explicit click; keep outbound fallbacks visible.
+document.querySelectorAll('.video-play').forEach(function(button){
+ button.addEventListener('click',function(){
+  var id=button.getAttribute('data-video-id');
+  if(!/^[A-Za-z0-9_-]{11}$/.test(id))return;
+  var frame=document.createElement('iframe');
+  frame.src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1';
+  frame.title=button.getAttribute('aria-label');
+  frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';
+  frame.allowFullscreen=true;
+  frame.referrerPolicy='strict-origin-when-cross-origin';
+  button.parentElement.classList.add('is-playing');
+  button.replaceWith(frame);
+  frame.focus();
+ });
+});
+
 /* 事件钩子（A/B/C）：未接分析服务时静默；接 GoatCounter/Umami/百度/51LA 后自动上报 */
 window.ghlTrack=function(name,data){try{
   if(window.goatcounter&&window.goatcounter.count)window.goatcounter.count({path:name,title:name,event:true});
@@ -1578,7 +1654,7 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
 {globals_tag}
 {css_tag}
 </head>
-<body id="top">
+<body id="top"{' class="home-page"' if page_name == 'index.html' else ''}>
 <a class="skip" href="#main-content">跳到正文</a>
 <div id="progress"></div>
 <header class="{hero_cls}">

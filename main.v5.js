@@ -1,4 +1,21 @@
 
+// Load a platform player only after an explicit click; keep outbound fallbacks visible.
+document.querySelectorAll('.video-play').forEach(function(button){
+ button.addEventListener('click',function(){
+  var id=button.getAttribute('data-video-id');
+  if(!/^[A-Za-z0-9_-]{11}$/.test(id))return;
+  var frame=document.createElement('iframe');
+  frame.src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1';
+  frame.title=button.getAttribute('aria-label');
+  frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';
+  frame.allowFullscreen=true;
+  frame.referrerPolicy='strict-origin-when-cross-origin';
+  button.parentElement.classList.add('is-playing');
+  button.replaceWith(frame);
+  frame.focus();
+ });
+});
+
 /* 事件钩子（A/B/C）：未接分析服务时静默；接 GoatCounter/Umami/百度/51LA 后自动上报 */
 window.ghlTrack=function(name,data){try{
   if(window.goatcounter&&window.goatcounter.count)window.goatcounter.count({path:name,title:name,event:true});
