@@ -1,5 +1,5 @@
 {
-  "generated": "a0b93a732bd5",
+  "generated": "e18270cb66f0",
   "count": 115,
   "shared": "search_shared.json",
   "shards": [
@@ -7,7 +7,7 @@
       "file": "search_index_2026.json",
       "page": "2026.html",
       "count": 16,
-      "bytes": 402052
+      "bytes": 402300
     },
     {
       "file": "search_index_2026_2.json",
