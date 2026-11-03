@@ -1,6 +1,6 @@
 {
   "source": "guihailu/muse-backup:handoff/codex/切片链接表.md",
-  "source_blob_sha": "d891ae971eb5fd5c4d5cfe426df2aad665ae6df6",
+  "source_blob_sha": "8b46473c0f58c874076917ca054fad532e49f687",
   "checked_at": "2026-11-03",
   "cards": [
     {
@@ -25,7 +25,7 @@
       "status": "published",
       "watch_url": "https://www.douyin.com/video/7702694461725248822",
       "poster": null,
-      "article_id": null,
+      "article_id": "ghl-000004",
       "audio_language": "zh",
       "subtitle_language": "zh"
     },
@@ -51,7 +51,7 @@
       "status": "published",
       "watch_url": "https://www.douyin.com/video/7703144551220923690",
       "poster": null,
-      "article_id": null,
+      "article_id": "ghl-000026",
       "audio_language": "zh",
       "subtitle_language": "zh"
     }
