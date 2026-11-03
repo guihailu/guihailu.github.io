@@ -969,28 +969,28 @@ def _video_card(card):
         '<img src="' + esc(card['poster'], quote=True) + '" alt="" width="480" height="360" loading="lazy">'
         '<span class="video-play-icon" aria-hidden="true">▶</span><span class="video-duration">' + duration + '</span>'
         '</button></div><div class="video-copy"><p class="reading-label">志远行空 · 视频选段</p>'
-        '<h2>' + esc(card['title']) + '</h2><p class="video-intro">' + esc(card.get('intro', card['description'])) + '</p>'
+        '<h2>' + esc(card['title']) + '</h2><p class="video-intro">' + esc(card.get('intro', card['description']).removeprefix('本段讲述：')) + '</p>'
+        '<button class="intro-toggle" type="button" aria-expanded="false" hidden>展开全文</button>'
         '<div class="video-links"><a href="' + entry['page'] + '#' + entry['id'] + '">阅读完整原文</a>'
         '<a href="' + esc(card['source_video_url'], quote=True) + '" target="_blank" rel="noopener">观看师父完整视频</a></div>'
-        '<p class="video-help">若视频无法播放，可<a href="' + esc(card['source_video_url'], quote=True) +
-        '" target="_blank" rel="noopener">观看师父完整视频</a>。</p></div></article>'
+        '</div></article>'
     )
 _home_videos = ('<section class="home-videos" id="video-clips" aria-label="视频选段">' +
-                ''.join(_video_card(c) for c in _video_data['cards']) + '</section>') if _video_data['cards'] else ''
+                '<div class="gallery-heading"><div><p class="reading-label">精选专栏 · 师父原声</p><h2>从一个片段，走进完整分享</h2><p>《佛家六通》选段 · 点击试看，随时回到完整原文。</p></div><a href="2026.html#ghl-000105">阅读本期全文 ↗</a></div><div class="video-grid">' + ''.join(_video_card(c) for c in _video_data['cards']) + '</div>' + '</section>') if _video_data['cards'] else ''
 
 _home_body = (
     '<section class="home-welcome">'
-    '<p class="home-copy">从一个故事开始，慢慢认识这里。</p>'
+    '<p class="home-copy">随意看看，找到你感兴趣的那一段。</p>'
     '<nav class="home-quick-links" aria-label="快捷入口">'
-    '<a href="#recent-topics">看看最近在讲什么</a><a href="#searchbar">查找完整原文</a>'
+    '<a href="#video-clips">原声精选</a><a href="#stories">故事与阅读</a><a href="#searchbar">查找完整原文</a>'
     '</nav></section>'
     + (_home_videos or ('<section class="home-feature" aria-label="推荐阅读">' + _home_reading(_HOME_READINGS[0], True) + '</section>')) +
     '<section class="home-stories" id="stories" aria-labelledby="stories-title">'
     '<div class="home-section-head"><h2 id="stories-title">也许你还想读</h2></div>'
-    '<div class="home-reading-grid">' + ''.join(_home_reading(i) for i in _HOME_READINGS[1:]) + '</div>'
+    '<div class="story-controls"><button type="button" id="story-toggle" aria-pressed="false">暂停轮换</button><button type="button" id="story-next">换个故事 →</button><span id="story-position"></span></div><div class="home-reading-grid story-carousel">' + ''.join(_home_reading(i) for i in _HOME_READINGS) + '</div>'
     '<p class="home-editor-note">短标题与导读为编辑整理，完整原题与内容见原文。</p></section>'
     '<section class="recent-topics" id="recent-topics" aria-labelledby="recent-title">'
-    '<details class="home-disclosure"><summary id="recent-title">最近在讲<span>最新原文与视频进度</span></summary>'
+    '<details class="home-disclosure"><summary id="recent-title">最近在讲<span>最新完整分享</span></summary>'
     '<ul class="home-recent-list">' + _home_recent + '</ul>'
     '</details></section>'
     '<section class="home-archive" id="archive" aria-labelledby="archive-title">'
@@ -1712,7 +1712,13 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
 </body>
 </html>"""
 
+css += '\n/* Public gallery V1 */\n.home-page .doctitle{padding:38px 40px 30px}.home-page .doctitle h1{font-size:48px}.home-welcome{padding-top:28px;padding-bottom:30px}.home-videos{max-width:1220px;padding:0 40px 48px}.gallery-heading{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:26px}.gallery-heading h2{font-family:Georgia,"Songti SC",serif;font-size:30px;line-height:1.5;margin:0 0 8px}.gallery-heading p{color:var(--muted);font-size:14px;line-height:1.8;margin:8px 0}.gallery-heading>a{white-space:nowrap;color:var(--link);font-size:14px;padding-bottom:10px}.video-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 24px}.video-card{display:block;min-width:0;border-top:0;background:transparent}.video-stage{aspect-ratio:4/3;overflow:hidden;border-radius:6px;background:var(--deep)}.video-play img{transition:filter .2s}.video-play:hover img{filter:brightness(1.15)}.video-copy{padding:17px 0 0}.video-copy h2{font-family:Georgia,"Songti SC",serif;font-size:22px;margin:0 0 10px;line-height:1.5}.video-copy .reading-label{font-size:11px;margin-bottom:8px;color:var(--muted)}.video-intro{font-size:14px;line-height:1.8;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin-bottom:10px}.video-links{gap:10px 18px}.video-links a{font-size:12px}.video-help{font-size:11px;margin-top:4px}.home-stories,.home-archive,.recent-topics{max-width:1220px}.video-stage.is-playing{aspect-ratio:9/16;max-height:70vh}.video-play:focus-visible{outline:3px solid var(--gold);outline-offset:-4px}@media(max-width:900px){.video-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.gallery-heading{display:block}}@media(max-width:560px){.home-videos{padding:0 20px 32px}.video-grid{grid-template-columns:1fr;gap:28px}.gallery-heading h2{font-size:25px}.home-page .doctitle{padding:28px 20px 24px}.home-page .doctitle h1{font-size:38px}.video-copy h2{font-size:23px}.video-intro{font-size:15px}.video-links a{font-size:14px}}\n'
+css += '\n.sibling-cover{display:flex;flex-direction:column;justify-content:space-between;gap:20px;min-height:245px;padding:26px;border:1px solid var(--line);border-radius:6px;background:var(--paper2);color:var(--ink);text-decoration:none}.sibling-cover:hover{border-color:var(--gold)}.sibling-eyebrow{font-size:11px;letter-spacing:2px;color:var(--muted)}.sibling-cover strong{font:24px/1.6 Georgia,"Songti SC",serif}.sibling-watch{font-size:13px;color:var(--link)}.story-controls{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:16px 0}.story-controls button{border:1px solid var(--line);border-radius:20px;background:var(--paper2);color:var(--ink);padding:9px 16px;cursor:pointer}.story-controls span{font-size:12px;color:var(--muted)}.story-carousel{grid-template-columns:1fr;min-height:245px}.story-carousel .home-reading{padding:24px 0;max-width:780px}.story-carousel [hidden]{display:none!important}.story-carousel .home-reading h3{font-size:28px}.story-carousel .reading-intro{line-height:1.9}\n'
+css += '.clip-play{display:block;position:relative;width:100%;height:100%;border:0;padding:24px;background:var(--paper2);color:var(--ink);cursor:pointer;text-align:center}.clip-cover-title{display:block;font:24px/1.6 Georgia,"Songti SC",serif;padding-bottom:66px}.clip-play .video-play-icon{top:auto;bottom:18px;transform:translateX(-50%);width:50px;height:50px;font-size:20px}.clip-play:focus-visible{outline:3px solid var(--gold);outline-offset:-4px}'
+css += '.video-grid .video-intro{font-size:15px;line-height:1.9;-webkit-line-clamp:4;margin-bottom:6px}.video-grid .video-intro.is-expanded{display:block;-webkit-line-clamp:unset;overflow:visible}.intro-toggle{display:block;border:0;background:transparent;color:var(--link);font:inherit;font-size:13px;padding:4px 0 10px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}.intro-toggle[hidden]{display:none}'
 (HERE / "style.v5.css").write_text(css, encoding="utf-8", newline="\n")
+js += "\n(()=>{\nconst area=document.querySelector('.story-carousel');if(!area)return;\nconst slides=Array.from(area.children),toggle=document.querySelector('#story-toggle'),next=document.querySelector('#story-next'),position=document.querySelector('#story-position');\nfor(let i=slides.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[slides[i],slides[j]]=[slides[j],slides[i]];}\nlet index=0,paused=matchMedia('(prefers-reduced-motion: reduce)').matches;\ntry{const previous=sessionStorage.getItem('ghl-last-story');if(slides.length>1&&slides[0].querySelector('h3 a').href===previous){slides.push(slides.shift());}}catch(e){}\nslides.forEach(s=>area.append(s));\nfunction show(){slides.forEach((s,i)=>{s.hidden=i!==index;});position.textContent=(index+1)+' / '+slides.length;try{sessionStorage.setItem('ghl-last-story',slides[index].querySelector('h3 a').href);}catch(e){}}\nfunction update(){toggle.textContent=paused?'自动轮换':'暂停轮换';toggle.setAttribute('aria-pressed',String(paused));}\nnext.addEventListener('click',()=>{index=(index+1)%slides.length;show();});toggle.addEventListener('click',()=>{paused=!paused;update();});\nsetInterval(()=>{if(!paused&&!document.hidden&&!area.matches(':hover')&&!area.contains(document.activeElement)){index=(index+1)%slides.length;show();}},9000);\nshow();update();\n})();\n"
+js += "\ndocument.querySelectorAll('.intro-toggle').forEach(button=>{\n const intro=button.previousElementSibling;\n function measure(){button.hidden=!intro.classList.contains('is-expanded')&&intro.scrollHeight<=intro.clientHeight+1;}\n button.addEventListener('click',()=>{const expanded=intro.classList.toggle('is-expanded');button.setAttribute('aria-expanded',String(expanded));button.textContent=expanded?'收起':'展开全文';measure();});\n new ResizeObserver(measure).observe(intro);measure();\n});\n"
 (HERE / "main.v5.js").write_text(js, encoding="utf-8", newline="\n")
 
 # 7.5) 全部条目页（10-23 P1）：目录 + 年份/系列/标题筛选 + 阅读时长 + 复制链接

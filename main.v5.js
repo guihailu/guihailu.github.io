@@ -208,3 +208,24 @@ document.querySelectorAll('.ft-chip').forEach(function(b){b.addEventListener('cl
 (function(){document.querySelectorAll('.firsttime a[href^="#ghl-"]').forEach(function(a){a.addEventListener('click',function(){var d=document.getElementById(a.getAttribute('href').slice(1));if(d)d.open=true;});});})();
 /* 10-22 P0：移动端浮动按钮滚动后才出现，避免遮挡卡片摘要 */
 (function(){var ns=document.querySelector('.navstack');if(!ns)return;function v(){ns.classList.toggle('show',window.scrollY>600);}window.addEventListener('scroll',v,{passive:true});v();})();
+
+(()=>{
+const area=document.querySelector('.story-carousel');if(!area)return;
+const slides=Array.from(area.children),toggle=document.querySelector('#story-toggle'),next=document.querySelector('#story-next'),position=document.querySelector('#story-position');
+for(let i=slides.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[slides[i],slides[j]]=[slides[j],slides[i]];}
+let index=0,paused=matchMedia('(prefers-reduced-motion: reduce)').matches;
+try{const previous=sessionStorage.getItem('ghl-last-story');if(slides.length>1&&slides[0].querySelector('h3 a').href===previous){slides.push(slides.shift());}}catch(e){}
+slides.forEach(s=>area.append(s));
+function show(){slides.forEach((s,i)=>{s.hidden=i!==index;});position.textContent=(index+1)+' / '+slides.length;try{sessionStorage.setItem('ghl-last-story',slides[index].querySelector('h3 a').href);}catch(e){}}
+function update(){toggle.textContent=paused?'自动轮换':'暂停轮换';toggle.setAttribute('aria-pressed',String(paused));}
+next.addEventListener('click',()=>{index=(index+1)%slides.length;show();});toggle.addEventListener('click',()=>{paused=!paused;update();});
+setInterval(()=>{if(!paused&&!document.hidden&&!area.matches(':hover')&&!area.contains(document.activeElement)){index=(index+1)%slides.length;show();}},9000);
+show();update();
+})();
+
+document.querySelectorAll('.intro-toggle').forEach(button=>{
+ const intro=button.previousElementSibling;
+ function measure(){button.hidden=!intro.classList.contains('is-expanded')&&intro.scrollHeight<=intro.clientHeight+1;}
+ button.addEventListener('click',()=>{const expanded=intro.classList.toggle('is-expanded');button.setAttribute('aria-expanded',String(expanded));button.textContent=expanded?'收起':'展开全文';measure();});
+ new ResizeObserver(measure).observe(intro);measure();
+});
