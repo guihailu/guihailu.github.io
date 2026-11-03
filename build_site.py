@@ -955,7 +955,7 @@ _home_recent = ''.join(
 # 仅收录从 Muse 唯一链接表“已上线”区核实的切片；视频不入库。
 def _published_cards(data):
     cards = data.get('cards', []) if isinstance(data, dict) else []
-    return sorted((c for c in cards if str(c.get('status', '')).lower() == 'published'),
+    return sorted((c for c in cards if str(c.get('status', '')).lower() == 'published' and c.get('audio_language') == 'zh' and c.get('subtitle_language') in ('zh', 'none')),
                   key=lambda c: (str(c.get('published_at') or ''), str(c.get('id') or '')), reverse=True)
 
 def _safe_external_url(value):
@@ -1006,14 +1006,14 @@ def _vibe_card(card):
     poster = card.get('poster')
     play_class = 'clip-play has-cover' if poster else 'clip-play'
     cover = ('<img src="' + esc(_safe_external_url(poster), quote=True) + '" alt="" width="480" height="360" loading="lazy">'
-             if poster else '<span class="clip-cover-title">' + esc(card.get('title', 'VIBE 知识动画')) + '</span>')
+             if poster else '<span class="clip-cover-title">' + esc(card.get('title', '知识动画')) + '</span>')
     entry = next((e for e in _entries if e['id'] == card.get('article_id')), None)
     article_link = ('<a href="' + entry['page'] + '#' + entry['id'] + '">阅读相关原文</a>' if entry else '')
     return ('<article class="video-card vibe-card" data-clip-id="' + esc(card.get('id', ''), quote=True) + '">'
             '<div class="video-stage"><a class="' + play_class + '" href="' + esc(url, quote=True) + '" target="_blank" rel="noopener" aria-label="观看：' + esc(card.get('title', ''), quote=True) + '">'
             + cover + '<span class="video-play-icon" aria-hidden="true">↗</span>'
             + (('<span class="video-duration">' + duration + '</span>') if duration else '')
-            + '</a></div><div class="video-copy"><p class="reading-label">VIBE 知识动画</p><h2>' + esc(card.get('title', '')) + '</h2>'
+            + '</a></div><div class="video-copy"><p class="reading-label">知识动画</p><h2>' + esc(card.get('title', '')) + '</h2>'
             '<p class="video-intro">' + esc(card.get('description', '')) + '</p><button class="intro-toggle" type="button" aria-expanded="false" hidden>展开全文</button>'
             '<div class="video-links">' + article_link + '<a href="' + esc(url, quote=True) + '" target="_blank" rel="noopener">观看中文版 ↗</a></div></div></article>')
 
@@ -1023,19 +1023,19 @@ def _gallery_section(section_id, eyebrow, title, description, view_href, view_la
     return ('<section class="home-videos" id="' + section_id + '" aria-label="' + _html.escape(title, quote=True) + '">'
             '<div class="gallery-heading"><div><p class="reading-label">' + _html.escape(eyebrow) + '</p><h2>' + _html.escape(title) + '</h2><p>' + _html.escape(description) + '</p></div>'
             '<a href="' + _html.escape(view_href, quote=True) + '">' + _html.escape(view_label) + '</a></div><div class="video-grid">'
-            + ''.join(renderer(c) for c in cards) + '</div></section>')
+            + (''.join(renderer(c) for c in cards) if cards else '<p>这里将陆续收录中文分享，先去首页看看其他内容。</p>') + '</div></section>')
 
-_home_vibe = _gallery_section('vibe', '精选专栏 · VIBE', 'VIBE知识大赏', '中文知识动画 · 点击观看中文版。', 'vibe.html', '查看全部 →', _vibe_cards, _vibe_card)
+_home_vibe = _gallery_section('vibe', '精选专栏 · 人生观察', '换个角度看人生', '中文知识动画 · 点击观看中文版。', 'vibe.html', '查看全部 →', _vibe_cards, _vibe_card)
 _home_videos = _gallery_section('video-clips', '精选专栏 · 师父原声', '从一个片段，走进完整分享', '《佛家六通》选段 · 点击试看，随时回到完整原文。', 'clips.html', '查看全部 →', _video_cards, _video_card)
 
 _home_body = (
     '<section class="home-welcome">'
     '<p class="home-copy">随意看看，找到你感兴趣的那一段。</p>'
     '<nav class="home-quick-links" aria-label="快捷入口">'
-    + ('<a href="#vibe">VIBE知识大赏</a>' if _vibe_cards else '<a href="vibe.html">VIBE知识大赏</a>')
-    + '<a href="#video-clips">原声精选</a><a href="#stories">故事与阅读</a><a href="#searchbar">查找完整原文</a>'
+    + ('<a href="#vibe">换个角度看人生</a>' if _vibe_cards else '<a href="vibe.html">换个角度看人生</a>')
+    + ('<a href="#video-clips">原声精选</a>' if _video_cards else '') + '<a href="#stories">故事与阅读</a><a href="#searchbar">查找完整原文</a>'
     '</nav></section>'
-    + (_home_vibe or '') + (_home_videos or ('<section class="home-feature" aria-label="推荐阅读">' + _home_reading(_HOME_READINGS[0], True) + '</section>')) +
+    + (_home_vibe or '') + (_home_videos or '') +
     '<section class="home-stories" id="stories" aria-labelledby="stories-title">'
     '<div class="home-section-head"><h2 id="stories-title">也许你还想读</h2></div>'
     '<div class="story-controls"><button type="button" id="story-toggle" aria-pressed="false">暂停轮换</button><button type="button" id="story-next">换个故事 →</button><span id="story-position"></span></div><div class="home-reading-grid story-carousel">' + ''.join(_home_reading(i) for i in _HOME_READINGS) + '</div>'
@@ -1870,7 +1870,7 @@ def _collection_body(title, eyebrow, description, cards, renderer):
             '<h1>' + _html.escape(title) + '</h1><p>' + _html.escape(description) + '</p></div>'
             '<section class="home-videos collection-page" aria-label="' + _html.escape(title, quote=True) + '">'
             '<div class="gallery-heading"><div><p class="reading-label">' + _html.escape(eyebrow) + '</p><h2>' + _html.escape(title) + '</h2></div>'
-            '<a href="index.html">返回首页 ↗</a></div><div class="video-grid">' + ''.join(renderer(c) for c in cards) + '</div></section>')
+            '<a href="index.html">返回首页 ↗</a></div><div class="video-grid">' + (''.join(renderer(c) for c in cards) if cards else '<p>这里将陆续收录中文分享，先去首页看看其他内容。</p>') + '</div></section>')
 
 def _write_versioned_collection(filename, title, description, body):
     page = _render_page(filename, title + ' · 归海录', description, body, compact=True)
@@ -1880,8 +1880,8 @@ def _write_versioned_collection(filename, title, description, body):
     (HERE / filename).write_text(page, encoding="utf-8", newline="\n")
     print(f"OK: {filename} {(HERE / filename).stat().st_size} B")
 
-_write_versioned_collection("vibe.html", "VIBE知识大赏", "VIBE 中文知识动画，按发布时间倒序。",
-                           _collection_body("VIBE知识大赏", "精选专栏 · VIBE", "共 " + str(len(_all_vibe_cards)) + " 条 · 按发布时间倒序", _all_vibe_cards, _vibe_card))
+_write_versioned_collection("vibe.html", "换个角度看人生", "中文知识动画，按发布时间倒序。",
+                           _collection_body("换个角度看人生", "精选专栏 · 人生观察", "共 " + str(len(_all_vibe_cards)) + " 条 · 按发布时间倒序", _all_vibe_cards, _vibe_card))
 _write_versioned_collection("clips.html", "师父原声精选", "师父原声视频选段，按发布时间倒序。",
                            _collection_body("师父原声精选", "精选专栏 · 师父原声", "共 " + str(len(_all_video_cards)) + " 条 · 按发布时间倒序", _all_video_cards, _video_card))
 

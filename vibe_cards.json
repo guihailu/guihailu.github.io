@@ -11,8 +11,10 @@
       "published_at": "2026-10-30T23:09:00+08:00",
       "status": "published",
       "watch_url": "https://www.douyin.com/video/7702478199862693120",
-      "poster": "https://i.ytimg.com/vi/RyjfJhDxHCE/hqdefault.jpg",
-      "article_id": null
+      "poster": null,
+      "article_id": null,
+      "audio_language": "zh",
+      "subtitle_language": "zh"
     },
     {
       "id": "VIBE-EP02",
@@ -22,8 +24,10 @@
       "published_at": "2026-10-31T20:30:00+08:00",
       "status": "published",
       "watch_url": "https://www.douyin.com/video/7702694461725248822",
-      "poster": "https://i.ytimg.com/vi/ujYneRVfWJY/hqdefault.jpg",
-      "article_id": null
+      "poster": null,
+      "article_id": null,
+      "audio_language": "zh",
+      "subtitle_language": "zh"
     },
     {
       "id": "VIBE-EP03",
@@ -33,8 +37,10 @@
       "published_at": "2026-11-01T15:19:00+08:00",
       "status": "published",
       "watch_url": "https://www.douyin.com/video/7703099351211593001",
-      "poster": "https://i.ytimg.com/vi/97WAWGnTtwU/hqdefault.jpg",
-      "article_id": "ghl-000022"
+      "poster": null,
+      "article_id": "ghl-000022",
+      "audio_language": "zh",
+      "subtitle_language": "zh"
     },
     {
       "id": "VIBE-EP04",
@@ -45,7 +51,9 @@
       "status": "published",
       "watch_url": "https://www.douyin.com/video/7703144551220923690",
       "poster": null,
-      "article_id": null
+      "article_id": null,
+      "audio_language": "zh",
+      "subtitle_language": "zh"
     }
   ]
 }

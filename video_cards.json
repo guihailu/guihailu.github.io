@@ -14,7 +14,9 @@
       "article_id": "ghl-000105",
       "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
       "published_at": "2026-10-29",
-      "status": "published"
+      "status": "published",
+      "audio_language": "zh",
+      "subtitle_language": "en"
     },
     {
       "id": "F01",
@@ -27,7 +29,9 @@
       "article_id": "ghl-000105",
       "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
       "published_at": "2026-10-30T12:00:00+08:00",
-      "status": "published"
+      "status": "published",
+      "audio_language": "unverified",
+      "subtitle_language": "unverified"
     },
     {
       "id": "F02",
@@ -40,7 +44,9 @@
       "article_id": "ghl-000105",
       "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
       "published_at": "2026-10-30T20:00:00+08:00",
-      "status": "published"
+      "status": "published",
+      "audio_language": "unverified",
+      "subtitle_language": "unverified"
     },
     {
       "id": "F03",
@@ -53,7 +59,9 @@
       "article_id": "ghl-000105",
       "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
       "published_at": "2026-10-31T12:00:00+08:00",
-      "status": "published"
+      "status": "published",
+      "audio_language": "unverified",
+      "subtitle_language": "unverified"
     },
     {
       "id": "F04",
@@ -66,7 +74,9 @@
       "article_id": "ghl-000105",
       "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
       "published_at": "2026-10-31T20:00:00+08:00",
-      "status": "published"
+      "status": "published",
+      "audio_language": "unverified",
+      "subtitle_language": "unverified"
     }
   ]
 }
