@@ -953,38 +953,89 @@ _home_recent = ''.join(
     for e in _entries[:3]
 )
 # 仅收录从 Muse 唯一链接表“已上线”区核实的切片；视频不入库。
+def _published_cards(data):
+    cards = data.get('cards', []) if isinstance(data, dict) else []
+    return sorted((c for c in cards if str(c.get('status', '')).lower() == 'published'),
+                  key=lambda c: (str(c.get('published_at') or ''), str(c.get('id') or '')), reverse=True)
+
+def _safe_external_url(value):
+    url = str(value or '').strip()
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme != 'https' or not parsed.netloc:
+        raise ValueError('外部视频链接必须是 HTTPS URL: ' + url)
+    return url
+
 _video_data = json.loads((HERE / 'video_cards.json').read_text(encoding='utf-8'))
+_all_video_cards = _published_cards(_video_data)
+_video_cards = _all_video_cards[:6]
+try:
+    _vibe_data = json.loads((HERE / 'vibe_cards.json').read_text(encoding='utf-8'))
+except FileNotFoundError:
+    _vibe_data = {'cards': []}
+_all_vibe_cards = _published_cards(_vibe_data)
+_vibe_cards = _all_vibe_cards[:6]
 def _video_card(card):
-    entry = next(e for e in _entries if e['id'] == card['article_id'])
+    entry = next((e for e in _entries if e['id'] == card.get('article_id')), None)
     video_id = card['youtube_url'].rstrip('/').split('/')[-1]
     if not re.fullmatch(r'[A-Za-z0-9_-]{11}', video_id):
         raise ValueError('无效YouTube视频ID: ' + card['id'])
     seconds = round(card['duration_seconds'])
     duration = f'{seconds // 60}:{seconds % 60:02d}'
     esc = _html.escape
+    poster = card.get('poster')
+    cover = ('<img src="' + esc(_safe_external_url(poster), quote=True) + '" alt="" width="480" height="360" loading="lazy">'
+             if poster else '<span class="clip-cover-title">' + esc(card.get('title', '师父原声精选')) + '</span>')
     return (
         '<article class="video-card" data-clip-id="' + esc(card['id'], quote=True) + '">'
         '<div class="video-stage"><button type="button" class="video-play" data-video-id="' + video_id + '" '
-        'aria-label="播放：' + esc(card['title'], quote=True) + '">'
-        '<img src="' + esc(card['poster'], quote=True) + '" alt="" width="480" height="360" loading="lazy">'
-        '<span class="video-play-icon" aria-hidden="true">▶</span><span class="video-duration">' + duration + '</span>'
+        'aria-label="播放：' + esc(card['title'], quote=True) + '">' + cover
+        + '<span class="video-play-icon" aria-hidden="true">▶</span><span class="video-duration">' + duration + '</span>'
         '</button></div><div class="video-copy"><p class="reading-label">志远行空 · 视频选段</p>'
         '<h2>' + esc(card['title']) + '</h2><p class="video-intro">' + esc(card.get('intro', card['description']).removeprefix('本段讲述：')) + '</p>'
         '<button class="intro-toggle" type="button" aria-expanded="false" hidden>展开全文</button>'
-        '<div class="video-links"><a href="' + entry['page'] + '#' + entry['id'] + '">阅读完整原文</a>'
-        '<a href="' + esc(card['source_video_url'], quote=True) + '" target="_blank" rel="noopener">观看师父完整视频</a></div>'
+        '<div class="video-links">' + (('<a href="' + entry['page'] + '#' + entry['id'] + '">阅读完整原文</a>') if entry else '')
+        + '<a href="' + esc(_safe_external_url(card['source_video_url']), quote=True) + '" target="_blank" rel="noopener">观看师父完整视频</a></div>'
         '</div></article>'
     )
-_home_videos = ('<section class="home-videos" id="video-clips" aria-label="视频选段">' +
-                '<div class="gallery-heading"><div><p class="reading-label">精选专栏 · 师父原声</p><h2>从一个片段，走进完整分享</h2><p>《佛家六通》选段 · 点击试看，随时回到完整原文。</p></div><a href="2026.html#ghl-000105">阅读本期全文 ↗</a></div><div class="video-grid">' + ''.join(_video_card(c) for c in _video_data['cards']) + '</div>' + '</section>') if _video_data['cards'] else ''
+
+def _vibe_card(card):
+    url = _safe_external_url(card.get('watch_url'))
+    seconds = round(float(card.get('duration_seconds') or 0))
+    duration = f'{seconds // 60}:{seconds % 60:02d}' if seconds else ''
+    esc = _html.escape
+    poster = card.get('poster')
+    play_class = 'clip-play has-cover' if poster else 'clip-play'
+    cover = ('<img src="' + esc(_safe_external_url(poster), quote=True) + '" alt="" width="480" height="360" loading="lazy">'
+             if poster else '<span class="clip-cover-title">' + esc(card.get('title', 'VIBE 知识动画')) + '</span>')
+    entry = next((e for e in _entries if e['id'] == card.get('article_id')), None)
+    article_link = ('<a href="' + entry['page'] + '#' + entry['id'] + '">阅读相关原文</a>' if entry else '')
+    return ('<article class="video-card vibe-card" data-clip-id="' + esc(card.get('id', ''), quote=True) + '">'
+            '<div class="video-stage"><a class="' + play_class + '" href="' + esc(url, quote=True) + '" target="_blank" rel="noopener" aria-label="观看：' + esc(card.get('title', ''), quote=True) + '">'
+            + cover + '<span class="video-play-icon" aria-hidden="true">↗</span>'
+            + (('<span class="video-duration">' + duration + '</span>') if duration else '')
+            + '</a></div><div class="video-copy"><p class="reading-label">VIBE 知识动画</p><h2>' + esc(card.get('title', '')) + '</h2>'
+            '<p class="video-intro">' + esc(card.get('description', '')) + '</p><button class="intro-toggle" type="button" aria-expanded="false" hidden>展开全文</button>'
+            '<div class="video-links">' + article_link + '<a href="' + esc(url, quote=True) + '" target="_blank" rel="noopener">观看中文版 ↗</a></div></div></article>')
+
+def _gallery_section(section_id, eyebrow, title, description, view_href, view_label, cards, renderer):
+    if not cards:
+        return ''
+    return ('<section class="home-videos" id="' + section_id + '" aria-label="' + _html.escape(title, quote=True) + '">'
+            '<div class="gallery-heading"><div><p class="reading-label">' + _html.escape(eyebrow) + '</p><h2>' + _html.escape(title) + '</h2><p>' + _html.escape(description) + '</p></div>'
+            '<a href="' + _html.escape(view_href, quote=True) + '">' + _html.escape(view_label) + '</a></div><div class="video-grid">'
+            + ''.join(renderer(c) for c in cards) + '</div></section>')
+
+_home_vibe = _gallery_section('vibe', '精选专栏 · VIBE', 'VIBE知识大赏', '中文知识动画 · 点击观看中文版。', 'vibe.html', '查看全部 →', _vibe_cards, _vibe_card)
+_home_videos = _gallery_section('video-clips', '精选专栏 · 师父原声', '从一个片段，走进完整分享', '《佛家六通》选段 · 点击试看，随时回到完整原文。', 'clips.html', '查看全部 →', _video_cards, _video_card)
 
 _home_body = (
     '<section class="home-welcome">'
     '<p class="home-copy">随意看看，找到你感兴趣的那一段。</p>'
     '<nav class="home-quick-links" aria-label="快捷入口">'
-    '<a href="#video-clips">原声精选</a><a href="#stories">故事与阅读</a><a href="#searchbar">查找完整原文</a>'
+    + ('<a href="#vibe">VIBE知识大赏</a>' if _vibe_cards else '<a href="vibe.html">VIBE知识大赏</a>')
+    + '<a href="#video-clips">原声精选</a><a href="#stories">故事与阅读</a><a href="#searchbar">查找完整原文</a>'
     '</nav></section>'
-    + (_home_videos or ('<section class="home-feature" aria-label="推荐阅读">' + _home_reading(_HOME_READINGS[0], True) + '</section>')) +
+    + (_home_vibe or '') + (_home_videos or ('<section class="home-feature" aria-label="推荐阅读">' + _home_reading(_HOME_READINGS[0], True) + '</section>')) +
     '<section class="home-stories" id="stories" aria-labelledby="stories-title">'
     '<div class="home-section-head"><h2 id="stories-title">也许你还想读</h2></div>'
     '<div class="story-controls"><button type="button" id="story-toggle" aria-pressed="false">暂停轮换</button><button type="button" id="story-next">换个故事 →</button><span id="story-position"></span></div><div class="home-reading-grid story-carousel">' + ''.join(_home_reading(i) for i in _HOME_READINGS) + '</div>'
@@ -1714,7 +1765,7 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
 
 css += '\n/* Public gallery V1 */\n.home-page .doctitle{padding:38px 40px 30px}.home-page .doctitle h1{font-size:48px}.home-welcome{padding-top:28px;padding-bottom:30px}.home-videos{max-width:1220px;padding:0 40px 48px}.gallery-heading{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:26px}.gallery-heading h2{font-family:Georgia,"Songti SC",serif;font-size:30px;line-height:1.5;margin:0 0 8px}.gallery-heading p{color:var(--muted);font-size:14px;line-height:1.8;margin:8px 0}.gallery-heading>a{white-space:nowrap;color:var(--link);font-size:14px;padding-bottom:10px}.video-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 24px}.video-card{display:block;min-width:0;border-top:0;background:transparent}.video-stage{aspect-ratio:4/3;overflow:hidden;border-radius:6px;background:var(--deep)}.video-play img{transition:filter .2s}.video-play:hover img{filter:brightness(1.15)}.video-copy{padding:17px 0 0}.video-copy h2{font-family:Georgia,"Songti SC",serif;font-size:22px;margin:0 0 10px;line-height:1.5}.video-copy .reading-label{font-size:11px;margin-bottom:8px;color:var(--muted)}.video-intro{font-size:14px;line-height:1.8;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin-bottom:10px}.video-links{gap:10px 18px}.video-links a{font-size:12px}.video-help{font-size:11px;margin-top:4px}.home-stories,.home-archive,.recent-topics{max-width:1220px}.video-stage.is-playing{aspect-ratio:9/16;max-height:70vh}.video-play:focus-visible{outline:3px solid var(--gold);outline-offset:-4px}@media(max-width:900px){.video-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.gallery-heading{display:block}}@media(max-width:560px){.home-videos{padding:0 20px 32px}.video-grid{grid-template-columns:1fr;gap:28px}.gallery-heading h2{font-size:25px}.home-page .doctitle{padding:28px 20px 24px}.home-page .doctitle h1{font-size:38px}.video-copy h2{font-size:23px}.video-intro{font-size:15px}.video-links a{font-size:14px}}\n'
 css += '\n.sibling-cover{display:flex;flex-direction:column;justify-content:space-between;gap:20px;min-height:245px;padding:26px;border:1px solid var(--line);border-radius:6px;background:var(--paper2);color:var(--ink);text-decoration:none}.sibling-cover:hover{border-color:var(--gold)}.sibling-eyebrow{font-size:11px;letter-spacing:2px;color:var(--muted)}.sibling-cover strong{font:24px/1.6 Georgia,"Songti SC",serif}.sibling-watch{font-size:13px;color:var(--link)}.story-controls{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:16px 0}.story-controls button{border:1px solid var(--line);border-radius:20px;background:var(--paper2);color:var(--ink);padding:9px 16px;cursor:pointer}.story-controls span{font-size:12px;color:var(--muted)}.story-carousel{grid-template-columns:1fr;min-height:245px}.story-carousel .home-reading{padding:24px 0;max-width:780px}.story-carousel [hidden]{display:none!important}.story-carousel .home-reading h3{font-size:28px}.story-carousel .reading-intro{line-height:1.9}\n'
-css += '.clip-play{display:block;position:relative;width:100%;height:100%;border:0;padding:24px;background:var(--paper2);color:var(--ink);cursor:pointer;text-align:center}.clip-cover-title{display:block;font:24px/1.6 Georgia,"Songti SC",serif;padding-bottom:66px}.clip-play .video-play-icon{top:auto;bottom:18px;transform:translateX(-50%);width:50px;height:50px;font-size:20px}.clip-play:focus-visible{outline:3px solid var(--gold);outline-offset:-4px}'
+css += '.clip-play{display:block;position:relative;width:100%;height:100%;border:0;padding:24px;background:var(--paper2);color:var(--ink);cursor:pointer;text-align:center}.vibe-card .clip-play.has-cover{padding:0}.vibe-card .clip-play.has-cover img{display:block;width:100%;height:100%;object-fit:cover}.clip-cover-title{display:block;font:24px/1.6 Georgia,"Songti SC",serif;padding-bottom:66px}.clip-play .video-play-icon{top:auto;bottom:18px;transform:translateX(-50%);width:50px;height:50px;font-size:20px}.clip-play:focus-visible{outline:3px solid var(--gold);outline-offset:-4px}'
 css += '.video-grid .video-intro{font-size:15px;line-height:1.9;-webkit-line-clamp:4;margin-bottom:6px}.video-grid .video-intro.is-expanded{display:block;-webkit-line-clamp:unset;overflow:visible}.intro-toggle{display:block;border:0;background:transparent;color:var(--link);font:inherit;font-size:13px;padding:4px 0 10px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}.intro-toggle[hidden]{display:none}'
 (HERE / "style.v5.css").write_text(css, encoding="utf-8", newline="\n")
 js += "\n(()=>{\nconst area=document.querySelector('.story-carousel');if(!area)return;\nconst slides=Array.from(area.children),toggle=document.querySelector('#story-toggle'),next=document.querySelector('#story-next'),position=document.querySelector('#story-position');\nfor(let i=slides.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[slides[i],slides[j]]=[slides[j],slides[i]];}\nlet index=0,paused=matchMedia('(prefers-reduced-motion: reduce)').matches;\ntry{const previous=sessionStorage.getItem('ghl-last-story');if(slides.length>1&&slides[0].querySelector('h3 a').href===previous){slides.push(slides.shift());}}catch(e){}\nslides.forEach(s=>area.append(s));\nfunction show(){slides.forEach((s,i)=>{s.hidden=i!==index;});position.textContent=(index+1)+' / '+slides.length;try{sessionStorage.setItem('ghl-last-story',slides[index].querySelector('h3 a').href);}catch(e){}}\nfunction update(){toggle.textContent=paused?'自动轮换':'暂停轮换';toggle.setAttribute('aria-pressed',String(paused));}\nnext.addEventListener('click',()=>{index=(index+1)%slides.length;show();});toggle.addEventListener('click',()=>{paused=!paused;update();});\nsetInterval(()=>{if(!paused&&!document.hidden&&!area.matches(':hover')&&!area.contains(document.activeElement)){index=(index+1)%slides.length;show();}},9000);\nshow();update();\n})();\n"
@@ -1813,6 +1864,26 @@ for _asset in ("style.v5.css", "main.v5.js"):
     _home_html = _home_html.replace('"' + _asset + '"', '"' + _asset + '?v=' + _version + '"')
 (HERE / "index.html").write_text(_home_html, encoding="utf-8", newline="\n")
 print(f"OK: index.html {(HERE/'index.html').stat().st_size} B")
+
+def _collection_body(title, eyebrow, description, cards, renderer):
+    return ('<div class="yearhead"><a class="back" href="index.html">← 返回首页</a>'
+            '<h1>' + _html.escape(title) + '</h1><p>' + _html.escape(description) + '</p></div>'
+            '<section class="home-videos collection-page" aria-label="' + _html.escape(title, quote=True) + '">'
+            '<div class="gallery-heading"><div><p class="reading-label">' + _html.escape(eyebrow) + '</p><h2>' + _html.escape(title) + '</h2></div>'
+            '<a href="index.html">返回首页 ↗</a></div><div class="video-grid">' + ''.join(renderer(c) for c in cards) + '</div></section>')
+
+def _write_versioned_collection(filename, title, description, body):
+    page = _render_page(filename, title + ' · 归海录', description, body, compact=True)
+    for asset in ("style.v5.css", "main.v5.js"):
+        version = hashlib.sha256((HERE / asset).read_bytes()).hexdigest()[:12]
+        page = page.replace('"' + asset + '"', '"' + asset + '?v=' + version + '"')
+    (HERE / filename).write_text(page, encoding="utf-8", newline="\n")
+    print(f"OK: {filename} {(HERE / filename).stat().st_size} B")
+
+_write_versioned_collection("vibe.html", "VIBE知识大赏", "VIBE 中文知识动画，按发布时间倒序。",
+                           _collection_body("VIBE知识大赏", "精选专栏 · VIBE", "共 " + str(len(_all_vibe_cards)) + " 条 · 按发布时间倒序", _all_vibe_cards, _vibe_card))
+_write_versioned_collection("clips.html", "师父原声精选", "师父原声视频选段，按发布时间倒序。",
+                           _collection_body("师父原声精选", "精选专栏 · 师父原声", "共 " + str(len(_all_video_cards)) + " 条 · 按发布时间倒序", _all_video_cards, _video_card))
 
 (HERE / "all.html").write_text(
     _render_page("all.html", "📚 全部条目 · 归海录", f"归海录全部 {len(_entries)} 篇：按标题、系列、年份筛选，含阅读时长与复制链接。",

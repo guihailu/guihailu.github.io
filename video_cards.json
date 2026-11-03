@@ -1,7 +1,7 @@
 {
   "source": "guihailu/muse-backup:handoff/codex/切片链接表.md",
-  "source_blob_sha": "1ac12f25397a9fe4f86ea2df5f1917d4551f29a9",
-  "checked_at": "2026-11-02",
+  "source_blob_sha": "d891ae971eb5fd5c4d5cfe426df2aad665ae6df6",
+  "checked_at": "2026-11-03",
   "cards": [
     {
       "id": "F09",
@@ -12,7 +12,9 @@
       "youtube_url": "https://www.youtube.com/shorts/W3d3FwT4hLQ",
       "poster": "https://i.ytimg.com/vi/W3d3FwT4hLQ/hqdefault.jpg",
       "article_id": "ghl-000105",
-      "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ"
+      "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
+      "published_at": "2026-10-29",
+      "status": "published"
     },
     {
       "id": "F01",
@@ -23,7 +25,9 @@
       "youtube_url": "https://www.youtube.com/shorts/N9IlLPZqPiY",
       "poster": "https://i.ytimg.com/vi/N9IlLPZqPiY/hqdefault.jpg",
       "article_id": "ghl-000105",
-      "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ"
+      "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
+      "published_at": "2026-10-30T12:00:00+08:00",
+      "status": "published"
     },
     {
       "id": "F02",
@@ -34,7 +38,9 @@
       "youtube_url": "https://www.youtube.com/shorts/syKAOznn-bM",
       "poster": "https://i.ytimg.com/vi/syKAOznn-bM/hqdefault.jpg",
       "article_id": "ghl-000105",
-      "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ"
+      "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
+      "published_at": "2026-10-30T20:00:00+08:00",
+      "status": "published"
     },
     {
       "id": "F03",
@@ -45,7 +51,9 @@
       "youtube_url": "https://www.youtube.com/shorts/QCzXQexcBqo",
       "poster": "https://i.ytimg.com/vi/QCzXQexcBqo/hqdefault.jpg",
       "article_id": "ghl-000105",
-      "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ"
+      "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
+      "published_at": "2026-10-31T12:00:00+08:00",
+      "status": "published"
     },
     {
       "id": "F04",
@@ -56,7 +64,9 @@
       "youtube_url": "https://www.youtube.com/shorts/UjYE8dkyjFQ",
       "poster": "https://i.ytimg.com/vi/UjYE8dkyjFQ/hqdefault.jpg",
       "article_id": "ghl-000105",
-      "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ"
+      "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
+      "published_at": "2026-10-31T20:00:00+08:00",
+      "status": "published"
     }
   ]
 }

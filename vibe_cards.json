@@ -1,0 +1,51 @@
+{
+  "source": "guihailu/muse-backup:handoff/codex/切片链接表.md",
+  "source_blob_sha": "d891ae971eb5fd5c4d5cfe426df2aad665ae6df6",
+  "checked_at": "2026-11-03",
+  "cards": [
+    {
+      "id": "VIBE-EP01",
+      "title": "卡车司机理论",
+      "description": "看人最大的误判，不是看不起某个人，而是把值得看重的人看错了。能力与人品从来不捆绑出售：一个人本事大，不等于值得托付；本事普通，也不等于不值得尊重。分清这两样，是少吃大亏的开始。",
+      "duration_seconds": 127.52,
+      "published_at": "2026-10-30T23:09:00+08:00",
+      "status": "published",
+      "watch_url": "https://www.douyin.com/video/7702478199862693120",
+      "poster": "https://i.ytimg.com/vi/RyjfJhDxHCE/hqdefault.jpg",
+      "article_id": null
+    },
+    {
+      "id": "VIBE-EP02",
+      "title": "聪明人走进死局",
+      "description": "一年亏掉 6 个亿的聪明人，为什么会一步步走进死局？本集借这个真实分量的例子，拆「聪明」在什么情况下反而成为负担：当一个人太相信自己的判断，就容易忽略局本身的走向。看完至少能对照检查，自己有没有正走在同样的路上。",
+      "duration_seconds": 148.84,
+      "published_at": "2026-10-31T20:30:00+08:00",
+      "status": "published",
+      "watch_url": "https://www.douyin.com/video/7702694461725248822",
+      "poster": "https://i.ytimg.com/vi/ujYneRVfWJY/hqdefault.jpg",
+      "article_id": null
+    },
+    {
+      "id": "VIBE-EP03",
+      "title": "人生如棋，别做那个臭棋篓子",
+      "description": "人生如棋，绝大部分人都可以称得上是「臭棋篓子」：下棋比的是速度，谁先占住要道谁就赢，可多数人一辈子稀里糊涂地过、没搞清规矩判输赢。本集借下棋讲人生：看过棋谱的人开局就知道怎么走，没棋谱就是胡乱下一通；再加上复盘纠错、举一反三的能力，才不至于把一手牌下臭。",
+      "duration_seconds": 133.73,
+      "published_at": "2026-11-01T15:19:00+08:00",
+      "status": "published",
+      "watch_url": "https://www.douyin.com/video/7703099351211593001",
+      "poster": "https://i.ytimg.com/vi/97WAWGnTtwU/hqdefault.jpg",
+      "article_id": "ghl-000022"
+    },
+    {
+      "id": "VIBE-EP04",
+      "title": "选择大于努力",
+      "description": "城市地图风知识动画：邻居 300 万买的房，如今卖不掉也租不掉——借这个例子讲选择大于努力：方向错了，越努力越被套住。",
+      "duration_seconds": 123.98,
+      "published_at": "2026-11-01T20:23:00+08:00",
+      "status": "published",
+      "watch_url": "https://www.douyin.com/video/7703144551220923690",
+      "poster": null,
+      "article_id": null
+    }
+  ]
+}
