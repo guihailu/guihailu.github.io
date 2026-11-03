@@ -953,9 +953,9 @@ _home_recent = ''.join(
     for e in _entries[:3]
 )
 # 仅收录从 Muse 唯一链接表“已上线”区核实的切片；视频不入库。
-def _published_cards(data):
+def _published_cards(data, allow_original_subtitles=False):
     cards = data.get('cards', []) if isinstance(data, dict) else []
-    return sorted((c for c in cards if str(c.get('status', '')).lower() == 'published' and c.get('audio_language') == 'zh' and c.get('subtitle_language') in ('zh', 'none')),
+    return sorted((c for c in cards if str(c.get('status', '')).lower() == 'published' and c.get('audio_language') == 'zh' and (allow_original_subtitles or c.get('subtitle_language') in ('zh', 'none'))),
                   key=lambda c: (str(c.get('published_at') or ''), str(c.get('id') or '')), reverse=True)
 
 def _safe_external_url(value):
@@ -966,7 +966,7 @@ def _safe_external_url(value):
     return url
 
 _video_data = json.loads((HERE / 'video_cards.json').read_text(encoding='utf-8'))
-_all_video_cards = _published_cards(_video_data)
+_all_video_cards = _published_cards(_video_data, allow_original_subtitles=True)
 _video_cards = _all_video_cards[:6]
 try:
     _vibe_data = json.loads((HERE / 'vibe_cards.json').read_text(encoding='utf-8'))
@@ -1015,7 +1015,7 @@ def _vibe_card(card):
             + (('<span class="video-duration">' + duration + '</span>') if duration else '')
             + '</a></div><div class="video-copy"><p class="reading-label">知识动画</p><h2>' + esc(card.get('title', '')) + '</h2>'
             '<p class="video-intro">' + esc(card.get('description', '')) + '</p><button class="intro-toggle" type="button" aria-expanded="false" hidden>展开全文</button>'
-            '<div class="video-links">' + article_link + '<a href="' + esc(url, quote=True) + '" target="_blank" rel="noopener">观看中文版 ↗</a></div></div></article>')
+            '<div class="video-links">' + article_link + '<a href="' + esc(url, quote=True) + '" target="_blank" rel="noopener">观看视频 ↗</a></div></div></article>')
 
 def _gallery_section(section_id, eyebrow, title, description, view_href, view_label, cards, renderer):
     if not cards:
@@ -1025,7 +1025,7 @@ def _gallery_section(section_id, eyebrow, title, description, view_href, view_la
             '<a href="' + _html.escape(view_href, quote=True) + '">' + _html.escape(view_label) + '</a></div><div class="video-grid">'
             + (''.join(renderer(c) for c in cards) if cards else '<p>这里将陆续收录中文分享，先去首页看看其他内容。</p>') + '</div></section>')
 
-_home_vibe = _gallery_section('vibe', '精选专栏 · 人生观察', '换个角度看人生', '中文知识动画 · 点击观看中文版。', 'vibe.html', '查看全部 →', _vibe_cards, _vibe_card)
+_home_vibe = _gallery_section('vibe', '精选专栏 · 人生观察', '换个角度看人生', '用一个故事，换个角度看人生。', 'vibe.html', '查看全部 →', _vibe_cards, _vibe_card)
 _home_videos = _gallery_section('video-clips', '精选专栏 · 师父原声', '从一个片段，走进完整分享', '《佛家六通》选段 · 点击试看，随时回到完整原文。', 'clips.html', '查看全部 →', _video_cards, _video_card)
 
 _home_body = (

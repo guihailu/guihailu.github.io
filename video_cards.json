@@ -1,6 +1,6 @@
 {
   "source": "guihailu/muse-backup:handoff/codex/切片链接表.md",
-  "source_blob_sha": "d891ae971eb5fd5c4d5cfe426df2aad665ae6df6",
+  "source_blob_sha": "3375107c6633fc55404665d0755e2cd279270f2d",
   "checked_at": "2026-11-03",
   "cards": [
     {
@@ -30,8 +30,8 @@
       "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
       "published_at": "2026-10-30T12:00:00+08:00",
       "status": "published",
-      "audio_language": "unverified",
-      "subtitle_language": "unverified"
+      "audio_language": "zh",
+      "subtitle_language": "en"
     },
     {
       "id": "F02",
@@ -45,8 +45,8 @@
       "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
       "published_at": "2026-10-30T20:00:00+08:00",
       "status": "published",
-      "audio_language": "unverified",
-      "subtitle_language": "unverified"
+      "audio_language": "zh",
+      "subtitle_language": "en"
     },
     {
       "id": "F03",
@@ -60,8 +60,8 @@
       "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
       "published_at": "2026-10-31T12:00:00+08:00",
       "status": "published",
-      "audio_language": "unverified",
-      "subtitle_language": "unverified"
+      "audio_language": "zh",
+      "subtitle_language": "en"
     },
     {
       "id": "F04",
@@ -75,8 +75,8 @@
       "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
       "published_at": "2026-10-31T20:00:00+08:00",
       "status": "published",
-      "audio_language": "unverified",
-      "subtitle_language": "unverified"
+      "audio_language": "zh",
+      "subtitle_language": "en"
     }
   ]
 }
