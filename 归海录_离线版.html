@@ -274,7 +274,12 @@ footer{padding:58px 20px 64px;background:var(--deep);color:#b3a994;text-align:ce
 .search-hint{margin:10px 0 0;color:#c8baa0;font-size:12.5px;letter-spacing:.04em;text-align:center}
 .cat-note{margin:0 0 10px;color:var(--muted);font-size:12.5px;text-align:right}
 @media(max-width:640px){.newcomer{padding:0 20px 32px;font-size:14.5px}}
-</style>
+
+/* Public gallery V1 */
+.home-page .doctitle{padding:38px 40px 30px}.home-page .doctitle h1{font-size:48px}.home-welcome{padding-top:28px;padding-bottom:30px}.home-videos{max-width:1220px;padding:0 40px 48px}.gallery-heading{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:26px}.gallery-heading h2{font-family:Georgia,"Songti SC",serif;font-size:30px;line-height:1.5;margin:0 0 8px}.gallery-heading p{color:var(--muted);font-size:14px;line-height:1.8;margin:8px 0}.gallery-heading>a{white-space:nowrap;color:var(--link);font-size:14px;padding-bottom:10px}.video-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 24px}.video-card{display:block;min-width:0;border-top:0;background:transparent}.video-stage{aspect-ratio:4/3;overflow:hidden;border-radius:6px;background:var(--deep)}.video-play img{transition:filter .2s}.video-play:hover img{filter:brightness(1.15)}.video-copy{padding:17px 0 0}.video-copy h2{font-family:Georgia,"Songti SC",serif;font-size:22px;margin:0 0 10px;line-height:1.5}.video-copy .reading-label{font-size:11px;margin-bottom:8px;color:var(--muted)}.video-intro{font-size:14px;line-height:1.8;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin-bottom:10px}.video-links{gap:10px 18px}.video-links a{font-size:12px}.video-help{font-size:11px;margin-top:4px}.home-stories,.home-archive,.recent-topics{max-width:1220px}.video-stage.is-playing{aspect-ratio:9/16;max-height:70vh}.video-play:focus-visible{outline:3px solid var(--gold);outline-offset:-4px}@media(max-width:900px){.video-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.gallery-heading{display:block}}@media(max-width:560px){.home-videos{padding:0 20px 32px}.video-grid{grid-template-columns:1fr;gap:28px}.gallery-heading h2{font-size:25px}.home-page .doctitle{padding:28px 20px 24px}.home-page .doctitle h1{font-size:38px}.video-copy h2{font-size:23px}.video-intro{font-size:15px}.video-links a{font-size:14px}}
+
+.sibling-cover{display:flex;flex-direction:column;justify-content:space-between;gap:20px;min-height:245px;padding:26px;border:1px solid var(--line);border-radius:6px;background:var(--paper2);color:var(--ink);text-decoration:none}.sibling-cover:hover{border-color:var(--gold)}.sibling-eyebrow{font-size:11px;letter-spacing:2px;color:var(--muted)}.sibling-cover strong{font:24px/1.6 Georgia,"Songti SC",serif}.sibling-watch{font-size:13px;color:var(--link)}.story-controls{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:16px 0}.story-controls button{border:1px solid var(--line);border-radius:20px;background:var(--paper2);color:var(--ink);padding:9px 16px;cursor:pointer}.story-controls span{font-size:12px;color:var(--muted)}.story-carousel{grid-template-columns:1fr;min-height:245px}.story-carousel .home-reading{padding:24px 0;max-width:780px}.story-carousel [hidden]{display:none!important}.story-carousel .home-reading h3{font-size:28px}.story-carousel .reading-intro{line-height:1.9}
+.clip-play{display:block;position:relative;width:100%;height:100%;border:0;padding:24px;background:var(--paper2);color:var(--ink);cursor:pointer;text-align:center}.clip-cover-title{display:block;font:24px/1.6 Georgia,"Songti SC",serif;padding-bottom:66px}.clip-play .video-play-icon{top:auto;bottom:18px;transform:translateX(-50%);width:50px;height:50px;font-size:20px}.clip-play:focus-visible{outline:3px solid var(--gold);outline-offset:-4px}.video-grid .video-intro{font-size:15px;line-height:1.9;-webkit-line-clamp:4;margin-bottom:6px}.video-grid .video-intro.is-expanded{display:block;-webkit-line-clamp:unset;overflow:visible}.intro-toggle{display:block;border:0;background:transparent;color:var(--link);font:inherit;font-size:13px;padding:4px 0 10px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}.intro-toggle[hidden]{display:none}</style>
 </head>
 <body id="top">
 <a class="skip" href="#main-content">跳到正文</a>
@@ -18285,6 +18290,27 @@ document.querySelectorAll('.ft-chip').forEach(function(b){b.addEventListener('cl
 (function(){document.querySelectorAll('.firsttime a[href^="#ghl-"]').forEach(function(a){a.addEventListener('click',function(){var d=document.getElementById(a.getAttribute('href').slice(1));if(d)d.open=true;});});})();
 /* 10-22 P0：移动端浮动按钮滚动后才出现，避免遮挡卡片摘要 */
 (function(){var ns=document.querySelector('.navstack');if(!ns)return;function v(){ns.classList.toggle('show',window.scrollY>600);}window.addEventListener('scroll',v,{passive:true});v();})();
+
+(()=>{
+const area=document.querySelector('.story-carousel');if(!area)return;
+const slides=Array.from(area.children),toggle=document.querySelector('#story-toggle'),next=document.querySelector('#story-next'),position=document.querySelector('#story-position');
+for(let i=slides.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[slides[i],slides[j]]=[slides[j],slides[i]];}
+let index=0,paused=matchMedia('(prefers-reduced-motion: reduce)').matches;
+try{const previous=sessionStorage.getItem('ghl-last-story');if(slides.length>1&&slides[0].querySelector('h3 a').href===previous){slides.push(slides.shift());}}catch(e){}
+slides.forEach(s=>area.append(s));
+function show(){slides.forEach((s,i)=>{s.hidden=i!==index;});position.textContent=(index+1)+' / '+slides.length;try{sessionStorage.setItem('ghl-last-story',slides[index].querySelector('h3 a').href);}catch(e){}}
+function update(){toggle.textContent=paused?'自动轮换':'暂停轮换';toggle.setAttribute('aria-pressed',String(paused));}
+next.addEventListener('click',()=>{index=(index+1)%slides.length;show();});toggle.addEventListener('click',()=>{paused=!paused;update();});
+setInterval(()=>{if(!paused&&!document.hidden&&!area.matches(':hover')&&!area.contains(document.activeElement)){index=(index+1)%slides.length;show();}},9000);
+show();update();
+})();
+
+document.querySelectorAll('.intro-toggle').forEach(button=>{
+ const intro=button.previousElementSibling;
+ function measure(){button.hidden=!intro.classList.contains('is-expanded')&&intro.scrollHeight<=intro.clientHeight+1;}
+ button.addEventListener('click',()=>{const expanded=intro.classList.toggle('is-expanded');button.setAttribute('aria-expanded',String(expanded));button.textContent=expanded?'收起':'展开全文';measure();});
+ new ResizeObserver(measure).observe(intro);measure();
+});
 </script>
 </body>
 </html>
