@@ -16,6 +16,30 @@ document.querySelectorAll('.video-play').forEach(function(button){
  });
 });
 
+// Play the full source in the same card, with an explicit return to the clip.
+document.querySelectorAll('.source-video-play').forEach(function(link){
+ link.addEventListener('click',function(event){
+  var source=new URL(link.href), id=source.searchParams.get('v');
+  if(!/^(www\.)?youtube\.com$/.test(source.hostname)||!/^[A-Za-z0-9_-]{11}$/.test(id))return;
+  event.preventDefault();
+  var stage=link.closest('.video-card').querySelector('.video-stage');
+  var full=link.dataset.mode!=='full';
+  var frame=document.createElement('iframe');
+  frame.src='https://www.youtube.com/embed/'+(full?id:link.dataset.clipVideo)+'?autoplay=1&playsinline=1';
+  frame.title=full?'师父完整视频':'视频片段';
+  frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';
+  frame.allowFullscreen=true;
+  frame.referrerPolicy='strict-origin-when-cross-origin';
+  stage.replaceChildren(frame);
+  stage.classList.add('is-playing');
+  stage.style.aspectRatio=full?'16 / 9':'9 / 16';
+  link.dataset.mode=full?'full':'clip';
+  link.textContent=full?'返回片段':'观看师父完整视频';
+  stage.scrollIntoView({block:'nearest'});
+  frame.focus();
+ });
+});
+
 /* 事件钩子（A/B/C）：未接分析服务时静默；接 GoatCounter/Umami/百度/51LA 后自动上报 */
 window.ghlTrack=function(name,data){try{
   if(window.goatcounter&&window.goatcounter.count)window.goatcounter.count({path:name,title:name,event:true});

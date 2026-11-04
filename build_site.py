@@ -994,7 +994,7 @@ def _video_card(card):
         '<h2>' + esc(card['title']) + '</h2><p class="video-intro">' + esc(card.get('intro', card['description']).removeprefix('本段讲述：')) + '</p>'
         '<button class="intro-toggle" type="button" aria-expanded="false" hidden>展开全文</button>'
         '<div class="video-links">' + (('<a href="' + entry['page'] + '#' + entry['id'] + '">阅读完整原文</a>') if entry else '')
-        + '<a href="' + esc(_safe_external_url(card['source_video_url']), quote=True) + '" target="_blank" rel="noopener">观看师父完整视频</a></div>'
+        + '<a href="' + esc(_safe_external_url(card['source_video_url']), quote=True) + '" class="source-video-play" data-clip-video="' + video_id + '">观看师父完整视频</a></div>'
         '</div></article>'
     )
 
@@ -1318,6 +1318,30 @@ document.querySelectorAll('.video-play').forEach(function(button){
   frame.referrerPolicy='strict-origin-when-cross-origin';
   button.parentElement.classList.add('is-playing');
   button.replaceWith(frame);
+  frame.focus();
+ });
+});
+
+// Play the full source in the same card, with an explicit return to the clip.
+document.querySelectorAll('.source-video-play').forEach(function(link){
+ link.addEventListener('click',function(event){
+  var source=new URL(link.href), id=source.searchParams.get('v');
+  if(!/^(www\.)?youtube\.com$/.test(source.hostname)||!/^[A-Za-z0-9_-]{11}$/.test(id))return;
+  event.preventDefault();
+  var stage=link.closest('.video-card').querySelector('.video-stage');
+  var full=link.dataset.mode!=='full';
+  var frame=document.createElement('iframe');
+  frame.src='https://www.youtube.com/embed/'+(full?id:link.dataset.clipVideo)+'?autoplay=1&playsinline=1';
+  frame.title=full?'师父完整视频':'视频片段';
+  frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';
+  frame.allowFullscreen=true;
+  frame.referrerPolicy='strict-origin-when-cross-origin';
+  stage.replaceChildren(frame);
+  stage.classList.add('is-playing');
+  stage.style.aspectRatio=full?'16 / 9':'9 / 16';
+  link.dataset.mode=full?'full':'clip';
+  link.textContent=full?'返回片段':'观看师父完整视频';
+  stage.scrollIntoView({block:'nearest'});
   frame.focus();
  });
 });
