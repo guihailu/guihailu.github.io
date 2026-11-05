@@ -2113,3 +2113,7 @@ _feed = ('<?xml version="1.0" encoding="utf-8"?>\n'
          + "\n".join(_feed_entries) + '\n</feed>\n')
 (HERE / "feed.xml").write_text(_feed, encoding="utf-8", newline="\n")
 print(f"OK: SEO 辅助文件 favicon/manifest/robots/sitemap/404/feed 已生成（{len(_sitemap_urls)} URL）")
+
+# Build the shared reading and domestic entry points after the source library.
+import runpy
+runpy.run_path(str(HERE / "build_reading_front.py"), run_name="__main__")
