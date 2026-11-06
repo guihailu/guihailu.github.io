@@ -1,7 +1,7 @@
 {
   "source": "guihailu/muse-backup:handoff/codex/切片链接表.md",
-  "source_blob_sha": "8b46473c0f58c874076917ca054fad532e49f687",
-  "checked_at": "2026-11-03",
+  "source_blob_sha": "16ad53327397f564d92fc07499b3ed5f401c0b03",
+  "checked_at": "2026-11-06",
   "cards": [
     {
       "id": "VIBE-EP01",
@@ -11,7 +11,8 @@
       "published_at": "2026-10-30T23:09:00+08:00",
       "status": "published",
       "watch_url": "https://www.douyin.com/video/7702478199862693120",
-      "poster": null,
+      "youtube_url": "https://youtu.be/li_zfTRp690",
+      "poster": "https://i.ytimg.com/vi/li_zfTRp690/hqdefault.jpg",
       "article_id": "ghl-000018",
       "audio_language": "zh",
       "subtitle_language": "zh"
@@ -24,7 +25,8 @@
       "published_at": "2026-10-31T20:30:00+08:00",
       "status": "published",
       "watch_url": "https://www.douyin.com/video/7702694461725248822",
-      "poster": null,
+      "youtube_url": "https://youtu.be/jvRbI_nnxxM",
+      "poster": "https://i.ytimg.com/vi/jvRbI_nnxxM/hqdefault.jpg",
       "article_id": "ghl-000004",
       "audio_language": "zh",
       "subtitle_language": "zh"
@@ -37,7 +39,8 @@
       "published_at": "2026-11-01T15:19:00+08:00",
       "status": "published",
       "watch_url": "https://www.douyin.com/video/7703099351211593001",
-      "poster": null,
+      "youtube_url": "https://youtu.be/boVkmwiauS4",
+      "poster": "https://i.ytimg.com/vi/boVkmwiauS4/hqdefault.jpg",
       "article_id": "ghl-000022",
       "audio_language": "zh",
       "subtitle_language": "zh"
@@ -50,7 +53,8 @@
       "published_at": "2026-11-01T20:23:00+08:00",
       "status": "published",
       "watch_url": "https://www.douyin.com/video/7703144551220923690",
-      "poster": null,
+      "youtube_url": "https://youtu.be/q6wj4WzT1XE",
+      "poster": "https://i.ytimg.com/vi/q6wj4WzT1XE/hqdefault.jpg",
       "article_id": "ghl-000026",
       "audio_language": "zh",
       "subtitle_language": "zh"
