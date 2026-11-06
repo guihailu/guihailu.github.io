@@ -999,26 +999,15 @@ def _video_card(card):
     )
 
 def _vibe_card(card):
-    url = _safe_external_url(card.get('watch_url'))
-    douyin_id = url.rstrip('/').split('/')[-1]
-    if not re.fullmatch(r'[0-9]{19}', douyin_id):
-        raise ValueError('Invalid Douyin video ID')
-    seconds = round(float(card.get('duration_seconds') or 0))
-    duration = f'{seconds // 60}:{seconds % 60:02d}' if seconds else ''
     esc = _html.escape
-    poster = card.get('poster')
-    play_class = 'clip-play has-cover' if poster else 'clip-play'
-    cover = ('<img src="' + esc(_safe_external_url(poster), quote=True) + '" alt="" width="480" height="360" loading="lazy">'
-             if poster else '<span class="clip-cover-title">' + esc(card.get('title', '知识动画')) + '</span>')
     entry = next((e for e in _entries if e['id'] == card.get('article_id')), None)
-    article_link = ('<a href="' + entry['page'] + '#' + entry['id'] + '">阅读相关原文</a>' if entry else '')
-    return ('<article class="video-card vibe-card" data-clip-id="' + esc(card.get('id', ''), quote=True) + '">'
-            '<div class="video-stage"><a class="' + play_class + '" href="' + esc(url, quote=True) + '" data-douyin-id="' + douyin_id + '" aria-label="播放：' + esc(card.get('title', ''), quote=True) + '">'
-            + cover + '<span class="video-play-icon" aria-hidden="true">▶</span>'
-            + (('<span class="video-duration">' + duration + '</span>') if duration else '')
-            + '</a></div><div class="video-copy"><p class="reading-label">知识动画</p><h2>' + esc(card.get('title', '')) + '</h2>'
-            '<p class="video-intro">' + esc(card.get('description', '')) + '</p><button class="intro-toggle" type="button" aria-expanded="false" hidden>展开全文</button>'
-            '<div class="video-links">' + article_link + '<a href="' + esc(url, quote=True) + '" data-douyin-id="' + douyin_id + '">播放视频</a></div></div></article>')
+    if not entry:
+        return ''
+    return ('<article class="video-card"><div class="video-copy"><h2>'
+            + esc(card.get('title', '')) + '</h2><p>'
+            + esc(card.get('description', '')) + '</p><a href="'
+            + entry['page'] + '#' + entry['id'] + '">阅读相关原文 →</a></div></article>')
+
 
 def _gallery_section(section_id, eyebrow, title, description, view_href, view_label, cards, renderer):
     if not cards:
@@ -1345,28 +1334,6 @@ document.querySelectorAll('.source-video-play').forEach(function(link){
   link.dataset.mode=full?'full':'clip';
   link.textContent=full?'返回片段':'观看师父完整视频';
   stage.scrollIntoView({block:'nearest'});
-  frame.focus();
- });
-});
-
-// Douyin's official embedded player; no redirect on ordinary activation.
-document.querySelectorAll('[data-douyin-id]').forEach(function(trigger){
- trigger.addEventListener('click',function(event){
-  var id=trigger.dataset.douyinId;
-  if(!/^[0-9]{19}$/.test(id))return;
-  event.preventDefault();
-  var stage=trigger.closest('.video-card').querySelector('.video-stage');
-  var existing=stage.querySelector('iframe');
-  if(existing){existing.focus();return;}
-  var frame=document.createElement('iframe');
-  frame.src='https://open.douyin.com/player/video?vid='+id+'&autoplay=1';
-  frame.title=trigger.closest('.video-card').querySelector('h2').textContent;
-  frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';
-  frame.allowFullscreen=true;
-  frame.referrerPolicy='unsafe-url';
-  stage.replaceChildren(frame);
-  stage.classList.add('is-playing');
-  stage.style.aspectRatio='16 / 9';
   frame.focus();
  });
 });
@@ -2114,6 +2081,6 @@ _feed = ('<?xml version="1.0" encoding="utf-8"?>\n'
 (HERE / "feed.xml").write_text(_feed, encoding="utf-8", newline="\n")
 print(f"OK: SEO 辅助文件 favicon/manifest/robots/sitemap/404/feed 已生成（{len(_sitemap_urls)} URL）")
 
-# Build the shared reading and domestic entry points after the source library.
+# Build the reading front after the original library.
 import runpy
 runpy.run_path(str(HERE / "build_reading_front.py"), run_name="__main__")

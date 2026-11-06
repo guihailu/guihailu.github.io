@@ -40,28 +40,6 @@ document.querySelectorAll('.source-video-play').forEach(function(link){
  });
 });
 
-// Douyin's official embedded player; no redirect on ordinary activation.
-document.querySelectorAll('[data-douyin-id]').forEach(function(trigger){
- trigger.addEventListener('click',function(event){
-  var id=trigger.dataset.douyinId;
-  if(!/^[0-9]{19}$/.test(id))return;
-  event.preventDefault();
-  var stage=trigger.closest('.video-card').querySelector('.video-stage');
-  var existing=stage.querySelector('iframe');
-  if(existing){existing.focus();return;}
-  var frame=document.createElement('iframe');
-  frame.src='https://open.douyin.com/player/video?vid='+id+'&autoplay=1';
-  frame.title=trigger.closest('.video-card').querySelector('h2').textContent;
-  frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';
-  frame.allowFullscreen=true;
-  frame.referrerPolicy='unsafe-url';
-  stage.replaceChildren(frame);
-  stage.classList.add('is-playing');
-  stage.style.aspectRatio='16 / 9';
-  frame.focus();
- });
-});
-
 /* 事件钩子（A/B/C）：未接分析服务时静默；接 GoatCounter/Umami/百度/51LA 后自动上报 */
 window.ghlTrack=function(name,data){try{
   if(window.goatcounter&&window.goatcounter.count)window.goatcounter.count({path:name,title:name,event:true});
