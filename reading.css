@@ -1,12 +1,14 @@
 *{box-sizing:border-box}
-:root{--bg:#f3ecd9;--ink:#1b2f3c;--sub:#51626c;--card:#fffaf0;--card2:#f7efdb;--line:#d8cba6;--gold:#8a6a24;--gold2:#7c5c13;--chip:#fffaf0;--shadow:rgba(90,70,20,.18)}
+:root{--bg:#f3ecd9;--ink:#1b2f3c;--sub:#44545f;--card:#fffaf0;--card2:#f7efdb;--line:#d8cba6;--gold:#8a6a24;--gold2:#7c5c13;--chip:#fffaf0;--shadow:rgba(90,70,20,.18)}
 html.dark{--bg:#0a141f;--ink:#ede4cd;--sub:#a7b5ba;--card:#101f2c;--card2:#0e1e2e;--line:#2c4353;--gold:#c9a55f;--gold2:#f0d48a;--chip:transparent;--shadow:rgba(0,0,0,.4)}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden;transition:background .4s,color .4s}
 a{color:inherit;text-decoration:none}
 button{font:inherit;cursor:pointer}
 ::selection{background:#c9a55f;color:#101f2c}
-header{position:fixed;inset:0 0 auto 0;z-index:60;display:flex;justify-content:space-between;align-items:center;padding:16px max(4vw,20px);transition:transform .38s ease,opacity .38s ease}
+header{position:fixed;inset:0 0 auto 0;z-index:60;display:flex;justify-content:space-between;align-items:center;padding:16px max(4vw,20px);transition:transform .38s ease,opacity .38s ease,background .35s ease,box-shadow .35s ease}
+header.solid{background:rgba(243,236,217,.88);-webkit-backdrop-filter:blur(14px) saturate(1.25);backdrop-filter:blur(14px) saturate(1.25);box-shadow:0 10px 30px rgba(90,70,20,.10);border-bottom:1px solid rgba(216,203,166,.7)}
+html.dark header.solid{background:rgba(10,20,31,.86);border-bottom-color:rgba(44,67,83,.8);box-shadow:0 10px 30px rgba(0,0,0,.35)}
 header.hidden{transform:translateY(-115%);opacity:0;pointer-events:none}
 header .brand,header nav a{text-shadow:0 1px 12px rgba(4,10,16,.35),0 0 3px rgba(4,10,16,.18)}
 html.dark header .brand,html.dark header nav a{text-shadow:0 1px 12px rgba(4,10,16,.9),0 0 3px rgba(4,10,16,.65)}
@@ -29,7 +31,7 @@ nav a:hover{opacity:1;border-color:rgba(201,165,95,.9);background:rgba(201,165,9
 .hero{position:relative;min-height:100svh;display:grid;place-items:center;text-align:center;overflow:hidden}
 .hero .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:kb 30s ease-in-out infinite alternate}
 @keyframes kb{from{transform:scale(1.02)}to{transform:scale(1.10)}}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 42%,rgba(0,0,0,0) 30%,rgba(4,10,16,.38) 100%);z-index:1}
+.hero::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,10,16,.34),rgba(4,10,16,0) 26%),radial-gradient(ellipse at 50% 42%,rgba(0,0,0,0) 30%,rgba(4,10,16,.38) 100%);z-index:1}
 .hero .bg,.hero .rays,.hero .dust,.hero::before{-webkit-mask-image:linear-gradient(180deg,#000 74%,transparent 98%);mask-image:linear-gradient(180deg,#000 74%,transparent 98%)}
 .hero .rays{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;background:conic-gradient(from 180deg at 50% -12%,transparent 40%,rgba(255,214,120,.30) 47%,rgba(255,226,150,.42) 50%,rgba(255,214,120,.30) 53%,transparent 60%),conic-gradient(from 180deg at 50% -12%,transparent 30%,rgba(255,220,140,.20) 36%,transparent 43%),conic-gradient(from 180deg at 50% -12%,transparent 58%,rgba(255,220,140,.20) 64%,transparent 71%),radial-gradient(ellipse 62% 34% at 50% 0%,rgba(255,222,140,.5),transparent 70%);filter:blur(12px);animation:sway 11s ease-in-out infinite alternate,pulse 6.5s ease-in-out infinite alternate;transition:opacity 1.2s}
 html:not(.dark) .hero .rays{opacity:.85}
@@ -86,24 +88,24 @@ html:not(.dark) .part .wm{filter:invert(1) brightness(.85);opacity:.10}
 .part .txt{align-self:center;position:relative;z-index:1}
 .part .tag{display:inline-block;border:1px solid var(--gold);color:var(--gold2);background:var(--chip);border-radius:999px;padding:5px 13px;font-size:12px;letter-spacing:2px;font-weight:600}
 .part h2{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-weight:600;font-size:clamp(42px,6vw,68px);letter-spacing:.06em;margin:16px 0 6px;line-height:1.15}
-.part .plain{font-size:clamp(19px,2.6vw,24px);color:var(--gold);line-height:1.6;font-family:"Songti SC",SimSun,serif}
+.part .plain{font-size:clamp(19px,2.6vw,24px);color:var(--gold2);line-height:1.6;font-family:"Songti SC",SimSun,serif}
 .part .desc{color:var(--sub);line-height:2;font-size:15.5px}
 .part .desc .dropcap{float:left;height:52px;width:auto;margin:4px 10px 0 0}
 html:not(.dark) .part .desc .dropcap{filter:invert(1) brightness(.82)}
 .firstread{background:var(--card);border:1px solid var(--line);border-left:3px solid #c9a55f;border-radius:12px;padding:18px 20px;margin-top:20px;transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease}
 .firstread:hover{transform:translateY(-3px);border-color:rgba(201,165,95,.7);box-shadow:0 16px 36px var(--shadow)}
-.firstread .lab{color:var(--gold);font-size:12px;letter-spacing:2px;margin-bottom:8px}
+.firstread .lab{color:var(--gold2);font-size:12px;letter-spacing:2px;margin-bottom:8px;font-weight:600}
 .firstread h3{margin:0 0 8px;font-size:18.5px;line-height:1.55}
 .firstread p{margin:0;color:var(--sub);font-size:14px;line-height:1.85}
 .casewall{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
-.casewall button{border:1px solid var(--line);background:var(--chip);color:var(--gold2);border-radius:999px;padding:7px 13px;font-size:13px}
+.casewall button{border:1px solid var(--line);background:var(--chip);color:var(--gold2);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600}
 .casewall button.on{background:#f3e5bd;border-color:#c9a55f;color:#7c5c13}
 html.dark .casewall button.on{background:#243843;color:#f0d48a}
 .rot-fade{transition:opacity .45s ease}
 .rot-fade.out{opacity:0}
-.rot-open{margin-top:10px;background:none;border:0;color:var(--gold);font-size:14.5px;padding:0}
+.rot-open{margin-top:10px;background:none;border:0;color:var(--gold2);font-size:14.5px;padding:0;font-weight:600}
 .doors{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap}
-.doors a{border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:13.5px;color:var(--gold2);background:var(--chip)}
+.doors a{border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:13.5px;color:var(--gold2);background:var(--chip);font-weight:600}
 .stage{position:relative;aspect-ratio:16/9;background:#183544;border-radius:10px;overflow:hidden;margin-top:10px}
 .stage>button{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:#183544;cursor:pointer}
 .stage>button img{width:100%;height:100%;object-fit:cover;display:block}
@@ -112,7 +114,7 @@ html.dark .casewall button.on{background:#243843;color:#f0d48a}
 .vopen{margin:9px 2px 0;color:var(--sub);font-size:13.5px}
 .vopen a{color:var(--gold2);text-decoration:underline;text-underline-offset:3px}
 .vibechips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.vibechips button{border:1px solid var(--line);background:var(--chip);color:var(--gold2);border-radius:999px;padding:7px 13px;font-size:13px}
+.vibechips button{border:1px solid var(--line);background:var(--chip);color:var(--gold2);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600}
 .vibechips button.on{background:#f3e5bd;border-color:#c9a55f;color:#7c5c13}
 html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .boardlist{margin-top:22px;border-top:1px solid var(--line)}
@@ -139,7 +141,7 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .topic h2{font-family:"Songti SC","STSong",SimSun,serif;font-size:clamp(22px,3vw,28px);margin:0 0 4px}
 .topic .tdesc{color:var(--sub);margin:0 0 8px;line-height:1.8}
 .board-hero h1{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(46px,7vw,76px);margin:14px 0 8px;letter-spacing:.06em}
-.board-hero .plain{font-size:clamp(18px,2.4vw,23px);color:var(--gold);font-family:"Songti SC",SimSun,serif;line-height:1.6}
+.board-hero .plain{font-size:clamp(18px,2.4vw,23px);color:var(--gold2);font-family:"Songti SC",SimSun,serif;line-height:1.6}
 .board-hero p{color:var(--sub);line-height:2;max-width:720px;margin:14px auto 0}
 .board-main{max-width:900px;margin:0 auto;padding:26px 22px 20px}
 .board-main .alist a{font-size:16.5px;padding:13px 4px}

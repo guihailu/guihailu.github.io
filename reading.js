@@ -7,7 +7,7 @@ let lastY=0;
 const toTop=document.querySelector('#to-top');
 function onScroll(){
   const y=window.scrollY;
-  if(hdr&&heroEl){hdr.classList.toggle('over-hero',y<heroEl.offsetHeight-120)}
+  if(hdr){const oh=heroEl?(y<heroEl.offsetHeight-120):false;hdr.classList.toggle('over-hero',oh);hdr.classList.toggle('solid',!oh&&y>30)}
   if(hdr){ if(y>140&&y>lastY+4){hdr.classList.add('hidden');} else if(y<lastY-4||y<=140){hdr.classList.remove('hidden');} }
   lastY=y;
   if(toTop)toTop.hidden=y<600;
