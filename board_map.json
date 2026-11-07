@@ -1,0 +1,607 @@
+{
+ "ghl-000001": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "赌场从业者的职业见闻，落点在工作与生活"
+ },
+ "ghl-000002": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "动物、鬼如何修炼，讲的是六道诸界的法界运行"
+ },
+ "ghl-000003": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "渡雷劫、鬼成仙，法界修炼路径"
+ },
+ "ghl-000004": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "败运与死局，认知如何把人带进局里"
+ },
+ "ghl-000005": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "跳出人生脚本，识人与自省"
+ },
+ "ghl-000006": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "降头、阴牌、古曼童，术法本身"
+ },
+ "ghl-000007": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "寿元与福报，什么命才叫好命"
+ },
+ "ghl-000008": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "人、运、局，看懂局才看懂命"
+ },
+ "ghl-000009": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "因果落回做人，众生善缘"
+ },
+ "ghl-000010": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "鬼侵扰与法界资源层级"
+ },
+ "ghl-000011": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "冥界、天机与法术"
+ },
+ "ghl-000012": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "天机不可泄，法界禁忌"
+ },
+ "ghl-000013": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "认知配不上福报"
+ },
+ "ghl-000014": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "恋爱脑、婚外情与择偶，关系里的落地红线"
+ },
+ "ghl-000015": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "诸神与因果，天道信息"
+ },
+ "ghl-000016": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "肉身与能量级别，讲的是人的灵性体质"
+ },
+ "ghl-000017": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "借名人案例拆解命运"
+ },
+ "ghl-000018": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "卡车司机理论，对人祛魅的认知"
+ },
+ "ghl-000019": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "从巅峰到转折的人生规律"
+ },
+ "ghl-000020": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "人类认知的三把锁"
+ },
+ "ghl-000021": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "轮回惯性其实是人生重复同一道题"
+ },
+ "ghl-000022": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "人生如棋局，别做臭棋篓子"
+ },
+ "ghl-000023": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "卡车司机理论，心性不随阶层变"
+ },
+ "ghl-000024": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "情绪与第一印象，日常自我的管理"
+ },
+ "ghl-000025": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "修行不能脱离对人间的了解"
+ },
+ "ghl-000026": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "买房邻居的故事，选择大于努力的生活落地"
+ },
+ "ghl-000027": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "因果故事会：借案例照见自己的因果"
+ },
+ "ghl-000028": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "因果故事会：越想改命越被困的思维模式"
+ },
+ "ghl-000029": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "因果故事会：借别人的因果答自己的题"
+ },
+ "ghl-000030": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "因果故事会：栏目缘起与因果观"
+ },
+ "ghl-000031": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "对死亡的认知，决定怎么活"
+ },
+ "ghl-000032": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "借猝死名人拆解人的阳面与命数"
+ },
+ "ghl-000033": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "破万法思维模型，认知工具"
+ },
+ "ghl-000034": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "丁元英拆解，看人的命运结构"
+ },
+ "ghl-000035": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "普通人破局，认知与财富观"
+ },
+ "ghl-000036": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "贵人与因果，帮过你的人要记得"
+ },
+ "ghl-000037": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "地藏经与地狱的底层逻辑"
+ },
+ "ghl-000038": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "年运卦的看卦机制与冤亲债主"
+ },
+ "ghl-000039": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "每一步都正确、整条路却错的认知陷阱"
+ },
+ "ghl-000040": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "祈福如何化解因果业力，法界机制"
+ },
+ "ghl-000041": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "日月香清场与排负反应"
+ },
+ "ghl-000042": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "太岁规则一次讲清"
+ },
+ "ghl-000043": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "阴间入口、灵体干扰与清理办法"
+ },
+ "ghl-000044": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "大变局下普通人的活法与选择"
+ },
+ "ghl-000045": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "道德困境、利他自保，日常伦理问答"
+ },
+ "ghl-000046": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "海外生活、恋爱脑与疗愈，生活问答"
+ },
+ "ghl-000047": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "以本源智慧量人，识人的标尺"
+ },
+ "ghl-000048": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "仙家烧纸与阴间生活，兼及天魂"
+ },
+ "ghl-000049": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "阴宅风水的背后秘密"
+ },
+ "ghl-000050": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "业力山与洗灵，轮回里灵魂的经历"
+ },
+ "ghl-000051": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "烧纸的阴间货币与物流法则"
+ },
+ "ghl-000052": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "农村神公的捆窍、通灵与骗局（上）"
+ },
+ "ghl-000053": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "神公拿捏人的运作原理（中）"
+ },
+ "ghl-000054": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "亲历者自述与赖皮仙解析（下）"
+ },
+ "ghl-000055": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "100个职业：带货主播的职业故事"
+ },
+ "ghl-000056": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "因果故事会：借事修人"
+ },
+ "ghl-000057": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "语录：修行心性与人间智慧"
+ },
+ "ghl-000058": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "逆修自查十九条，本部的自查正本"
+ },
+ "ghl-000059": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "七字箴言，做人做事的根本"
+ },
+ "ghl-000060": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "九字箴言，七字加因果与合道"
+ },
+ "ghl-000061": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "规则、怀疑与笃定，认知的次序"
+ },
+ "ghl-000062": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "孩子学习随缘，教育观的落地"
+ },
+ "ghl-000063": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "阴债与法器、仙符的规矩"
+ },
+ "ghl-000064": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "人间的定义，认知工具论"
+ },
+ "ghl-000065": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "修行困惑与个人修行历程"
+ },
+ "ghl-000066": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "思维层级与生命态度"
+ },
+ "ghl-000067": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "破万法思维模型"
+ },
+ "ghl-000068": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "打生桩、发毒誓与借运挪运"
+ },
+ "ghl-000069": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "对谈通灵疗愈师，灵与法"
+ },
+ "ghl-000070": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "临终72小时与灵魂的越狱"
+ },
+ "ghl-000071": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "婴灵与投胎的底层规则"
+ },
+ "ghl-000072": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "二胎因果与投胎的门票"
+ },
+ "ghl-000073": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "登天门、讨封与三魂七魄"
+ },
+ "ghl-000074": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "AI有没有魂，魂的问题本身"
+ },
+ "ghl-000075": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "文明存续与人的心性锻炼"
+ },
+ "ghl-000076": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "夫妻情绪瓶颈，家庭关系的落地"
+ },
+ "ghl-000077": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "教育黑洞，亲子关系的落地"
+ },
+ "ghl-000078": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "稻盛和夫与胖东来，经营管理的落地"
+ },
+ "ghl-000079": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "香包如何诛邪退散"
+ },
+ "ghl-000080": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "拒绝轮回惯性，拆思维高墙"
+ },
+ "ghl-000081": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "法器失效与邪师诈骗"
+ },
+ "ghl-000082": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "高维法术大公开"
+ },
+ "ghl-000083": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "段永平的守拙，天道规律与人生正果"
+ },
+ "ghl-000084": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "抢夺投胎序列与三魂投胎之谜"
+ },
+ "ghl-000085": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "中年危机破局，好人为何未得好报"
+ },
+ "ghl-000086": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "天眼和法眼详解，法界能力"
+ },
+ "ghl-000087": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "轮回门与超度，祖先为何不敢跳"
+ },
+ "ghl-000088": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "灵魂的纯净度与判官的审判"
+ },
+ "ghl-000089": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "堕胎婴灵为何送不走"
+ },
+ "ghl-000090": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "地球二维化，世界维度的法界框架"
+ },
+ "ghl-000091": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "投胎如旋转门，亡魂为何投错胎"
+ },
+ "ghl-000092": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "地府规则，烧别墅为何落不了地"
+ },
+ "ghl-000093": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "阿米巴与点亮繁星，组织经营的落地"
+ },
+ "ghl-000094": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "香包的自然系与能量系"
+ },
+ "ghl-000095": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "清泉智慧，普通人能感受到的灵性状态"
+ },
+ "ghl-000096": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "末法时代的信仰崩塌"
+ },
+ "ghl-000097": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "算命与卦象，问卦的机制"
+ },
+ "ghl-000098": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "延寿保命与阴差勾魂，生死一线"
+ },
+ "ghl-000099": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "阴元、空间补漏与登莲台之路"
+ },
+ "ghl-000100": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "功德焦虑，修行的正反馈心态"
+ },
+ "ghl-000101": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "灵体攻击与灭鬼的因果"
+ },
+ "ghl-000102": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "股市回血与生存之道，钱的问题落地"
+ },
+ "ghl-000103": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "安乐死与天罚，生死抉择"
+ },
+ "ghl-000104": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "姐姐为家付出，家庭与人生的落地问答"
+ },
+ "ghl-000105": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "佛家六通与活人当阴差"
+ },
+ "ghl-000106": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "人死灯不灭，打破死亡恐惧"
+ },
+ "ghl-000107": {
+  "board": 4,
+  "board_name": "道法自然",
+  "reason": "负债、赌博、淫邪，生活挑战的破解"
+ },
+ "ghl-000108": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "天道法则的人间使用说明书"
+ },
+ "ghl-000109": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "前世因果、功德转移与超度"
+ },
+ "ghl-000110": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "修行困惑问答，梦境与静心"
+ },
+ "ghl-000111": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "从轮回到法界的灵性问答"
+ },
+ "ghl-000112": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "答疑交流会，人生与修行杂问"
+ },
+ "ghl-000113": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "天道智慧的深度探讨"
+ },
+ "ghl-000114": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "私域分享会，法界魔幻内容"
+ },
+ "ghl-000115": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "找到自己的本命天赋"
+ },
+ "ghl-000116": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "故事小酒馆：法界攻击的真实体验"
+ },
+ "ghl-000117": {
+  "board": 2,
+  "board_name": "灵魂觉者",
+  "reason": "故事小酒馆：一段前世的禁忌之恋"
+ },
+ "ghl-000118": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "故事小酒馆：烧纸的门道"
+ },
+ "ghl-000119": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "如何与仙家沟通，国庆答疑"
+ },
+ "ghl-000120": {
+  "board": 3,
+  "board_name": "法界天机",
+  "reason": "轮回的规则、位面补漏与末法生存"
+ },
+ "ghl-000121": {
+  "board": 1,
+  "board_name": "逆修觉者",
+  "reason": "修行者的短板、我慢与内耗"
+ }
+}
