@@ -12,8 +12,10 @@ header .brand,header nav a{text-shadow:0 1px 12px rgba(4,10,16,.35),0 0 3px rgba
 html.dark header .brand,html.dark header nav a{text-shadow:0 1px 12px rgba(4,10,16,.9),0 0 3px rgba(4,10,16,.65)}
 html:not(.dark) header .brand,html:not(.dark) header nav a{text-shadow:0 1px 12px rgba(250,244,226,.95),0 0 3px rgba(250,244,226,.9)}
 .brand{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:29px;font-weight:700;display:block;width:148px;color:var(--ink)}
-.brand .brow{display:flex;justify-content:space-between}
-.brand small.brow{font-size:12.5px;color:var(--gold);font-family:"Songti SC","STSong",SimSun,serif;margin-top:4px;font-weight:400}
+.brand img{display:block}
+.brand .bimg1{height:33px;width:auto}
+.brand .bimg2{height:15.5px;width:auto;margin-top:4px}
+html:not(.dark) .brand img{filter:invert(1) brightness(.85)}
 nav{display:flex;gap:26px;align-items:center}
 nav a{opacity:.92;font-family:"Songti SC","STSong",SimSun,serif;font-size:16.5px;font-weight:700;letter-spacing:2.5px;position:relative;color:var(--ink)}
 nav a::after{content:'';position:absolute;left:0;right:0;bottom:-7px;height:1px;background:#c9a55f;transform:scaleX(0);transform-origin:left;transition:transform .35s ease}
@@ -69,9 +71,9 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .part{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(22px,4vw,54px);margin-top:110px;align-items:start;scroll-margin-top:84px;position:relative}
 .part.flip{grid-template-columns:1fr 1.15fr}
 .part ~ .part::after{content:'';position:absolute;top:-58px;left:50%;transform:translateX(-50%);width:min(430px,62%);height:1px;background:linear-gradient(90deg,transparent,rgba(201,165,95,.55),transparent)}
-.part .wm{position:absolute;top:-44px;right:-6px;font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(170px,20vw,290px);line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(122,92,19,.20);pointer-events:none;user-select:none;z-index:0}
-html.dark .part .wm{-webkit-text-stroke-color:rgba(201,165,95,.15)}
-.part.flip .wm{right:auto;left:-6px}
+.part .wm{position:absolute;top:-40px;right:-4px;height:clamp(180px,21vw,300px);width:auto;opacity:.13;pointer-events:none;user-select:none;z-index:0}
+html:not(.dark) .part .wm{filter:invert(1) brightness(.85);opacity:.10}
+.part.flip .wm{right:auto;left:-4px}
 .part .art{position:sticky;top:96px;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px var(--shadow);z-index:1}
 .part .art::after{content:'';position:absolute;inset:11px;border:1px solid rgba(240,212,138,.38);border-radius:9px;pointer-events:none}
 .part .art img{display:block;width:100%;height:auto}
@@ -83,7 +85,8 @@ html.dark .part .wm{-webkit-text-stroke-color:rgba(201,165,95,.15)}
 .part h2{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-weight:600;font-size:clamp(42px,6vw,68px);letter-spacing:.06em;margin:16px 0 6px;line-height:1.15}
 .part .plain{font-size:clamp(19px,2.6vw,24px);color:var(--gold);line-height:1.6;font-family:"Songti SC",SimSun,serif}
 .part .desc{color:var(--sub);line-height:2;font-size:15.5px}
-.part .desc::first-letter{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:2.4em;color:var(--gold);float:left;line-height:1.02;padding:3px 9px 0 0}
+.part .desc .dropcap{float:left;height:52px;width:auto;margin:4px 10px 0 0}
+html:not(.dark) .part .desc .dropcap{filter:invert(1) brightness(.82)}
 .firstread{background:var(--card);border:1px solid var(--line);border-left:3px solid #c9a55f;border-radius:12px;padding:18px 20px;margin-top:20px;transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease}
 .firstread:hover{transform:translateY(-3px);border-color:rgba(201,165,95,.7);box-shadow:0 16px 36px var(--shadow)}
 .firstread .lab{color:var(--gold);font-size:12px;letter-spacing:2px;margin-bottom:8px}
@@ -128,8 +131,9 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .board-main{max-width:900px;margin:0 auto;padding:26px 22px 20px}
 .board-main .alist a{font-size:16.5px;padding:13px 4px}
 footer{text-align:center;color:var(--sub);font-size:12.5px;padding:44px 10px 50px;position:relative}
-.footwm{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(84px,13vw,168px);line-height:1.05;color:transparent;-webkit-text-stroke:1.5px rgba(122,92,19,.17);user-select:none}
-html.dark .footwm{-webkit-text-stroke-color:rgba(201,165,95,.14)}
+.footwm{user-select:none}
+.footwm img{height:clamp(80px,12vw,150px);width:auto;opacity:.16}
+html:not(.dark) .footwm img{filter:invert(1) brightness(.85);opacity:.13}
 .flinks{margin:14px 0 10px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .flinks a{border:1px solid var(--gold);color:var(--gold2);background:var(--chip);border-radius:999px;padding:9px 16px;font-size:13.5px}
 dialog{max-width:720px;width:calc(100% - 32px);max-height:85vh;border:0;background:var(--card);padding:32px;color:var(--ink);border-radius:14px}

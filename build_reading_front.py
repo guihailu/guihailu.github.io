@@ -50,6 +50,9 @@ IMG4=datauri('board4-daofa.webp','image/webp')
 HERO_IMG=datauri('hero-fajie.webp','image/webp')
 SEAL_IMG=datauri('seal.png','image/png')
 TITLE_GUIHAI=datauri('title-guihai.webp','image/webp')
+TITLE_SUB=datauri('title-brandsub.webp','image/webp')
+TITLE_ZHE=datauri('title-zhe.webp','image/webp')
+WMIMG={1:datauri('title-wm1.webp','image/webp'),2:datauri('title-wm2.webp','image/webp'),3:datauri('title-wm3.webp','image/webp'),4:datauri('title-wm4.webp','image/webp')}
 TITLES={1:datauri('title-nixiu.webp','image/webp'),2:datauri('title-linghun.webp','image/webp'),3:datauri('title-fajie.webp','image/webp'),4:datauri('title-daofa.webp','image/webp')}
 BOARDS=[
  {'n':1,'cn':'一','wm':'壹','name':'逆修觉者','img':IMG1,
@@ -86,8 +89,10 @@ header .brand,header nav a{text-shadow:0 1px 12px rgba(4,10,16,.35),0 0 3px rgba
 html.dark header .brand,html.dark header nav a{text-shadow:0 1px 12px rgba(4,10,16,.9),0 0 3px rgba(4,10,16,.65)}
 html:not(.dark) header .brand,html:not(.dark) header nav a{text-shadow:0 1px 12px rgba(250,244,226,.95),0 0 3px rgba(250,244,226,.9)}
 .brand{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:29px;font-weight:700;display:block;width:148px;color:var(--ink)}
-.brand .brow{display:flex;justify-content:space-between}
-.brand small.brow{font-size:12.5px;color:var(--gold);font-family:"Songti SC","STSong",SimSun,serif;margin-top:4px;font-weight:400}
+.brand img{display:block}
+.brand .bimg1{height:33px;width:auto}
+.brand .bimg2{height:15.5px;width:auto;margin-top:4px}
+html:not(.dark) .brand img{filter:invert(1) brightness(.85)}
 nav{display:flex;gap:26px;align-items:center}
 nav a{opacity:.92;font-family:"Songti SC","STSong",SimSun,serif;font-size:16.5px;font-weight:700;letter-spacing:2.5px;position:relative;color:var(--ink)}
 nav a::after{content:'';position:absolute;left:0;right:0;bottom:-7px;height:1px;background:#c9a55f;transform:scaleX(0);transform-origin:left;transition:transform .35s ease}
@@ -143,9 +148,9 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .part{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(22px,4vw,54px);margin-top:110px;align-items:start;scroll-margin-top:84px;position:relative}
 .part.flip{grid-template-columns:1fr 1.15fr}
 .part ~ .part::after{content:'';position:absolute;top:-58px;left:50%;transform:translateX(-50%);width:min(430px,62%);height:1px;background:linear-gradient(90deg,transparent,rgba(201,165,95,.55),transparent)}
-.part .wm{position:absolute;top:-44px;right:-6px;font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(170px,20vw,290px);line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(122,92,19,.20);pointer-events:none;user-select:none;z-index:0}
-html.dark .part .wm{-webkit-text-stroke-color:rgba(201,165,95,.15)}
-.part.flip .wm{right:auto;left:-6px}
+.part .wm{position:absolute;top:-40px;right:-4px;height:clamp(180px,21vw,300px);width:auto;opacity:.13;pointer-events:none;user-select:none;z-index:0}
+html:not(.dark) .part .wm{filter:invert(1) brightness(.85);opacity:.10}
+.part.flip .wm{right:auto;left:-4px}
 .part .art{position:sticky;top:96px;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px var(--shadow);z-index:1}
 .part .art::after{content:'';position:absolute;inset:11px;border:1px solid rgba(240,212,138,.38);border-radius:9px;pointer-events:none}
 .part .art img{display:block;width:100%;height:auto}
@@ -157,7 +162,8 @@ html.dark .part .wm{-webkit-text-stroke-color:rgba(201,165,95,.15)}
 .part h2{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-weight:600;font-size:clamp(42px,6vw,68px);letter-spacing:.06em;margin:16px 0 6px;line-height:1.15}
 .part .plain{font-size:clamp(19px,2.6vw,24px);color:var(--gold);line-height:1.6;font-family:"Songti SC",SimSun,serif}
 .part .desc{color:var(--sub);line-height:2;font-size:15.5px}
-.part .desc::first-letter{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:2.4em;color:var(--gold);float:left;line-height:1.02;padding:3px 9px 0 0}
+.part .desc .dropcap{float:left;height:52px;width:auto;margin:4px 10px 0 0}
+html:not(.dark) .part .desc .dropcap{filter:invert(1) brightness(.82)}
 .firstread{background:var(--card);border:1px solid var(--line);border-left:3px solid #c9a55f;border-radius:12px;padding:18px 20px;margin-top:20px;transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease}
 .firstread:hover{transform:translateY(-3px);border-color:rgba(201,165,95,.7);box-shadow:0 16px 36px var(--shadow)}
 .firstread .lab{color:var(--gold);font-size:12px;letter-spacing:2px;margin-bottom:8px}
@@ -202,8 +208,9 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .board-main{max-width:900px;margin:0 auto;padding:26px 22px 20px}
 .board-main .alist a{font-size:16.5px;padding:13px 4px}
 footer{text-align:center;color:var(--sub);font-size:12.5px;padding:44px 10px 50px;position:relative}
-.footwm{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(84px,13vw,168px);line-height:1.05;color:transparent;-webkit-text-stroke:1.5px rgba(122,92,19,.17);user-select:none}
-html.dark .footwm{-webkit-text-stroke-color:rgba(201,165,95,.14)}
+.footwm{user-select:none}
+.footwm img{height:clamp(80px,12vw,150px);width:auto;opacity:.16}
+html:not(.dark) .footwm img{filter:invert(1) brightness(.85);opacity:.13}
 .flinks{margin:14px 0 10px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .flinks a{border:1px solid var(--gold);color:var(--gold2);background:var(--chip);border-radius:999px;padding:9px 16px;font-size:13.5px}
 dialog{max-width:720px;width:calc(100% - 32px);max-height:85vh;border:0;background:var(--card);padding:32px;color:var(--ink);border-radius:14px}
@@ -230,11 +237,11 @@ def shell(title,body,home=False):
  '<title>'+esc(title)+'</title>'
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
  '<link rel="stylesheet" href="reading.css"></head><body>'
- '<header><a class="brand" href="index.html" aria-label="归海录 首页"><span class="brow"><span>归</span><span>海</span><span>录</span></span>'
- '<small class="brow"><span>志</span><span>远</span><span>行</span><span>空</span><span>·</span><span>讲</span><span>课</span><span>整</span><span>理</span></small></a>'
+ f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
+ f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html">资料库</a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
  +body+
- '<footer><div class="footwm" aria-hidden="true">归海录</div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
+ f'<footer><div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt=""></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
  '<script src="reading.js"></script></body></html>')
@@ -288,13 +295,13 @@ def part_section(b):
  +alist_rows(prev)+'</div>'
  f'<a class="more" href="board{b["n"]}.html">本部全部 {len(es)} 篇 →</a></div>')
  txt=(f'<div class="txt"><span class="tag">第{b["cn"]}部</span><h2><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h2>'
- f'<div class="plain">{b["plain"]}</div><p class="desc">{b["desc"]}</p>'
+ f'<div class="plain">{b["plain"]}</div><p class="desc"><img class="dropcap" src="{TITLE_ZHE}" alt="">{b["desc"][1:]}</p>'
  f'<div class="firstread">{first_block(b)}</div>'
  f'<div class="doors">{doors(b)}</div>{blist}</div>')
  art=f'<div class="art"><img src="{b["img"]}" alt="{b["name"]}" loading="lazy"></div>'
  inner=(txt+art) if b['n']%2==0 else (art+txt)
  cls='part flip reveal' if b['n']%2==0 else 'part reveal'
- return f'<section class="{cls}" id="part{b["n"]}"><span class="wm" aria-hidden="true">{b["wm"]}</span>'+inner+'</section>'
+ return f'<section class="{cls}" id="part{b["n"]}"><img class="wm" src="{WMIMG[b["n"]]}" alt="" aria-hidden="true">'+inner+'</section>'
 def board_page(b):
  es=board_entries(b['n'])
  body=(f'<section class="board-hero"><span class="tag">第{b["cn"]}部</span><h1><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h1>'
