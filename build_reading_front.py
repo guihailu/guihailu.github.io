@@ -120,6 +120,9 @@ header.hidden{transform:translateY(-115%);opacity:0;pointer-events:none}
 header .brand,header nav a{text-shadow:0 1px 12px rgba(4,10,16,.35),0 0 3px rgba(4,10,16,.18)}
 html.dark header .brand,html.dark header nav a{text-shadow:0 1px 12px rgba(4,10,16,.9),0 0 3px rgba(4,10,16,.65)}
 html:not(.dark) header .brand,html:not(.dark) header nav a{text-shadow:0 1px 12px rgba(250,244,226,.95),0 0 3px rgba(250,244,226,.9)}
+header.over-hero .brand img,header.over-hero nav a .navimg{filter:drop-shadow(0 2px 12px rgba(0,0,0,.62))}
+html:not(.dark) header.over-hero .brand img,html:not(.dark) header.over-hero nav a .navimg{filter:drop-shadow(0 2px 12px rgba(0,0,0,.62))}
+header.over-hero #theme-toggle{color:#f3ecd9;border-color:rgba(243,236,217,.55)}
 .brand{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:29px;font-weight:700;display:block;width:148px;color:var(--ink)}
 .brand img{display:block}
 .brand .bimg1{width:100%;height:auto;display:block}
@@ -148,7 +151,7 @@ html:not(.dark) .hero .rays{opacity:.85}
 @keyframes floatup{from{transform:translateY(26px);opacity:0}18%{opacity:.9}82%{opacity:.7}to{transform:translateY(-120px);opacity:0}}
 .hero-seal{position:absolute;top:86px;right:4vw;width:clamp(56px,7vw,92px);z-index:4;filter:drop-shadow(0 8px 22px rgba(0,0,0,.4))}
 .hero .inner{position:relative;padding:120px 20px 90px;max-width:900px;z-index:3}
-.kicker{color:#e8c97a;letter-spacing:8px;font-size:13px;font-family:"Songti SC","STSong",SimSun,serif;text-shadow:0 2px 14px rgba(0,0,0,.55)}
+.kicker{display:inline-block;padding:9px 24px 9px 32px;border:1px solid rgba(201,165,95,.5);border-radius:999px;background:rgba(8,14,22,.38);color:#f4cf74;letter-spacing:8px;font-size:13.5px;font-weight:700;font-family:"Songti SC","STSong",SimSun,serif;text-shadow:0 1px 2px rgba(24,20,6,.95),0 0 12px rgba(24,20,6,.7),0 2px 22px rgba(0,0,0,.55)}
 .hero h1{margin:10px 0 6px;line-height:1.1}
 .hero h1 img{height:clamp(100px,16.5vw,168px);width:auto;max-width:88vw;filter:drop-shadow(0 6px 44px rgba(0,0,0,.55))}
 html:not(.dark) .hero h1 img{filter:invert(1) brightness(.88) drop-shadow(0 0 26px rgba(255,236,170,.9))}
@@ -217,6 +220,8 @@ html.dark .casewall button.on{background:#243843;color:#f0d48a}
 .stage>button img{width:100%;height:100%;object-fit:cover;display:block}
 .stage .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;background:rgba(201,165,95,.94);color:#101f2c;display:grid;place-items:center;font-size:20px}
 .stage iframe{width:100%;height:100%;border:0;display:block}
+.vopen{margin:9px 2px 0;color:var(--sub);font-size:13.5px}
+.vopen a{color:var(--gold2);text-decoration:underline;text-underline-offset:3px}
 .vibechips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .vibechips button{border:1px solid var(--line);background:var(--chip);color:var(--gold2);border-radius:999px;padding:7px 13px;font-size:13px}
 .vibechips button.on{background:#f3e5bd;border-color:#c9a55f;color:#7c5c13}
@@ -321,13 +326,15 @@ def video_block():
  c=clips[0];v=vid_of(c)
  return ('<div class="lab">讲课原声 · 先听一段</div>'
  f'<h3>《{esc(c["title"])}》· 志远行空原声</h3><p>{esc(c.get("description",""))}</p>'
- f'<div class="stage" id="clip-stage"><button type="button" data-video="{v}" aria-label="播放：{esc(c["title"])}"><img src="{poster_of(c)}" alt="" loading="lazy"><span class="play">▶</span></button></div>')
+ f'<div class="stage" id="clip-stage"><button type="button" data-video="{v}" aria-label="播放：{esc(c["title"])}"><img src="{poster_of(c)}" alt="" loading="lazy"><span class="play">▶</span></button></div>'
+ f'<p class="vopen">这里播不了的话，<a href="https://youtu.be/{v}" target="_blank" rel="noopener">去 YouTube 看这一条 ↗</a></p>')
 def vibe_block():
  c0=vibes[0];v0=vid_of(c0)
  chips=''.join(f'<button type="button" data-vibe="{vid_of(c)}" data-t="{esc(c["title"])}"{" class=\"on\"" if i==0 else ""}>《{esc(c["title"])}》</button>' for i,c in enumerate(vibes))
  return ('<div class="lab">知识大赏 · 小动画</div>'
  f'<h3 id="vibe-title">《{esc(c0["title"])}》</h3>'
  f'<div class="stage" id="vibe-stage"><button type="button" data-video="{v0}" aria-label="播放：{esc(c0["title"])}"><img src="{poster_of(c0)}" alt="" loading="lazy"><span class="play">▶</span></button></div>'
+ f'<p class="vopen">这里播不了的话，<a id="vibe-open" href="https://youtu.be/{v0}" target="_blank" rel="noopener">去 YouTube 看这一条 ↗</a></p>'
  f'<div class="vibechips">{chips}</div>')
 def first_block(b):
  if b['n']==1:return rotator(3)
@@ -439,10 +446,12 @@ js='const cases='+json.dumps(cases,ensure_ascii=False)+';\n'
 js+='const SEARCH='+json.dumps(search_entries,ensure_ascii=False)+';\n'
 js+=r'''
 const hdr=document.querySelector('header');
+const heroEl=document.querySelector('.hero');
 let lastY=0;
 const toTop=document.querySelector('#to-top');
 function onScroll(){
   const y=window.scrollY;
+  if(hdr&&heroEl){hdr.classList.toggle('over-hero',y<heroEl.offsetHeight-120)}
   if(hdr){ if(y>140&&y>lastY+4){hdr.classList.add('hidden');} else if(y<lastY-4||y<=140){hdr.classList.remove('hidden');} }
   lastY=y;
   if(toTop)toTop.hidden=y<600;
@@ -492,6 +501,7 @@ document.querySelectorAll('[data-vibe]').forEach(ch=>{
   ch.onclick=()=>{
     document.querySelectorAll('[data-vibe]').forEach(x=>x.classList.remove('on'));ch.classList.add('on');
     if(vibeTitle)vibeTitle.textContent='《'+ch.dataset.t+'》';
+    const vo=document.getElementById('vibe-open');if(vo)vo.href='https://youtu.be/'+ch.dataset.vibe;
     if(vibeStage){const old=vibeStage.querySelector('button');if(old){old.dataset.video=ch.dataset.vibe;old.setAttribute('aria-label','播放：'+ch.dataset.t);const img=old.querySelector('img');if(img)img.src='https://i.ytimg.com/vi/'+ch.dataset.vibe+'/hqdefault.jpg'}else{playInto(vibeStage,ch.dataset.vibe,ch.dataset.t)}}
   };
 });
