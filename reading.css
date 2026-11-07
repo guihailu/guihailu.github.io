@@ -36,8 +36,14 @@ html:not(.dark) .hero .rays{opacity:.85}
 .hero-seal{position:absolute;top:86px;right:4vw;width:clamp(56px,7vw,92px);z-index:4;filter:drop-shadow(0 8px 22px rgba(0,0,0,.4))}
 .hero .inner{position:relative;padding:120px 20px 90px;max-width:900px;z-index:3}
 .kicker{color:#e8c97a;letter-spacing:8px;font-size:13px;font-family:"Songti SC","STSong",SimSun,serif;text-shadow:0 2px 14px rgba(0,0,0,.55)}
-.hero h1{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-weight:700;font-size:clamp(84px,15vw,160px);margin:10px 0 6px;color:#f5efe0;letter-spacing:.08em;text-shadow:0 6px 44px rgba(0,0,0,.5);line-height:1.1}
-html:not(.dark) .hero h1{color:#17384a;text-shadow:0 0 34px rgba(255,236,170,.95),0 0 90px rgba(255,226,140,.75),0 2px 10px rgba(255,244,200,.8)}
+.hero h1{margin:10px 0 6px;line-height:1.1}
+.hero h1 img{height:clamp(100px,16.5vw,168px);width:auto;max-width:88vw;filter:drop-shadow(0 6px 44px rgba(0,0,0,.55))}
+html:not(.dark) .hero h1 img{filter:invert(1) brightness(.88) drop-shadow(0 0 26px rgba(255,236,170,.9))}
+.title-img{display:block}
+.part h2 .title-img{height:clamp(50px,7vw,80px);width:auto;max-width:100%}
+html:not(.dark) .part h2 .title-img{filter:invert(1) brightness(.82)}
+.board-hero h1 .title-img{height:clamp(58px,8.5vw,96px);width:auto;max-width:100%;margin:0 auto}
+html:not(.dark) .board-hero h1 .title-img{filter:invert(1) brightness(.82)}
 .hero .sub{color:#f0e7cd;font-size:clamp(15px,2vw,18.5px);line-height:2.05;text-shadow:0 2px 16px rgba(0,0,0,.6)}
 html:not(.dark) .hero .sub{color:#fdf6da;text-shadow:0 1px 3px rgba(30,40,20,.65),0 2px 18px rgba(0,0,0,.45)}
 .hl{display:block}

@@ -49,6 +49,8 @@ IMG3=datauri('board3-fajie.webp','image/webp')
 IMG4=datauri('board4-daofa.webp','image/webp')
 HERO_IMG=datauri('hero-fajie.webp','image/webp')
 SEAL_IMG=datauri('seal.png','image/png')
+TITLE_GUIHAI=datauri('title-guihai.webp','image/webp')
+TITLES={1:datauri('title-nixiu.webp','image/webp'),2:datauri('title-linghun.webp','image/webp'),3:datauri('title-fajie.webp','image/webp'),4:datauri('title-daofa.webp','image/webp')}
 BOARDS=[
  {'n':1,'cn':'一','wm':'壹','name':'逆修觉者','img':IMG1,
   'plain':'日子照过，活法换一种——在红尘里把自己修回来。',
@@ -108,8 +110,14 @@ html:not(.dark) .hero .rays{opacity:.85}
 .hero-seal{position:absolute;top:86px;right:4vw;width:clamp(56px,7vw,92px);z-index:4;filter:drop-shadow(0 8px 22px rgba(0,0,0,.4))}
 .hero .inner{position:relative;padding:120px 20px 90px;max-width:900px;z-index:3}
 .kicker{color:#e8c97a;letter-spacing:8px;font-size:13px;font-family:"Songti SC","STSong",SimSun,serif;text-shadow:0 2px 14px rgba(0,0,0,.55)}
-.hero h1{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-weight:700;font-size:clamp(84px,15vw,160px);margin:10px 0 6px;color:#f5efe0;letter-spacing:.08em;text-shadow:0 6px 44px rgba(0,0,0,.5);line-height:1.1}
-html:not(.dark) .hero h1{color:#17384a;text-shadow:0 0 34px rgba(255,236,170,.95),0 0 90px rgba(255,226,140,.75),0 2px 10px rgba(255,244,200,.8)}
+.hero h1{margin:10px 0 6px;line-height:1.1}
+.hero h1 img{height:clamp(100px,16.5vw,168px);width:auto;max-width:88vw;filter:drop-shadow(0 6px 44px rgba(0,0,0,.55))}
+html:not(.dark) .hero h1 img{filter:invert(1) brightness(.88) drop-shadow(0 0 26px rgba(255,236,170,.9))}
+.title-img{display:block}
+.part h2 .title-img{height:clamp(50px,7vw,80px);width:auto;max-width:100%}
+html:not(.dark) .part h2 .title-img{filter:invert(1) brightness(.82)}
+.board-hero h1 .title-img{height:clamp(58px,8.5vw,96px);width:auto;max-width:100%;margin:0 auto}
+html:not(.dark) .board-hero h1 .title-img{filter:invert(1) brightness(.82)}
 .hero .sub{color:#f0e7cd;font-size:clamp(15px,2vw,18.5px);line-height:2.05;text-shadow:0 2px 16px rgba(0,0,0,.6)}
 html:not(.dark) .hero .sub{color:#fdf6da;text-shadow:0 1px 3px rgba(30,40,20,.65),0 2px 18px rgba(0,0,0,.45)}
 .hl{display:block}
@@ -279,7 +287,7 @@ def part_section(b):
  f'<div class="alist"><a href="{article_href(fe["id"])}"><span>从这一篇开始 · {esc(fe["title"])}</span></a>'
  +alist_rows(prev)+'</div>'
  f'<a class="more" href="board{b["n"]}.html">本部全部 {len(es)} 篇 →</a></div>')
- txt=(f'<div class="txt"><span class="tag">第{b["cn"]}部</span><h2>{b["name"]}</h2>'
+ txt=(f'<div class="txt"><span class="tag">第{b["cn"]}部</span><h2><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h2>'
  f'<div class="plain">{b["plain"]}</div><p class="desc">{b["desc"]}</p>'
  f'<div class="firstread">{first_block(b)}</div>'
  f'<div class="doors">{doors(b)}</div>{blist}</div>')
@@ -289,7 +297,7 @@ def part_section(b):
  return f'<section class="{cls}" id="part{b["n"]}"><span class="wm" aria-hidden="true">{b["wm"]}</span>'+inner+'</section>'
 def board_page(b):
  es=board_entries(b['n'])
- body=(f'<section class="board-hero"><span class="tag">第{b["cn"]}部</span><h1>{b["name"]}</h1>'
+ body=(f'<section class="board-hero"><span class="tag">第{b["cn"]}部</span><h1><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h1>'
  f'<div class="plain">{b["plain"]}</div><p>{b["desc"]}</p>'
  f'<p>本部共 {len(es)} 篇，按时间从新到旧排列，点开就是完整原文。</p></section>'
  f'<main class="board-main"><div class="alist">{alist_rows(es)}</div>'
@@ -302,7 +310,7 @@ for e in sorted(entries.values(),key=lambda x:x['id']):
 hero=('<section class="hero">'
  f'<img class="bg" src="{HERO_IMG}" alt="" aria-hidden="true"><div class="rays" aria-hidden="true"></div><div class="dust" id="dust" aria-hidden="true"></div>'
  f'<img class="hero-seal" src="{SEAL_IMG}" alt="归海">'
- '<div class="inner"><div class="kicker">第 一 次 来 · 从 这 里 开 始</div><h1>归海录</h1>'
+ f'<div class="inner"><div class="kicker">第 一 次 来 · 从 这 里 开 始</div><h1><img src="{TITLE_GUIHAI}" alt="归海录"></h1>'
  '<p class="sub"><span class="hl">这里是志远行空讲课内容的整理站</span>'
  '<span class="hl">全部内容分成四部&ensp;<span style="white-space:nowrap">逆修觉者</span>&ensp;<span style="white-space:nowrap">灵魂觉者</span>&ensp;<span style="white-space:nowrap">法界天机</span>&ensp;<span style="white-space:nowrap">道法自然</span></span>'
  '<span class="hl">每一部里都有故事案例、讲课原声和小动画，点开就能看</span>'
