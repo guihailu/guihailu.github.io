@@ -33,9 +33,30 @@ for f in sorted(src.glob('search_index_*.json'))+sorted(src.glob('search_shared.
  except Exception:continue
  for e in data.get('entries',[]):
   if e['id'] not in meta:meta[e['id']]={'date':e.get('date',''),'text':e.get('text','')}
+HOOK_BAD=['大家好','点赞','关注','订阅','谢谢观看','下期见','直播间','评论区','视频里']
+HOOK_SKIP=re.compile(r'^(开场|开头|导语|摘要|本期|这一期|首先)|\d{4}[-/年]\d{1,2}|·\s*\d+:\d{2}')
+def make_hook(e):
+ t=e['text']
+ if t.startswith(e['title']):t=t[len(e['title']):]
+ t=t.strip()
+ t=re.sub(r'^\d{4}[-/年]\d{1,2}([-/月]\d{1,2}日?)?\s*(·\s*\d+:\d{2}(:\d{2})?)?\s*','',t)
+ cands=[]
+ for s in re.split(r'(?<=[。！？])',t):
+  s=s.strip().strip(' " "「」『』')
+  s=re.sub(r'^[\s💡🔸🔹\-—·•"“”\'（(]+','',s)
+  if 12<=len(s)<=70 and not any(b in s for b in HOOK_BAD) and not HOOK_SKIP.search(s[:14]):
+   cands.append(s)
+ for s in cands:
+  if len(s)<=48:return s
+ for s in cands:
+  cut=max(s.rfind(p,0,48) for p in '，；：、——')
+  return (s[:cut+1]+'…') if cut>=16 else (s[:48]+'…')
+ return (t[:44]+'…') if len(t)>44 else t
 for eid,e in entries.items():
  e['date']=meta.get(eid,{}).get('date','')
  e['board']=board_map[eid]['board'] if eid in board_map else 0
+ e['hook']=make_hook(e)
+ e['mins']=max(1,round(len(e['text'])/400))
 missing=[eid for eid in entries if eid not in board_map]
 assert not missing,'board_map missing entries: '+str(missing)
 extra=[eid for eid in board_map if eid not in entries]
@@ -49,6 +70,8 @@ IMG3=datauri('board3-fajie.webp','image/webp')
 IMG4=datauri('board4-daofa.webp','image/webp')
 HERO_IMG=datauri('hero-fajie.webp','image/webp')
 SEAL_IMG=datauri('seal.png','image/png')
+FAVICON=datauri('favicon.png','image/png')
+SITEDESC='志远行空讲课内容的整理站：121 篇讲课整理分成四部——逆修觉者、灵魂觉者、法界天机、道法自然，每部都有故事案例、讲课原声和小动画。'
 TITLE_GUIHAI=datauri('title-guihai.webp','image/webp')
 TITLE_SUB=datauri('title-brandsub.webp','image/webp')
 TITLE_ZHE=datauri('title-zhe.webp','image/webp')
@@ -192,7 +215,9 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .boardlist h4{margin:20px 0 4px;font-size:13px;letter-spacing:2px;color:var(--gold);font-weight:600}
 .alist a{display:flex;justify-content:space-between;gap:14px;padding:10px 4px;border-bottom:1px solid var(--line);font-size:15px;line-height:1.6}
 .alist a:hover{color:var(--gold2)}
-.alist .d{color:var(--sub);font-size:12.5px;white-space:nowrap;padding-top:3px}
+.alist .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.alist .hook{color:var(--sub);font-size:13px;line-height:1.55}
+.alist .d{color:var(--sub);font-size:12.5px;white-space:nowrap;padding-top:3px;text-align:right}
 .more{display:inline-block;margin-top:16px;border:1px solid #c9a55f;color:var(--gold2);border-radius:999px;padding:10px 20px;font-size:14px;background:var(--chip)}
 .library{scroll-margin-top:84px;margin:120px auto 0;max-width:1180px;border:1px solid var(--line);border-radius:18px;padding:clamp(26px,4vw,44px);background:linear-gradient(135deg,var(--card2),var(--card));display:grid;grid-template-columns:1.25fr 1fr;gap:26px;align-items:center}
 .library h2{font-family:"Songti SC",SimSun,serif;font-size:clamp(24px,3.4vw,34px);margin:0 0 10px}
@@ -202,6 +227,11 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .library .years b{display:block;font-size:19px;margin-bottom:3px}
 .library .years span{font-size:12px;color:var(--sub)}
 .board-hero{max-width:1180px;margin:0 auto;padding:130px 22px 0;text-align:center}
+.board-hero .board-art{width:min(880px,100%);max-height:330px;object-fit:cover;border-radius:18px;margin:24px auto 4px;display:block;box-shadow:0 24px 60px var(--shadow)}
+.topics-h1{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(42px,6vw,60px);margin:14px 0 6px}
+.topic{margin:46px 0 8px}
+.topic h2{font-family:"Songti SC","STSong",SimSun,serif;font-size:clamp(22px,3vw,28px);margin:0 0 4px}
+.topic .tdesc{color:var(--sub);margin:0 0 8px;line-height:1.8}
 .board-hero h1{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(46px,7vw,76px);margin:14px 0 8px;letter-spacing:.06em}
 .board-hero .plain{font-size:clamp(18px,2.4vw,23px);color:var(--gold);font-family:"Songti SC",SimSun,serif;line-height:1.6}
 .board-hero p{color:var(--sub);line-height:2;max-width:720px;margin:14px auto 0}
@@ -235,6 +265,9 @@ def shell(title,body,home=False):
  nav=''.join(f'<a href="{navp}#part{b["n"]}">{b["name"]}</a>' for b in BOARDS)
  return ('<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
  '<title>'+esc(title)+'</title>'
+ f'<link rel="icon" type="image/png" href="{FAVICON}">'
+ f'<meta name="description" content="{SITEDESC}">'
+ f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
  '<link rel="stylesheet" href="reading.css"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
@@ -248,8 +281,8 @@ def shell(title,body,home=False):
 def alist_rows(es):
  rows=''
  for e in es:
-  d=f'<span class="d">{esc(e["date"])}</span>' if e['date'] else ''
-  rows+=f'<a href="{article_href(e["id"])}"><span>{esc(e["title"])}</span>{d}</a>'
+  meta_line=f'{esc(e["date"])}<br>约 {e["mins"]} 分钟' if e['date'] else f'约 {e["mins"]} 分钟'
+  rows+=f'<a href="{article_href(e["id"])}"><span class="tx"><span>{esc(e["title"])}</span><span class="hook">{esc(e["hook"])}</span></span><span class="d">{meta_line}</span></a>'
  return rows
 def rotator(start):
  return (f'<div data-rot data-start="{start}"><div class="lab">故事案例 · 一则接一则随机播</div>'
@@ -305,11 +338,40 @@ def part_section(b):
 def board_page(b):
  es=board_entries(b['n'])
  body=(f'<section class="board-hero"><span class="tag">第{b["cn"]}部</span><h1><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h1>'
+ f'<img class="board-art" src="{b["img"]}" alt="" loading="lazy">'
  f'<div class="plain">{b["plain"]}</div><p>{b["desc"]}</p>'
  f'<p>本部共 {len(es)} 篇，按时间从新到旧排列，点开就是完整原文。</p></section>'
  f'<main class="board-main"><div class="alist">{alist_rows(es)}</div>'
  '<p style="margin-top:26px"><a class="more" href="index.html">← 回到首页</a> <a class="more" href="all.html">完整资料库 →</a></p></main>')
  return shell(f'归海录 · {b["name"]}',body)
+PROBLEMS=[
+ {'name':'钱和生意','desc':'赚钱、花钱、做生意栽过跟头，先看看这笔账在讲什么。','kw':['钱','财','生意','经商','创业','投资','股票','赚钱','老板','财富']},
+ {'name':'工作和前途','desc':'换工作、考学、走仕途，卡住的时候先看清局势再动。','kw':['工作','职业','事业','跳槽','职场','上班','考试','高考','体制','当官','行业','转行','辞职','中年危机','适合干什么']},
+ {'name':'家人和关系','desc':'父母、孩子、夫妻之间过不去的坎，先看看别人的故事。','kw':['父母','孩子','夫妻','婚姻','家庭','亲子','婆婆','子女','儿女']},
+ {'name':'身体和心里','desc':'身体出了问题、心静不下来，讲清背后的道理再谈怎么办。','kw':['身体','生病','健康','癌症','医院','焦虑','失眠','情绪','脾气','抑郁']},
+ {'name':'命运和选择','desc':'站在岔路口不知道怎么选，先看懂这盘棋再落子。','kw':['命运','改命','运气','选择','算命','占卜','八字','风水','大运','命里']},
+]
+def problem_entries(p):
+ scored=[]
+ for e in entries.values():
+  th=sum(1 for k in p['kw'] if k in e['title'])
+  tx=len({k for k in p['kw'] if k in e['text']})
+  lead=len({k for k in p['kw'] if k in e['text'][:600]})
+  s=3*th+tx
+  if s>=3 and (th>=1 or s>=5):scored.append((s+lead,e['date'] or '0000',e))
+ scored.sort(key=lambda x:(x[0],x[1]),reverse=True)
+ return [e for s,d,e in scored]
+def topics_page():
+ secs=''
+ for p in PROBLEMS:
+  es=problem_entries(p)
+  secs+=(f'<section class="topic"><h2>{p["name"]}</h2><p class="tdesc">{p["desc"]}这一类共选出 {len(es)} 篇，先读靠前的几篇。</p>'
+  f'<div class="alist">{alist_rows(es[:12])}</div></section>')
+ body=('<section class="board-hero"><span class="tag">资料库</span><h1 class="topics-h1">按问题找</h1>'
+ '<p>不用先弄懂四部是什么。带着你现在最头疼的问题来，从下面挑一篇开始读，就是入口。</p></section>'
+ f'<main class="board-main">{secs}'
+ '<p style="margin-top:26px"><a class="more" href="index.html">← 回到首页</a> <a class="more" href="all.html">完整资料库 →</a></p></main>')
+ return shell('归海录 · 按问题找',body)
 search_entries=[]
 for e in sorted(entries.values(),key=lambda x:x['id']):
  t=' '.join(meta.get(e['id'],{}).get('text','').split())[:240]
@@ -337,11 +399,13 @@ library=(f'<section class="library reveal" id="library"><div><h2>完整资料库
  f'<a href="2026.html"><b>2026 年</b><span>{counts["2026"]} 篇</span></a>'
  f'<a href="2025.html"><b>2025 年</b><span>{counts["2025"]} 篇</span></a>'
  f'<a href="2024.html"><b>2024 年</b><span>{counts["2024"]} 篇</span></a>'
- f'<a href="all.html"><b>全部文章</b><span>{total} 篇 · 全文搜索</span></a></div></section>')
+ f'<a href="all.html"><b>全部文章</b><span>{total} 篇 · 全文搜索</span></a>'
+ '<a href="topics.html" style="grid-column:1/-1"><b>按问题找</b><span>钱 · 工作 · 家人 · 身体 · 命运——按你带着来的问题选篇</span></a></div></section>')
 index_body=hero+'<main>'+intro+''.join(part_section(b) for b in BOARDS)+library+'</main>'
 (out/'index.html').write_text(shell('归海录 · 志远行空讲课整理',index_body,home=True),encoding='utf-8')
 for b in BOARDS:
  (out/f'board{b["n"]}.html').write_text(board_page(b),encoding='utf-8')
+(out/'topics.html').write_text(topics_page(),encoding='utf-8')
 (out/'domestic.html').write_text('<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=all.html"><title>归海录 · 完整资料库</title><p>正在进入<a href="all.html">完整资料库</a>…</p>',encoding='utf-8')
 related=('<section class="board-hero"><span class="tag">知识大赏</span><h1>换个角度看人生</h1><p>小动画对应的完整原文都在这里，点开就是全文。</p></section>'
  '<main class="board-main"><div class="alist">'
@@ -431,7 +495,7 @@ for b in BOARDS:
 idx=(out/'index.html').read_text(encoding='utf-8')
 assert 'douyin' not in idx.lower()
 assert '未编年' not in idx
-for page in ['index.html','board1.html','board2.html','board3.html','board4.html','vibe.html']:
+for page in ['index.html','board1.html','board2.html','board3.html','board4.html','vibe.html','topics.html']:
  soup=BeautifulSoup((out/page).read_text(encoding='utf-8'),'html.parser')
  for a in soup.select('a[href]'):
   href=a['href'].split('#')[0]

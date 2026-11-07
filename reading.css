@@ -115,7 +115,9 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .boardlist h4{margin:20px 0 4px;font-size:13px;letter-spacing:2px;color:var(--gold);font-weight:600}
 .alist a{display:flex;justify-content:space-between;gap:14px;padding:10px 4px;border-bottom:1px solid var(--line);font-size:15px;line-height:1.6}
 .alist a:hover{color:var(--gold2)}
-.alist .d{color:var(--sub);font-size:12.5px;white-space:nowrap;padding-top:3px}
+.alist .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.alist .hook{color:var(--sub);font-size:13px;line-height:1.55}
+.alist .d{color:var(--sub);font-size:12.5px;white-space:nowrap;padding-top:3px;text-align:right}
 .more{display:inline-block;margin-top:16px;border:1px solid #c9a55f;color:var(--gold2);border-radius:999px;padding:10px 20px;font-size:14px;background:var(--chip)}
 .library{scroll-margin-top:84px;margin:120px auto 0;max-width:1180px;border:1px solid var(--line);border-radius:18px;padding:clamp(26px,4vw,44px);background:linear-gradient(135deg,var(--card2),var(--card));display:grid;grid-template-columns:1.25fr 1fr;gap:26px;align-items:center}
 .library h2{font-family:"Songti SC",SimSun,serif;font-size:clamp(24px,3.4vw,34px);margin:0 0 10px}
@@ -125,6 +127,11 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .library .years b{display:block;font-size:19px;margin-bottom:3px}
 .library .years span{font-size:12px;color:var(--sub)}
 .board-hero{max-width:1180px;margin:0 auto;padding:130px 22px 0;text-align:center}
+.board-hero .board-art{width:min(880px,100%);max-height:330px;object-fit:cover;border-radius:18px;margin:24px auto 4px;display:block;box-shadow:0 24px 60px var(--shadow)}
+.topics-h1{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(42px,6vw,60px);margin:14px 0 6px}
+.topic{margin:46px 0 8px}
+.topic h2{font-family:"Songti SC","STSong",SimSun,serif;font-size:clamp(22px,3vw,28px);margin:0 0 4px}
+.topic .tdesc{color:var(--sub);margin:0 0 8px;line-height:1.8}
 .board-hero h1{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(46px,7vw,76px);margin:14px 0 8px;letter-spacing:.06em}
 .board-hero .plain{font-size:clamp(18px,2.4vw,23px);color:var(--gold);font-family:"Songti SC",SimSun,serif;line-height:1.6}
 .board-hero p{color:var(--sub);line-height:2;max-width:720px;margin:14px auto 0}
