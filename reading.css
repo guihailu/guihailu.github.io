@@ -23,8 +23,7 @@ nav{display:flex;gap:16px;align-items:center}
 nav a{opacity:.92;font-family:"Songti SC","STSong",SimSun,serif;font-size:16.5px;font-weight:700;letter-spacing:2.5px;position:relative;color:var(--ink);padding:7px 13px;border:1px solid transparent;border-radius:999px;transition:border-color .25s ease,background .25s ease}
 nav a .navimg{height:26px;width:auto;display:block}
 html:not(.dark) nav a .navimg{filter:invert(1) brightness(.82)}
-nav a::after{content:'';position:absolute;left:0;right:0;bottom:-7px;height:1px;background:#c9a55f;transform:scaleX(0);transform-origin:left;transition:transform .35s ease}
-nav a:hover{opacity:1;border-color:rgba(201,165,95,.9);background:rgba(201,165,95,.12)}nav a:hover::after{transform:scaleX(1)}
+nav a:hover{opacity:1;border-color:rgba(201,165,95,.9);background:rgba(201,165,95,.12)}
 #theme-toggle{border:1px solid #b6a378;background:transparent;color:var(--ink);border-radius:999px;padding:7px 13px;line-height:1}
 #to-top{position:fixed;right:22px;bottom:22px;z-index:55;background:#c9a55f;color:#101f2c;border:0;border-radius:999px;padding:12px 17px;font-weight:700;box-shadow:0 10px 26px rgba(0,0,0,.3)}
 .hero{position:relative;min-height:100svh;display:grid;place-items:center;text-align:center;overflow:hidden}
