@@ -26,24 +26,29 @@ for p in sorted(src.glob('*.html')):
     if not asset.is_relative_to(src.resolve()) or not asset.is_file():raise ValueError('Missing source asset: '+u.path)
     target=out/unquote(u.path);target.parent.mkdir(parents=True,exist_ok=True);
     if asset.resolve()!=target.resolve():shutil.copyfile(asset,target)
-  entries[d['id']]={'id':d['id'],'title':title,'body':str(d),'text':d.get_text(' ',strip=True),'page':p.name}
+  entries[d['id']]={'id':d['id'],'title':title,'raw':title,'body':str(d),'text':d.get_text(' ',strip=True),'page':p.name}
 meta={}
 for f in sorted(src.glob('search_index_*.json'))+sorted(src.glob('search_shared.json')):
  try:data=json.loads(f.read_text(encoding='utf-8'))
  except Exception:continue
  for e in data.get('entries',[]):
   if e['id'] not in meta:meta[e['id']]={'date':e.get('date',''),'text':e.get('text','')}
+def clean_title(t):
+ m=re.match(r'^EP\s?\d+\s+(.{1,14}?)·\s*(.+)$',t)
+ if m:return m.group(2)
+ return re.sub(r'^EP\s?\d+\s+','',t)
 HOOK_BAD=['大家好','点赞','关注','订阅','谢谢观看','下期见','直播间','评论区','视频里']
 HOOK_SKIP=re.compile(r'^(开场|开头|导语|摘要|本期|这一期|首先)|\d{4}[-/年]\d{1,2}|·\s*\d+:\d{2}')
 def make_hook(e):
  t=e['text']
- if t.startswith(e['title']):t=t[len(e['title']):]
+ raw=e.get('raw',e['title'])
+ if t.startswith(raw):t=t[len(raw):]
  t=t.strip()
  t=re.sub(r'^\d{4}[-/年]\d{1,2}([-/月]\d{1,2}日?)?\s*(·\s*\d+:\d{2}(:\d{2})?)?\s*','',t)
  cands=[]
  for s in re.split(r'(?<=[。！？])',t):
   s=s.strip().strip(' " "「」『』')
-  s=re.sub(r'^[\s💡🔸🔹\-—·•"“”\'（(]+','',s)
+  s=re.sub(r'^[\s💡🔸🔹🎯\-—·•"“”\'（(]+','',s)
   if 12<=len(s)<=70 and not any(b in s for b in HOOK_BAD) and not HOOK_SKIP.search(s[:14]):
    cands.append(s)
  for s in cands:
@@ -55,6 +60,7 @@ def make_hook(e):
 for eid,e in entries.items():
  e['date']=meta.get(eid,{}).get('date','')
  e['board']=board_map[eid]['board'] if eid in board_map else 0
+ e['title']=clean_title(e['title'])
  e['hook']=make_hook(e)
  e['mins']=max(1,round(len(e['text'])/400))
 missing=[eid for eid in entries if eid not in board_map]
@@ -77,6 +83,7 @@ TITLE_SUB=datauri('title-brandsub.webp','image/webp')
 TITLE_ZHE=datauri('title-zhe.webp','image/webp')
 WMIMG={1:datauri('title-wm1.webp','image/webp'),2:datauri('title-wm2.webp','image/webp'),3:datauri('title-wm3.webp','image/webp'),4:datauri('title-wm4.webp','image/webp')}
 TITLES={1:datauri('title-nixiu.webp','image/webp'),2:datauri('title-linghun.webp','image/webp'),3:datauri('title-fajie.webp','image/webp'),4:datauri('title-daofa.webp','image/webp')}
+TITLE_LIB=datauri('title-lib.webp','image/webp')
 BOARDS=[
  {'n':1,'cn':'一','wm':'壹','name':'逆修觉者','img':IMG1,
   'plain':'日子照过，活法换一种——在红尘里把自己修回来。',
@@ -97,7 +104,9 @@ BOARDS=[
 ]
 def board_entries(n):
  es=[e for e in entries.values() if e['board']==n]
- return sorted(es,key=lambda e:(e['date'] or '0000',e['id']),reverse=True)
+ es=sorted(es,key=lambda e:(e['date'] or '0000',e['id']),reverse=True)
+ es.sort(key=lambda e:0 if 'video' in e else 1)
+ return es
 css='''*{box-sizing:border-box}
 :root{--bg:#f3ecd9;--ink:#1b2f3c;--sub:#51626c;--card:#fffaf0;--card2:#f7efdb;--line:#d8cba6;--gold:#8a6a24;--gold2:#7c5c13;--chip:#fffaf0;--shadow:rgba(90,70,20,.18)}
 html.dark{--bg:#0a141f;--ink:#ede4cd;--sub:#a7b5ba;--card:#101f2c;--card2:#0e1e2e;--line:#2c4353;--gold:#c9a55f;--gold2:#f0d48a;--chip:transparent;--shadow:rgba(0,0,0,.4)}
@@ -113,11 +122,13 @@ html.dark header .brand,html.dark header nav a{text-shadow:0 1px 12px rgba(4,10,
 html:not(.dark) header .brand,html:not(.dark) header nav a{text-shadow:0 1px 12px rgba(250,244,226,.95),0 0 3px rgba(250,244,226,.9)}
 .brand{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:29px;font-weight:700;display:block;width:148px;color:var(--ink)}
 .brand img{display:block}
-.brand .bimg1{height:33px;width:auto}
-.brand .bimg2{height:15.5px;width:auto;margin-top:4px}
+.brand .bimg1{width:100%;height:auto;display:block}
+.brand .bimg2{width:100%;height:auto;display:block;margin-top:4px}
 html:not(.dark) .brand img{filter:invert(1) brightness(.85)}
 nav{display:flex;gap:26px;align-items:center}
 nav a{opacity:.92;font-family:"Songti SC","STSong",SimSun,serif;font-size:16.5px;font-weight:700;letter-spacing:2.5px;position:relative;color:var(--ink)}
+nav a .navimg{height:21px;width:auto;display:block}
+html:not(.dark) nav a .navimg{filter:invert(1) brightness(.82)}
 nav a::after{content:'';position:absolute;left:0;right:0;bottom:-7px;height:1px;background:#c9a55f;transform:scaleX(0);transform-origin:left;transition:transform .35s ease}
 nav a:hover{opacity:1}nav a:hover::after{transform:scaleX(1)}
 #theme-toggle{border:1px solid #b6a378;background:transparent;color:var(--ink);border-radius:999px;padding:7px 13px;line-height:1}
@@ -217,6 +228,7 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .alist a:hover{color:var(--gold2)}
 .alist .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
 .alist .hook{color:var(--sub);font-size:13px;line-height:1.55}
+.alist .vchip{display:inline-block;background:#a52a21;color:#fff;font-size:11px;line-height:1;padding:3px 8px;border-radius:999px;margin-left:8px;vertical-align:2px;white-space:nowrap;letter-spacing:1px}
 .alist .d{color:var(--sub);font-size:12.5px;white-space:nowrap;padding-top:3px;text-align:right}
 .more{display:inline-block;margin-top:16px;border:1px solid #c9a55f;color:var(--gold2);border-radius:999px;padding:10px 20px;font-size:14px;background:var(--chip)}
 .library{scroll-margin-top:84px;margin:120px auto 0;max-width:1180px;border:1px solid var(--line);border-radius:18px;padding:clamp(26px,4vw,44px);background:linear-gradient(135deg,var(--card2),var(--card));display:grid;grid-template-columns:1.25fr 1fr;gap:26px;align-items:center}
@@ -262,7 +274,7 @@ def article_href(article_id):
 LARK='https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf'
 def shell(title,body,home=False):
  navp='' if home else 'index.html'
- nav=''.join(f'<a href="{navp}#part{b["n"]}">{b["name"]}</a>' for b in BOARDS)
+ nav=''.join(f'<a href="{navp}#part{b["n"]}" aria-label="{b["name"]}"><img class="navimg" src="{TITLES[b["n"]]}" alt="{b["name"]}"></a>' for b in BOARDS)
  return ('<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
  '<title>'+esc(title)+'</title>'
  f'<link rel="icon" type="image/png" href="{FAVICON}">'
@@ -272,7 +284,7 @@ def shell(title,body,home=False):
  '<link rel="stylesheet" href="reading.css"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
- '<nav>'+nav+'<a href="all.html">资料库</a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
+ '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+TITLE_LIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
  +body+
  f'<footer><div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt=""></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
@@ -282,7 +294,8 @@ def alist_rows(es):
  rows=''
  for e in es:
   meta_line=f'{esc(e["date"])}<br>约 {e["mins"]} 分钟' if e['date'] else f'约 {e["mins"]} 分钟'
-  rows+=f'<a href="{article_href(e["id"])}"><span class="tx"><span>{esc(e["title"])}</span><span class="hook">{esc(e["hook"])}</span></span><span class="d">{meta_line}</span></a>'
+  chip='<span class="vchip">▶ 有视频</span>' if 'video' in e else ''
+  rows+=f'<a href="{article_href(e["id"])}"><span class="tx"><span>{esc(e["title"])}{chip}</span><span class="hook">{esc(e["hook"])}</span></span><span class="d">{meta_line}</span></a>'
  return rows
 def rotator(start):
  return (f'<div data-rot data-start="{start}"><div class="lab">故事案例 · 一则接一则随机播</div>'
@@ -293,6 +306,13 @@ vibes=json.loads((src/'vibe_cards.json').read_text(encoding='utf-8'))['cards']
 vibes=sorted((c for c in vibes if c.get('status')=='published' and c.get('youtube_url')),key=lambda x:x['published_at'])
 clips=json.loads((src/'video_cards.json').read_text(encoding='utf-8'))['cards']
 clips=sorted((c for c in clips if c.get('status')=='published' and c.get('youtube_url')),key=lambda x:x['published_at'],reverse=True)
+# 文章↔Vibe视频对照（逐条按标题/正文核对后写死；新增视频先核对再加行，勿自动猜配）
+VIDEO_MAP={'ghl-000018':('li_zfTRp690','卡车司机理论'),'ghl-000004':('jvRbI_nnxxM','聪明人走进死局'),'ghl-000022':('boVkmwiauS4','人生如棋，别做那个臭棋篓子'),'ghl-000026':('q6wj4WzT1XE','选择大于努力')}
+_vibe_urls={c['youtube_url'].rsplit('/',1)[-1] for c in vibes}
+for _eid,(_vid,_vt) in VIDEO_MAP.items():
+ assert _vid in _vibe_urls,'VIDEO_MAP video not in published vibe cards: '+_vid
+ assert _eid in entries,'VIDEO_MAP unknown article: '+_eid
+ entries[_eid]['video']=(_vid,_vt)
 def vid_of(c):return c['youtube_url'].rstrip('/').split('/')[-1].split('?')[0]
 def poster_of(c):
  v=vid_of(c)
@@ -322,9 +342,10 @@ def doors(b):
 def part_section(b):
  es=board_entries(b['n'])
  fe=entries[b['first']]
+ fechip='<span class="vchip">▶ 有视频</span>' if 'video' in fe else ''
  prev=[e for e in es if e['id']!=b['first']][:5]
  blist=('<div class="boardlist"><h4>本部文章 · 共 '+str(len(es))+' 篇</h4>'
- f'<div class="alist"><a href="{article_href(fe["id"])}"><span>从这一篇开始 · {esc(fe["title"])}</span></a>'
+ f'<div class="alist"><a href="{article_href(fe["id"])}"><span>从这一篇开始 · {esc(fe["title"])}{fechip}</span></a>'
  +alist_rows(prev)+'</div>'
  f'<a class="more" href="board{b["n"]}.html">本部全部 {len(es)} 篇 →</a></div>')
  txt=(f'<div class="txt"><span class="tag">第{b["cn"]}部</span><h2><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h2>'
@@ -340,7 +361,7 @@ def board_page(b):
  body=(f'<section class="board-hero"><span class="tag">第{b["cn"]}部</span><h1><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h1>'
  f'<img class="board-art" src="{b["img"]}" alt="" loading="lazy">'
  f'<div class="plain">{b["plain"]}</div><p>{b["desc"]}</p>'
- f'<p>本部共 {len(es)} 篇，按时间从新到旧排列，点开就是完整原文。</p></section>'
+ f'<p>本部共 {len(es)} 篇：有视频版的排在前面，其余按时间从新到旧，点开就是完整原文。</p></section>'
  f'<main class="board-main"><div class="alist">{alist_rows(es)}</div>'
  '<p style="margin-top:26px"><a class="more" href="index.html">← 回到首页</a> <a class="more" href="all.html">完整资料库 →</a></p></main>')
  return shell(f'归海录 · {b["name"]}',body)
@@ -360,7 +381,9 @@ def problem_entries(p):
   s=3*th+tx
   if s>=3 and (th>=1 or s>=5):scored.append((s+lead,e['date'] or '0000',e))
  scored.sort(key=lambda x:(x[0],x[1]),reverse=True)
- return [e for s,d,e in scored]
+ es=[e for s,d,e in scored]
+ es.sort(key=lambda e:0 if 'video' in e else 1)
+ return es
 def topics_page():
  secs=''
  for p in PROBLEMS:

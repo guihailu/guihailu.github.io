@@ -13,11 +13,13 @@ html.dark header .brand,html.dark header nav a{text-shadow:0 1px 12px rgba(4,10,
 html:not(.dark) header .brand,html:not(.dark) header nav a{text-shadow:0 1px 12px rgba(250,244,226,.95),0 0 3px rgba(250,244,226,.9)}
 .brand{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:29px;font-weight:700;display:block;width:148px;color:var(--ink)}
 .brand img{display:block}
-.brand .bimg1{height:33px;width:auto}
-.brand .bimg2{height:15.5px;width:auto;margin-top:4px}
+.brand .bimg1{width:100%;height:auto;display:block}
+.brand .bimg2{width:100%;height:auto;display:block;margin-top:4px}
 html:not(.dark) .brand img{filter:invert(1) brightness(.85)}
 nav{display:flex;gap:26px;align-items:center}
 nav a{opacity:.92;font-family:"Songti SC","STSong",SimSun,serif;font-size:16.5px;font-weight:700;letter-spacing:2.5px;position:relative;color:var(--ink)}
+nav a .navimg{height:21px;width:auto;display:block}
+html:not(.dark) nav a .navimg{filter:invert(1) brightness(.82)}
 nav a::after{content:'';position:absolute;left:0;right:0;bottom:-7px;height:1px;background:#c9a55f;transform:scaleX(0);transform-origin:left;transition:transform .35s ease}
 nav a:hover{opacity:1}nav a:hover::after{transform:scaleX(1)}
 #theme-toggle{border:1px solid #b6a378;background:transparent;color:var(--ink);border-radius:999px;padding:7px 13px;line-height:1}
@@ -117,6 +119,7 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .alist a:hover{color:var(--gold2)}
 .alist .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
 .alist .hook{color:var(--sub);font-size:13px;line-height:1.55}
+.alist .vchip{display:inline-block;background:#a52a21;color:#fff;font-size:11px;line-height:1;padding:3px 8px;border-radius:999px;margin-left:8px;vertical-align:2px;white-space:nowrap;letter-spacing:1px}
 .alist .d{color:var(--sub);font-size:12.5px;white-space:nowrap;padding-top:3px;text-align:right}
 .more{display:inline-block;margin-top:16px;border:1px solid #c9a55f;color:var(--gold2);border-radius:999px;padding:10px 20px;font-size:14px;background:var(--chip)}
 .library{scroll-margin-top:84px;margin:120px auto 0;max-width:1180px;border:1px solid var(--line);border-radius:18px;padding:clamp(26px,4vw,44px);background:linear-gradient(135deg,var(--card2),var(--card));display:grid;grid-template-columns:1.25fr 1fr;gap:26px;align-items:center}
