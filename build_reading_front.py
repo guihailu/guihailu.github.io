@@ -279,6 +279,15 @@ def article_href(article_id):
  return (e['page']+'#'+article_id) if e else ('all.html#'+article_id)
 LARK='https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf'
 def shell(title,body,home=False):
+ seo=''
+ if home:
+  canonical='https://guihailu.github.io/'
+  ld=json.dumps({'@context':'https://schema.org','@type':'WebSite','name':'归海录 · 志远行空','url':canonical,'description':'归海录：志远行空的公开分享与 YouTube 视频讲法合集','inLanguage':'zh-CN'},ensure_ascii=False)
+  seo=('<link rel="canonical" href="'+canonical+'">'
+       '<meta property="og:url" content="'+canonical+'">'
+       '<meta property="og:image" content="https://guihailu.github.io/cover.jpg">'
+       '<meta name="twitter:card" content="summary_large_image">'
+       '<script type="application/ld+json">'+ld+'</script>')
  navp='' if home else 'index.html'
  nav=''.join(f'<a href="{navp}#part{b["n"]}" aria-label="{b["name"]}"><img class="navimg" src="{TITLES[b["n"]]}" alt="{b["name"]}"></a>' for b in BOARDS)
  return ('<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
@@ -286,6 +295,7 @@ def shell(title,body,home=False):
  f'<link rel="icon" type="image/png" href="{FAVICON}">'
  f'<meta name="description" content="{SITEDESC}">'
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
+ +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
  '<link rel="stylesheet" href="reading.css"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
