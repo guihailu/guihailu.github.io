@@ -91,7 +91,7 @@ BOARDS=[
   'plain':'日子照过活法换一种<br>在红尘里把自己修回来',
   'desc':'这一部讲的是普通人的修行：为什么修、修行到底是什么、从哪儿开始。福报怎么做、话怎么说、事怎么做，逆修自查一条条对着自己量。离生活最近的一部，先从这里进门。',
   'first':'ghl-000018'},
- {'n':2,'cn':'二','wm':'贰','name':'灵魂觉者','img':IMG2,
+ {'n':2,'cn':'二','wm':'貳','name':'灵魂觉者','img':IMG2,
   'plain':'人除了身体还有一个<br>「自己」在水底下',
   'desc':'这一部讲灵魂这一层：灵魂是怎么回事，洗灵有什么用，人在镜子里外是怎样两个样子。听着玄，其实讲的都是为什么你明明想做好、却总是做不到。',
   'first':'ghl-000070'},
@@ -210,8 +210,8 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .part{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(22px,4vw,54px);margin-top:110px;align-items:start;scroll-margin-top:84px;position:relative}
 .part.flip{grid-template-columns:1fr 1.15fr}
 .part ~ .part::after{content:'';position:absolute;top:-58px;left:50%;transform:translateX(-50%);width:min(430px,62%);height:1px;background:linear-gradient(90deg,transparent,rgba(201,165,95,.55),transparent)}
-.part .wm{position:absolute;top:-40px;right:-4px;height:clamp(180px,21vw,300px);width:auto;opacity:.13;pointer-events:none;user-select:none;z-index:0}
-html:not(.dark) .part .wm{filter:invert(1) brightness(.85);opacity:.10}
+.part .wm{position:absolute;top:-110px;right:-4px;height:clamp(260px,30vw,440px);width:auto;opacity:.19;pointer-events:none;user-select:none;z-index:0}
+html:not(.dark) .part .wm{filter:invert(1) brightness(.85);opacity:.24}
 .part.flip .wm{right:auto;left:-4px}
 .part .art{position:sticky;top:96px;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px var(--shadow);z-index:1;background:#0d1826;min-height:180px}
 .part .art::after{content:'';position:absolute;inset:11px;border:1px solid rgba(240,212,138,.38);border-radius:9px;pointer-events:none}
@@ -340,7 +340,7 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261108p6"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261108p7"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
@@ -348,7 +348,7 @@ def shell(title,body,home=False):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261108p6"></script></body></html>')
+ '<script src="reading.js?v=20261108p7"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:

@@ -99,8 +99,8 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .part{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(22px,4vw,54px);margin-top:110px;align-items:start;scroll-margin-top:84px;position:relative}
 .part.flip{grid-template-columns:1fr 1.15fr}
 .part ~ .part::after{content:'';position:absolute;top:-58px;left:50%;transform:translateX(-50%);width:min(430px,62%);height:1px;background:linear-gradient(90deg,transparent,rgba(201,165,95,.55),transparent)}
-.part .wm{position:absolute;top:-40px;right:-4px;height:clamp(180px,21vw,300px);width:auto;opacity:.13;pointer-events:none;user-select:none;z-index:0}
-html:not(.dark) .part .wm{filter:invert(1) brightness(.85);opacity:.10}
+.part .wm{position:absolute;top:-110px;right:-4px;height:clamp(260px,30vw,440px);width:auto;opacity:.19;pointer-events:none;user-select:none;z-index:0}
+html:not(.dark) .part .wm{filter:invert(1) brightness(.85);opacity:.24}
 .part.flip .wm{right:auto;left:-4px}
 .part .art{position:sticky;top:96px;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px var(--shadow);z-index:1;background:#0d1826;min-height:180px}
 .part .art::after{content:'';position:absolute;inset:11px;border:1px solid rgba(240,212,138,.38);border-radius:9px;pointer-events:none}
