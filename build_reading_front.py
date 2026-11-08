@@ -114,6 +114,8 @@ css='''*{box-sizing:border-box}
 html.dark{--bg:#0a141f;--ink:#ede4cd;--sub:#a7b5ba;--card:#101f2c;--card2:#0e1e2e;--line:#2c4353;--gold:#c9a55f;--gold2:#f0d48a;--chip:transparent;--shadow:rgba(0,0,0,.4)}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden;transition:background .4s,color .4s}
+body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 52'%3E%3Cg fill='none' stroke='%23c9a55f' stroke-opacity='.032' stroke-width='2'%3E%3Cpath d='M32 6C39 17 39 27 32 37C25 27 25 17 32 6Z'/%3E%3Cpath d='M15 13C23 19 25 29 23 38C15 34 11 23 15 13Z'/%3E%3Cpath d='M49 13C41 19 39 29 41 38C49 34 53 23 49 13Z'/%3E%3Cpath d='M8 44C20 49 44 49 56 44'/%3E%3C/g%3E%3C/svg%3E");background-size:168px auto}
+html.dark body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 52'%3E%3Cg fill='none' stroke='%23c9a55f' stroke-opacity='.026' stroke-width='2'%3E%3Cpath d='M32 6C39 17 39 27 32 37C25 27 25 17 32 6Z'/%3E%3Cpath d='M15 13C23 19 25 29 23 38C15 34 11 23 15 13Z'/%3E%3Cpath d='M49 13C41 19 39 29 41 38C49 34 53 23 49 13Z'/%3E%3Cpath d='M8 44C20 49 44 49 56 44'/%3E%3C/g%3E%3C/svg%3E")}
 a{color:inherit;text-decoration:none}
 button{font:inherit;cursor:pointer}
 ::selection{background:#c9a55f;color:#101f2c}
@@ -282,6 +284,19 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .board-main{max-width:900px;margin:0 auto;padding:26px 22px 20px}
 .board-main .alist a{font-size:16.5px;padding:13px 4px}
 footer{text-align:center;color:var(--sub);font-size:12.5px;padding:44px 10px 50px;position:relative}
+::selection{background:rgba(201,165,95,.32)}
+html{scrollbar-color:rgba(201,165,95,.55) transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:rgba(201,165,95,.45);border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+.foot-orn{display:flex;align-items:center;gap:12px;justify-content:center;margin:0 auto 18px;color:#b3862c;max-width:420px}
+.foot-orn i{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line))}
+.foot-orn i:last-child{background:linear-gradient(90deg,var(--line),transparent)}
+html.dark .foot-orn{color:#e6c578}
+.orn-div{display:flex;align-items:center;gap:14px;justify-content:center;max-width:760px;margin:26px auto 6px;padding:0 22px;color:#b3862c}
+.orn-div i{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line))}
+.orn-div i:last-child{background:linear-gradient(90deg,var(--line),transparent)}
+html.dark .orn-div{color:#e6c578}
 .footwm{user-select:none}
 .footwm img{height:clamp(80px,12vw,150px);width:auto;opacity:.16}
 html:not(.dark) .footwm img{filter:invert(1) brightness(.85);opacity:.13}
@@ -324,15 +339,15 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261108p3"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261108p4"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
  +body+
- f'<footer><div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
+ f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261108p3"></script></body></html>')
+ '<script src="reading.js?v=20261108p4"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -401,12 +416,14 @@ def part_section(b):
  inner=(txt+art) if b['n']%2==0 else (art+txt)
  cls='part flip reveal' if b['n']%2==0 else 'part reveal'
  return f'<section class="{cls}" id="part{b["n"]}"><img class="wm" src="{WMIMG[b["n"]]}" alt="" aria-hidden="true">'+inner+'</section>'
+_LOTUS_CC='<svg width="22" height="18" viewBox="0 0 64 52" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path d="M32 6 C39 17 39 27 32 37 C25 27 25 17 32 6 Z"/><path d="M15 13 C23 19 25 29 23 38 C15 34 11 23 15 13 Z"/><path d="M49 13 C41 19 39 29 41 38 C49 34 53 23 49 13 Z"/><path d="M3 25 C11 27 15 33 16 40 C9 40 4 34 3 25 Z"/><path d="M61 25 C53 27 49 33 48 40 C55 40 60 34 61 25 Z"/><path d="M8 44 C20 49 44 49 56 44"/></svg>'
+ORN_DIV='<div class="orn-div" aria-hidden="true"><i></i>'+_LOTUS_CC+'<i></i></div>'
 def board_page(b):
  es=board_entries(b['n'])
  body=(f'<section class="board-hero"><span class="tag">第{b["cn"]}部</span><h1><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h1>'
  f'<img class="board-art" src="{b["img"]}" alt="" loading="lazy">'
  f'<div class="plain">{b["plain"]}</div><p>{b["desc"]}</p>'
- f'<p>本部共 {len(es)} 篇：有视频版的排在前面，其余按时间从新到旧，点开就是完整原文。</p></section>'
+ f'<p>本部共 {len(es)} 篇：有视频版的排在前面，其余按时间从新到旧，点开就是完整原文。</p></section>'+ORN_DIV+
  f'<main class="board-main"><div class="alist">{alist_rows(es)}</div>'
  '<p style="margin-top:26px"><a class="more" href="index.html">← 回到首页</a> <a class="more" href="all.html">完整资料库 →</a></p></main>')
  return shell(f'归海录 · {b["name"]}',body)
@@ -470,7 +487,7 @@ library=(f'<section class="library reveal" id="library"><div><h2>完整资料库
  f'<a href="2024.html"><b>2024 年</b><span>{counts["2024"]} 篇</span></a>'
  f'<a href="all.html"><b>全部文章</b><span>{total} 篇 · 全文搜索</span></a>'
  '<a href="topics.html" style="grid-column:1/-1"><b>按问题找</b><span>钱 · 工作 · 家人 · 身体 · 命运——按你带着来的问题选篇</span></a></div></section>')
-index_body=hero+'<main>'+intro+''.join(part_section(b) for b in BOARDS)+library+'</main>'
+index_body=hero+'<main>'+intro+''.join(part_section(b) for b in BOARDS)+ORN_DIV+library+'</main>'
 (out/'index.html').write_text(shell('归海录 · 志远行空讲课整理',index_body,home=True),encoding='utf-8')
 for b in BOARDS:
  (out/f'board{b["n"]}.html').write_text(board_page(b),encoding='utf-8')
