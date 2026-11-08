@@ -924,7 +924,7 @@ _home_search = ('<div class="searchbar" id="searchbar" role="search"><div class=
                 '<input id="q" type="search" placeholder="搜索全文… 试试：怎么看人 / 烧纸 / 改命" autocomplete="off" '
                 'aria-label="搜索全文" role="combobox" aria-autocomplete="list" aria-controls="qres" aria-expanded="false">'
                 '<div id="qres" aria-live="polite" aria-label="搜索结果"></div>'
-                '<p class="search-hint">试试搜：<button type="button" class="qchip" data-q="怎么看人">怎么看人</button><button type="button" class="qchip" data-q="烧纸">烧纸</button><button type="button" class="qchip" data-q="天眼">天眼</button><button type="button" class="qchip" data-q="福报">福报</button><button type="button" class="qchip" data-q="轮回">轮回</button><button type="button" class="qchip" data-q="改命">改命</button></p></div></div>')
+                '<p class="search-hint">试试搜：<button type="button" class="qchip" data-q="修行">修行</button><button type="button" class="qchip" data-q="因果">因果</button><button type="button" class="qchip" data-q="福报">福报</button><button type="button" class="qchip" data-q="轮回">轮回</button><button type="button" class="qchip" data-q="孩子">孩子</button><button type="button" class="qchip" data-q="菩萨">菩萨</button></p></div></div>')
 
 # 首页编辑选读：短题与导读为编辑拟写，原题和原文不变。
 _HOME_READINGS = [
@@ -1111,7 +1111,7 @@ html:not(.dark) .sitebar .bimg1,html:not(.dark) .sitebar .bimg2,html:not(.dark) 
 #qres.on{display:block}
 #qres mark{background:rgba(201,165,95,.35);color:inherit;border-radius:2px;padding:0 1px}
 .search-hint{margin:10px 0 0;text-align:center;color:var(--sub);font-size:12.5px}
-.qchip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:3px 12px;font-size:13px;cursor:pointer;margin:2px}
+.qchip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:3px 12px;font-size:13px;cursor:pointer;margin:2px;transition:opacity .45s ease}
 .qchip:hover{border-color:var(--gold);color:var(--gold2)}
 .qitem{display:block;padding:12px 16px;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}
 .qitem:last-child{border-bottom:0}
@@ -1888,7 +1888,7 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
 <a class="skip" href="#main-content">跳到正文</a>
 <div id="progress"></div>
 {_sitebar()}
-{'' if page_name == 'index.html' else '<div class="searchbar" role="search"><div class="searchwrap"><input id="q" type="search" placeholder="搜索全文… 试试：怎么看人 / 烧纸 / 改命" autocomplete="off" aria-label="搜索全文" role="combobox" aria-autocomplete="list" aria-controls="qres" aria-expanded="false"><div id="qres" aria-live="polite" aria-label="搜索结果"></div><p class="search-hint">试试搜：<button type="button" class="qchip" data-q="怎么看人">怎么看人</button><button type="button" class="qchip" data-q="烧纸">烧纸</button><button type="button" class="qchip" data-q="天眼">天眼</button><button type="button" class="qchip" data-q="福报">福报</button><button type="button" class="qchip" data-q="轮回">轮回</button><button type="button" class="qchip" data-q="改命">改命</button></p></div></div>'}
+{'' if page_name == 'index.html' else '<div class="searchbar" role="search"><div class="searchwrap"><input id="q" type="search" placeholder="搜索全文… 试试：怎么看人 / 烧纸 / 改命" autocomplete="off" aria-label="搜索全文" role="combobox" aria-autocomplete="list" aria-controls="qres" aria-expanded="false"><div id="qres" aria-live="polite" aria-label="搜索结果"></div><p class="search-hint">试试搜：<button type="button" class="qchip" data-q="修行">修行</button><button type="button" class="qchip" data-q="因果">因果</button><button type="button" class="qchip" data-q="福报">福报</button><button type="button" class="qchip" data-q="轮回">轮回</button><button type="button" class="qchip" data-q="孩子">孩子</button><button type="button" class="qchip" data-q="菩萨">菩萨</button></p></div></div>'}
 <div class="paper" id="main-content">
 {body}
 </div>
@@ -1915,6 +1915,7 @@ js += "\n(()=>{\nconst area=document.querySelector('.story-carousel');if(!area)r
 js += "\ndocument.querySelectorAll('.intro-toggle').forEach(button=>{\n const intro=button.previousElementSibling;\n function measure(){button.hidden=!intro.classList.contains('is-expanded')&&intro.scrollHeight<=intro.clientHeight+1;}\n button.addEventListener('click',()=>{const expanded=intro.classList.toggle('is-expanded');button.setAttribute('aria-expanded',String(expanded));button.textContent=expanded?'收起':'展开全文';measure();});\n new ResizeObserver(measure).observe(intro);measure();\n});\n"
 js += "\n(function(){var b=document.getElementById('fsbtn');if(!b)return;var order=['','l','xl'];function cur(){var c=document.documentElement.classList;return c.contains('fs-xl')?'xl':(c.contains('fs-l')?'l':'');}b.addEventListener('click',function(){var n=order[(order.indexOf(cur())+1)%order.length];document.documentElement.classList.remove('fs-l','fs-xl');if(n)document.documentElement.classList.add('fs-'+n);try{localStorage.setItem('ghl_fs',n)}catch(e){}});})();\n"
 js += "\n(function(){document.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-ev]'):null;if(b){var f=document.createElement('iframe');f.src='https://www.youtube.com/embed/'+b.getAttribute('data-ev')+'?autoplay=1&playsinline=1';f.title='视频';f.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';b.replaceWith(f);return}var c=e.target.closest?e.target.closest('.qchip'):null;if(c){var q=document.getElementById('q');if(q){q.value=c.getAttribute('data-q');q.dispatchEvent(new Event('input',{bubbles:true}));q.focus()}}});})();\n"
+js += "\n(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var chips=[].slice.call(document.querySelectorAll('.qchip'));if(!chips.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p}function apply(){var w=pick();chips.forEach(function(c,i){var v=w[i%w.length];c.textContent=v;c.setAttribute('data-q',v);c.style.opacity=''})}apply();setInterval(function(){var q=document.getElementById('q');if(q&&q.value.trim())return;chips.forEach(function(c){c.style.opacity='0'});setTimeout(apply,480)},12000)})();\n"
 (HERE / "main.v5.js").write_text(js, encoding="utf-8", newline="\n")
 
 # 7.5) 全部条目页（10-23 P1）：目录 + 年份/系列/标题筛选 + 阅读时长 + 复制链接

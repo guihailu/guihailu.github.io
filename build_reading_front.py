@@ -92,15 +92,15 @@ BOARDS=[
   'desc':'这一部讲的是普通人的修行：为什么修、修行到底是什么、从哪儿开始。福报怎么做、话怎么说、事怎么做，逆修自查一条条对着自己量。离生活最近的一部，先从这里进门。',
   'first':'ghl-000018'},
  {'n':2,'cn':'二','wm':'贰','name':'灵魂觉者','img':IMG2,
-  'plain':'人除了身体，还有一个「自己」在水底下。',
+  'plain':'人除了身体，还有一个<br>「自己」在水底下。',
   'desc':'这一部讲灵魂这一层：灵魂是怎么回事，洗灵有什么用，人在镜子里外是怎样两个样子。听着玄，其实讲的都是为什么你明明想做好、却总是做不到。',
   'first':'ghl-000070'},
  {'n':3,'cn':'三','wm':'叁','name':'法界天机','img':IMG3,
-  'plain':'看不见的那一界，也有它的规矩和账本。',
+  'plain':'看不见的那一界，也有<br>它的规矩和账本。',
   'desc':'这一部讲看不见的世界怎么运作：三界是怎么分的，阴间也有经济学，烧纸为什么有讲究、怎么做才对。好奇心最重的人，通常是从这一部被勾住的。',
   'first':'ghl-000051'},
  {'n':4,'cn':'四','wm':'肆','name':'道法自然','img':IMG4,
-  'plain':'道理听完，最后要落回一日三餐里。',
+  'plain':'道理听完，最后要<br>落回一日三餐里。',
   'desc':'这一部最落地：前面听懂的道理，怎么用在过日子上——对家人、对工作、对钱、对脾气。修行不在山上，在你每天怎么活。',
   'first':'ghl-000026'},
 ]
@@ -153,9 +153,6 @@ html:not(.dark) .hero .rays{opacity:.85}
 @keyframes floatup{from{transform:translateY(26px);opacity:0}18%{opacity:.9}82%{opacity:.7}to{transform:translateY(-120px);opacity:0}}
 .hero-seal{position:absolute;top:86px;right:4vw;width:clamp(56px,7vw,92px);z-index:4;filter:drop-shadow(0 8px 22px rgba(0,0,0,.4))}
 .hero .inner{position:relative;padding:120px 20px 90px;max-width:900px;z-index:3}
-.kicker{display:flex;align-items:center;justify-content:center;gap:16px;color:#f3e7c3;letter-spacing:8px;font-size:13.5px;font-weight:600;font-family:"Songti SC","STSong",SimSun,serif;text-shadow:0 1px 3px rgba(0,0,0,.85),0 0 14px rgba(0,0,0,.6)}
-.kicker::before,.kicker::after{content:'';width:min(64px,14vw);height:1px;background:linear-gradient(90deg,transparent,rgba(230,197,120,.85))}
-.kicker::after{background:linear-gradient(90deg,rgba(230,197,120,.85),transparent)}
 .hero h1{margin:10px 0 6px;line-height:1.1}
 .hero h1 img{height:clamp(100px,16.5vw,168px);width:auto;max-width:88vw;filter:drop-shadow(0 6px 44px rgba(0,0,0,.55))}
 html:not(.dark) .hero h1 img{filter:invert(1) brightness(.88) drop-shadow(0 0 26px rgba(255,236,170,.9))}
@@ -164,26 +161,34 @@ html:not(.dark) .hero h1 img{filter:invert(1) brightness(.88) drop-shadow(0 0 26
 html:not(.dark) .part h2 .title-img{filter:invert(1) brightness(.82)}
 .board-hero h1 .title-img{height:clamp(58px,8.5vw,96px);width:auto;max-width:100%;margin:0 auto}
 html:not(.dark) .board-hero h1 .title-img{filter:invert(1) brightness(.82)}
-.hero .sub{color:#f8f0d4;font-size:clamp(15.5px,2.05vw,19.5px);line-height:2.05;font-weight:500;background:radial-gradient(ellipse 108% 125% at 50% 50%,rgba(5,10,17,.55),rgba(5,10,17,0) 72%);padding:20px 34px;border-radius:26px;text-shadow:0 1px 2px rgba(8,12,6,.92),0 0 12px rgba(8,12,6,.78),0 2px 26px rgba(0,0,0,.62)}
-html:not(.dark) .hero .sub{color:#fff6da;text-shadow:0 1px 2px rgba(8,12,6,.92),0 0 12px rgba(8,12,6,.78),0 2px 26px rgba(0,0,0,.62)}
+.hero .sub{position:relative;color:#f8f0d4;font-size:clamp(15.5px,2.05vw,19.5px);line-height:2.05;font-weight:500;background:linear-gradient(165deg,rgba(9,16,25,.78),rgba(9,16,25,.56));backdrop-filter:blur(9px) saturate(1.15);-webkit-backdrop-filter:blur(9px) saturate(1.15);border:1px solid rgba(230,197,120,.5);border-radius:16px;padding:30px 42px 24px;box-shadow:0 26px 60px rgba(0,0,0,.5),0 0 90px rgba(240,205,120,.10),inset 0 1px 0 rgba(255,240,200,.14);text-shadow:0 1px 2px rgba(8,12,6,.9)}
+.hero .sub::before{content:'';position:absolute;inset:7px;border:1px solid rgba(230,197,120,.30);border-radius:10px;pointer-events:none}
+.hero .sub::after{content:'◆';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#0d1826;border:1px solid rgba(230,197,120,.5);border-radius:999px;color:#e6c578;font-size:10px;line-height:1;padding:4px 9px}
+.hero .sub .hl:first-child{font-size:1.15em;font-weight:700;letter-spacing:.05em;color:#fdf6dd}
+.hero .sub .hl span{color:#f0cd7d;font-weight:700}
+.hero .sub .hl:last-child{font-size:.94em;letter-spacing:.22em;color:#eadfc0}
 .hl{display:block}
 .cta{margin-top:30px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-.btn{display:inline-block;border:1px solid #c9a55f;padding:13px 26px;border-radius:999px;background:rgba(10,20,31,.42);color:#f0d48a;font-weight:600;transition:transform .25s ease,filter .25s ease,background .25s ease}
+.btn{display:inline-block;border:1px solid #c9a55f;padding:13px 26px;border-radius:999px;background:rgba(10,20,31,.42);color:#f0d48a;font-weight:700;font-family:"Songti SC","STSong",SimSun,serif;letter-spacing:.1em;transition:transform .25s ease,filter .25s ease,background .25s ease}
 .btn.ghost{background:rgba(10,20,31,.42);color:#f0d48a}
 .btn:hover{transform:translateY(-2px);filter:brightness(1.07);background:rgba(201,165,95,.18)}
-.scrollcue{display:inline-flex;align-items:center;gap:12px;margin-top:46px;padding:14px 30px;border:1px solid rgba(201,165,95,.75);border-radius:999px;background:rgba(10,20,31,.42);color:#f0d48a;font-size:17px;letter-spacing:6px;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .25s ease}
+.scrollcue{display:inline-flex;align-items:center;gap:12px;margin-top:46px;padding:14px 30px;border:1px solid rgba(201,165,95,.75);border-radius:999px;background:rgba(10,20,31,.42);color:#f0d48a;font-size:17px;letter-spacing:6px;font-family:"Songti SC","STSong",SimSun,serif;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .25s ease}
 .scrollcue:hover{transform:translateY(-2px)}
 .scrollcue .arr{animation:bob 1.8s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
 main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .intro{max-width:760px;margin:56px auto 0;text-align:center}
 .intro p{font-size:17.5px;line-height:2.1;color:var(--sub);font-family:"Songti SC","STSong",SimSun,serif}
+.intro p.lede{position:relative;font-size:clamp(17px,2.3vw,20.5px);line-height:1.95;color:var(--ink);padding-top:30px}
+.intro p.lede::after{content:'';position:absolute;top:7px;left:50%;transform:translateX(-50%);width:min(360px,72%);height:1px;background:linear-gradient(90deg,transparent,var(--line) 20%,var(--line) 80%,transparent)}
+.intro p.lede::before{content:'◆';position:absolute;top:0;left:50%;transform:translateX(-50%);color:var(--gold);font-size:11px;background:var(--bg);padding:0 12px;z-index:1;line-height:1.4}
 .searchbar{display:flex;gap:10px;max-width:560px;margin:26px auto 0}
 .searchbar input{flex:1;padding:14px 18px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);font-size:15px}
 .searchbar button{border:1px solid #c9a55f;background:#c9a55f;color:#101f2c;border-radius:999px;padding:0 22px;font-weight:600}
 .qchips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:14px}
 .qchips-lab{font-size:13px;color:var(--sub)}
-.qchips button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 14px;font-size:13.5px;cursor:pointer}
+.qchips button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 14px;font-size:13.5px;cursor:pointer;transition:opacity .45s ease}
+.qchips.fading button{opacity:0}
 .qchips button:hover{border-color:var(--gold);color:var(--gold2)}
 .sresults{max-width:680px;margin:14px auto 0;text-align:left}
 .sresults .hit{display:block;padding:11px 14px;border:1px solid var(--line);border-radius:10px;margin-top:8px;background:var(--card)}
@@ -282,7 +287,7 @@ dialog .src{color:var(--sub);font-size:12.5px;border-top:1px solid var(--line);p
 [hidden]{display:none!important}
 a:focus-visible,button:focus-visible{outline:3px solid #aa8036;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.hero .rays{animation:none}.scrollcue .arr{animation:none}.hero .bg{animation:none}.hero .dust span{animation:none}.reveal{transition:none;opacity:1;transform:none}}
-@media(max-width:820px){.part,.part.flip{grid-template-columns:1fr}.part .art{position:static}.part .txt{text-align:center}.part .firstread{text-align:left}.part .doors{justify-content:center}.library{grid-template-columns:1fr;text-align:center}.brand{font-size:20px;width:134px}header{flex-wrap:wrap;row-gap:4px}nav{order:3;width:100%;flex-wrap:wrap;gap:8px 16px}nav a{font-size:12.5px;letter-spacing:1px}.hero-seal{top:118px}.hero .sub{font-size:14.5px}}
+@media(max-width:820px){.part,.part.flip{grid-template-columns:1fr}.part .art{position:static}.part .txt{text-align:center}.part .firstread{text-align:left}.part .doors{justify-content:center}.library{grid-template-columns:1fr;text-align:center}.brand{font-size:20px;width:134px}header{flex-wrap:wrap;row-gap:4px}nav{order:3;width:100%;flex-wrap:wrap;gap:8px 16px}nav a{font-size:12.5px;letter-spacing:1px}.hero-seal{top:118px}.hero .sub{font-size:14.5px;padding:24px 18px 18px}}
 @media(max-width:820px){nav a .navimg{height:22px}nav a{padding:5px 10px}}
 '''
 (out/'reading.css').write_text(css,encoding='utf-8')
@@ -432,7 +437,7 @@ for e in sorted(entries.values(),key=lambda x:x['id']):
 hero=('<section class="hero">'
  f'<img class="bg" src="{HERO_IMG}" alt="" aria-hidden="true"><div class="rays" aria-hidden="true"></div><div class="dust" id="dust" aria-hidden="true"></div>'
  f'<img class="hero-seal" src="{SEAL_IMG}" alt="归海">'
- f'<div class="inner"><div class="kicker">第 一 次 来 · 从 这 里 开 始</div><h1><img src="{TITLE_GUIHAI}" alt="归海录"></h1>'
+ f'<div class="inner"><h1><img src="{TITLE_GUIHAI}" alt="归海录"></h1>'
  '<p class="sub"><span class="hl">这里是志远行空讲课内容的整理站</span>'
  '<span class="hl">全部内容分成四部&ensp;<span style="white-space:nowrap">逆修觉者</span>&ensp;<span style="white-space:nowrap">灵魂觉者</span>&ensp;<span style="white-space:nowrap">法界天机</span>&ensp;<span style="white-space:nowrap">道法自然</span></span>'
  '<span class="hl">每一部里都有故事案例、讲课原声和小动画，点开就能看</span>'
@@ -443,7 +448,7 @@ counts={y:0 for y in ['2026','2025','2024']}
 for e in entries.values():
  if e['date'][:4] in counts:counts[e['date'][:4]]+=1
 total=len(entries)
-intro=('<section class="intro reveal"><p>不用从头读起。先挑一部顺眼的，读一则故事、听一段原声，觉得对味，再往深处走。</p>'
+intro=('<section class="intro reveal"><p class="lede">不用从头读起。先挑一部顺眼的，<br>读一则故事、听一段原声，觉得对味，再往深处走。</p>'
  '<form class="searchbar" id="search-form"><input id="search-input" type="search" placeholder="搜一搜：天眼、烧纸、福报、轮回…" aria-label="搜索站内文章"><button type="submit">搜索</button></form><div class="qchips"><span class="qchips-lab">点一下就搜：</span><button type="button" data-q="天眼">天眼</button><button type="button" data-q="烧纸">烧纸</button><button type="button" data-q="福报">福报</button><button type="button" data-q="轮回">轮回</button><button type="button" data-q="改命">改命</button><button type="button" data-q="怎么看人">怎么看人</button></div>'
  '<div class="sresults" id="search-results"></div></section>')
 library=(f'<section class="library reveal" id="library"><div><h2>完整资料库</h2>'
@@ -542,6 +547,7 @@ document.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>
 document.addEventListener('click',e=>{const c=e.target.closest?e.target.closest('.vchip[data-v]'):null;if(c){e.preventDefault();e.stopPropagation();location.href=c.getAttribute('data-v')}},true);
 const pageSearch=document.querySelector('#search');
 if(pageSearch&&!sInput){const rows=[...document.querySelectorAll('details.entry')];function filter(){let n=0;for(const r of rows){r.hidden=!r.textContent.toLowerCase().includes(pageSearch.value.trim().toLowerCase());if(!r.hidden)n++}const c=document.querySelector('#count');if(c)c.textContent=n+' 篇';const em=document.querySelector('#empty');if(em)em.hidden=n!==0}pageSearch.oninput=filter;filter()}
+;(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var wrap=document.querySelector('.qchips');if(!wrap)return;var btns=[].slice.call(wrap.querySelectorAll('button[data-q]'));if(!btns.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p.slice(0,btns.length)}function apply(w){btns.forEach(function(b,i){b.textContent=w[i];b.setAttribute('data-q',w[i])})}apply(pick());setInterval(function(){var inp=document.getElementById('search-input');if(inp&&inp.value.trim())return;wrap.classList.add('fading');setTimeout(function(){apply(pick());wrap.classList.remove('fading')},480)},12000)})();
 '''
 (out/'reading.js').write_text(js,encoding='utf-8')
 print('Preview created:',len(entries),'full original articles;',len(cases),'anonymous samples')
