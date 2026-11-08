@@ -1762,13 +1762,13 @@ def _datauri(fname, mime):
     _raw = (HERE / 'assets' / 'boards' / (fname + '.b64')).read_text(encoding='ascii')
     return 'data:' + mime + ';base64,' + ''.join(_raw.split())
 
-_IMG_GUIHAI = _datauri('title-guihai.webp', 'image/webp')
-_IMG_SUB = _datauri('title-brandsub.webp', 'image/webp')
-_IMG_NAV1 = _datauri('title-nixiu.webp', 'image/webp')
-_IMG_NAV2 = _datauri('title-linghun.webp', 'image/webp')
-_IMG_NAV3 = _datauri('title-fajie.webp', 'image/webp')
-_IMG_NAV4 = _datauri('title-daofa.webp', 'image/webp')
-_IMG_LIB = _datauri('title-lib.webp', 'image/webp')
+_IMG_GUIHAI = _datauri('title-guihai-sm.webp', 'image/webp')
+_IMG_SUB = _datauri('title-brandsub-sm.webp', 'image/webp')
+_IMG_NAV1 = _datauri('title-nixiu-sm.webp', 'image/webp')
+_IMG_NAV2 = _datauri('title-linghun-sm.webp', 'image/webp')
+_IMG_NAV3 = _datauri('title-fajie-sm.webp', 'image/webp')
+_IMG_NAV4 = _datauri('title-daofa-sm.webp', 'image/webp')
+_IMG_LIB = _datauri('title-lib-sm.webp', 'image/webp')
 
 def _sitebar():
     return ('<header class="sitebar">'
