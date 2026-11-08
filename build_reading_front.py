@@ -83,10 +83,12 @@ TITLE_SUB=datauri('title-brandsub.webp','image/webp')
 TITLE_ZHE=datauri('title-zhe.webp','image/webp')
 WMIMG={1:datauri('title-wm1.webp','image/webp'),2:datauri('title-wm2.webp','image/webp'),3:datauri('title-wm3.webp','image/webp'),4:datauri('title-wm4.webp','image/webp')}
 TITLES={1:datauri('title-nixiu.webp','image/webp'),2:datauri('title-linghun.webp','image/webp'),3:datauri('title-fajie.webp','image/webp'),4:datauri('title-daofa.webp','image/webp')}
+NAVTITLES={1:datauri('title-nixiu-sm.webp','image/webp'),2:datauri('title-linghun-sm.webp','image/webp'),3:datauri('title-fajie-sm.webp','image/webp'),4:datauri('title-daofa-sm.webp','image/webp')}
+NAVLIB=datauri('title-lib-sm.webp','image/webp')
 TITLE_LIB=datauri('title-lib.webp','image/webp')
 BOARDS=[
  {'n':1,'cn':'一','wm':'壹','name':'逆修觉者','img':IMG1,
-  'plain':'日子照过，活法换一种——在红尘里把自己修回来。',
+  'plain':'日子照过，活法换一种<br>在红尘里把自己修回来。',
   'desc':'这一部讲的是普通人的修行：为什么修、修行到底是什么、从哪儿开始。福报怎么做、话怎么说、事怎么做，逆修自查一条条对着自己量。离生活最近的一部，先从这里进门。',
   'first':'ghl-000018'},
  {'n':2,'cn':'二','wm':'贰','name':'灵魂觉者','img':IMG2,
@@ -134,7 +136,7 @@ nav{display:flex;gap:16px;align-items:center}
 nav a{opacity:.92;font-family:"Songti SC","STSong",SimSun,serif;font-size:16.5px;font-weight:700;letter-spacing:2.5px;position:relative;color:var(--ink);padding:7px 13px;border:1px solid transparent;border-radius:999px;transition:border-color .25s ease,background .25s ease}
 nav a .navimg{height:26px;width:auto;display:block}
 html:not(.dark) nav a .navimg{filter:invert(1) brightness(.82)}
-nav a:hover{opacity:1;border-color:rgba(201,165,95,.9);background:rgba(201,165,95,.12)}
+nav a:hover{opacity:1;border-color:rgba(201,165,95,.9);background:rgba(201,165,95,.22);box-shadow:0 0 0 1px rgba(201,165,95,.35),0 4px 14px rgba(0,0,0,.18)}
 #theme-toggle{border:1px solid #b6a378;background:transparent;color:var(--ink);border-radius:999px;padding:7px 13px;line-height:1}
 #to-top{position:fixed;right:22px;bottom:22px;z-index:55;background:#c9a55f;color:#101f2c;border:0;border-radius:999px;padding:12px 17px;font-weight:700;box-shadow:0 10px 26px rgba(0,0,0,.3)}
 .hero{position:relative;min-height:100svh;display:grid;place-items:center;text-align:center;overflow:hidden}
@@ -151,7 +153,9 @@ html:not(.dark) .hero .rays{opacity:.85}
 @keyframes floatup{from{transform:translateY(26px);opacity:0}18%{opacity:.9}82%{opacity:.7}to{transform:translateY(-120px);opacity:0}}
 .hero-seal{position:absolute;top:86px;right:4vw;width:clamp(56px,7vw,92px);z-index:4;filter:drop-shadow(0 8px 22px rgba(0,0,0,.4))}
 .hero .inner{position:relative;padding:120px 20px 90px;max-width:900px;z-index:3}
-.kicker{display:inline-block;padding:12px 34px 12px 42px;border-radius:999px;background:radial-gradient(ellipse at center,rgba(8,14,22,.55),rgba(8,14,22,0) 72%);color:#f4cf74;letter-spacing:8px;font-size:14px;font-weight:700;font-family:"Songti SC","STSong",SimSun,serif;text-shadow:0 1px 2px rgba(24,20,6,.95),0 0 12px rgba(24,20,6,.7),0 2px 22px rgba(0,0,0,.55)}
+.kicker{display:flex;align-items:center;justify-content:center;gap:16px;color:#f3e7c3;letter-spacing:8px;font-size:13.5px;font-weight:600;font-family:"Songti SC","STSong",SimSun,serif;text-shadow:0 1px 3px rgba(0,0,0,.85),0 0 14px rgba(0,0,0,.6)}
+.kicker::before,.kicker::after{content:'';width:min(64px,14vw);height:1px;background:linear-gradient(90deg,transparent,rgba(230,197,120,.85))}
+.kicker::after{background:linear-gradient(90deg,rgba(230,197,120,.85),transparent)}
 .hero h1{margin:10px 0 6px;line-height:1.1}
 .hero h1 img{height:clamp(100px,16.5vw,168px);width:auto;max-width:88vw;filter:drop-shadow(0 6px 44px rgba(0,0,0,.55))}
 html:not(.dark) .hero h1 img{filter:invert(1) brightness(.88) drop-shadow(0 0 26px rgba(255,236,170,.9))}
@@ -160,7 +164,7 @@ html:not(.dark) .hero h1 img{filter:invert(1) brightness(.88) drop-shadow(0 0 26
 html:not(.dark) .part h2 .title-img{filter:invert(1) brightness(.82)}
 .board-hero h1 .title-img{height:clamp(58px,8.5vw,96px);width:auto;max-width:100%;margin:0 auto}
 html:not(.dark) .board-hero h1 .title-img{filter:invert(1) brightness(.82)}
-.hero .sub{color:#f5edd3;font-size:clamp(15px,2vw,19px);line-height:2.05;font-weight:500;text-shadow:0 1px 2px rgba(8,12,6,.92),0 0 12px rgba(8,12,6,.78),0 2px 26px rgba(0,0,0,.62)}
+.hero .sub{color:#f8f0d4;font-size:clamp(15.5px,2.05vw,19.5px);line-height:2.05;font-weight:500;background:radial-gradient(ellipse 108% 125% at 50% 50%,rgba(5,10,17,.55),rgba(5,10,17,0) 72%);padding:20px 34px;border-radius:26px;text-shadow:0 1px 2px rgba(8,12,6,.92),0 0 12px rgba(8,12,6,.78),0 2px 26px rgba(0,0,0,.62)}
 html:not(.dark) .hero .sub{color:#fff6da;text-shadow:0 1px 2px rgba(8,12,6,.92),0 0 12px rgba(8,12,6,.78),0 2px 26px rgba(0,0,0,.62)}
 .hl{display:block}
 .cta{margin-top:30px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
@@ -177,6 +181,10 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .searchbar{display:flex;gap:10px;max-width:560px;margin:26px auto 0}
 .searchbar input{flex:1;padding:14px 18px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);font-size:15px}
 .searchbar button{border:1px solid #c9a55f;background:#c9a55f;color:#101f2c;border-radius:999px;padding:0 22px;font-weight:600}
+.qchips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:14px}
+.qchips-lab{font-size:13px;color:var(--sub)}
+.qchips button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 14px;font-size:13.5px;cursor:pointer}
+.qchips button:hover{border-color:var(--gold);color:var(--gold2)}
 .sresults{max-width:680px;margin:14px auto 0;text-align:left}
 .sresults .hit{display:block;padding:11px 14px;border:1px solid var(--line);border-radius:10px;margin-top:8px;background:var(--card)}
 .sresults .hit b{font-weight:600}
@@ -198,6 +206,10 @@ html:not(.dark) .part .wm{filter:invert(1) brightness(.85);opacity:.10}
 .part .tag{display:inline-block;border:1px solid var(--gold);color:var(--gold2);background:var(--chip);border-radius:999px;padding:5px 13px;font-size:12px;letter-spacing:2px;font-weight:600}
 .part h2{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-weight:600;font-size:clamp(42px,6vw,68px);letter-spacing:.06em;margin:16px 0 6px;line-height:1.15}
 .part .plain{font-size:clamp(19px,2.6vw,24px);color:var(--gold2);line-height:1.6;font-family:"Songti SC",SimSun,serif}
+.part .txt{border:1px solid var(--line);border-radius:18px;padding:clamp(24px,3.2vw,38px);background:var(--card);box-shadow:0 18px 44px var(--shadow)}
+.part .txt::before{content:'';position:absolute;top:12px;left:22px;right:22px;border-top:3px double var(--gold);opacity:.5;pointer-events:none}
+.part .txt::after{content:'◆';position:absolute;top:3px;left:50%;transform:translateX(-50%);color:var(--gold);font-size:10px;background:var(--card);padding:0 8px;pointer-events:none}
+.part .art{box-shadow:0 0 0 1px var(--line),0 24px 60px var(--shadow)}
 .part .desc{color:var(--sub);line-height:2;font-size:15.5px}
 .part .desc .dropcap{float:left;height:52px;width:auto;margin:4px 10px 0 0}
 html:not(.dark) .part .desc .dropcap{filter:invert(1) brightness(.82)}
@@ -233,7 +245,7 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .alist a:hover{color:var(--gold2)}
 .alist .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
 .alist .hook{color:var(--sub);font-size:13px;line-height:1.55}
-.alist .vchip{display:inline-block;background:#a52a21;color:#fff;font-size:11px;line-height:1;padding:3px 8px;border-radius:999px;margin-left:8px;vertical-align:2px;white-space:nowrap;letter-spacing:1px}
+.alist .vchip{cursor:pointer;display:inline-block;background:#a52a21;color:#fff;font-size:11px;line-height:1;padding:3px 8px;border-radius:999px;margin-left:8px;vertical-align:2px;white-space:nowrap;letter-spacing:1px}
 .alist .d{color:var(--sub);font-size:12.5px;white-space:nowrap;padding-top:3px;text-align:right}
 .more{display:inline-block;margin-top:16px;border:1px solid #c9a55f;color:var(--gold2);border-radius:999px;padding:10px 20px;font-size:14px;background:var(--chip)}
 .library{scroll-margin-top:84px;margin:120px auto 0;max-width:1180px;border:1px solid var(--line);border-radius:18px;padding:clamp(26px,4vw,44px);background:linear-gradient(135deg,var(--card2),var(--card));display:grid;grid-template-columns:1.25fr 1fr;gap:26px;align-items:center}
@@ -289,7 +301,7 @@ def shell(title,body,home=False):
        '<meta name="twitter:card" content="summary_large_image">'
        '<script type="application/ld+json">'+ld+'</script>')
  navp='' if home else 'index.html'
- nav=''.join(f'<a href="{navp}#part{b["n"]}" aria-label="{b["name"]}"><img class="navimg" src="{TITLES[b["n"]]}" alt="{b["name"]}"></a>' for b in BOARDS)
+ nav=''.join(f'<a href="{navp}#part{b["n"]}" aria-label="{b["name"]}"><img class="navimg" src="{NAVTITLES[b["n"]]}" alt="{b["name"]}"></a>' for b in BOARDS)
  return ('<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
  '<title>'+esc(title)+'</title>'
  f'<link rel="icon" type="image/png" href="{FAVICON}">'
@@ -300,7 +312,7 @@ def shell(title,body,home=False):
  '<link rel="stylesheet" href="reading.css"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
- '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+TITLE_LIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
+ '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
  +body+
  f'<footer><div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt=""></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
@@ -310,7 +322,7 @@ def alist_rows(es):
  rows=''
  for e in es:
   meta_line=f'{esc(e["date"])}<br>约 {e["mins"]} 分钟' if e['date'] else f'约 {e["mins"]} 分钟'
-  chip='<span class="vchip">▶ 有视频</span>' if 'video' in e else ''
+  chip=('<span class="vchip" data-v="'+article_href(e["id"])+'-video" role="link" tabindex="0">▶ 有视频</span>') if 'video' in e else ''
   rows+=f'<a href="{article_href(e["id"])}"><span class="tx"><span>{esc(e["title"])}{chip}</span><span class="hook">{esc(e["hook"])}</span></span><span class="d">{meta_line}</span></a>'
  return rows
 def rotator(start):
@@ -360,7 +372,7 @@ def doors(b):
 def part_section(b):
  es=board_entries(b['n'])
  fe=entries[b['first']]
- fechip='<span class="vchip">▶ 有视频</span>' if 'video' in fe else ''
+ fechip=('<span class="vchip" data-v="'+article_href(fe["id"])+'-video" role="link" tabindex="0">▶ 有视频</span>') if 'video' in fe else ''
  prev=[e for e in es if e['id']!=b['first']][:5]
  blist=('<div class="boardlist"><h4>本部文章 · 共 '+str(len(es))+' 篇</h4>'
  f'<div class="alist"><a href="{article_href(fe["id"])}"><span>从这一篇开始 · {esc(fe["title"])}{fechip}</span></a>'
@@ -425,14 +437,14 @@ hero=('<section class="hero">'
  '<span class="hl">全部内容分成四部&ensp;<span style="white-space:nowrap">逆修觉者</span>&ensp;<span style="white-space:nowrap">灵魂觉者</span>&ensp;<span style="white-space:nowrap">法界天机</span>&ensp;<span style="white-space:nowrap">道法自然</span></span>'
  '<span class="hl">每一部里都有故事案例、讲课原声和小动画，点开就能看</span>'
  '<span class="hl">第一次来，从第一部开始往下看</span></p>'
- '<div class="cta"><a class="btn" href="#part1">↓ 从第一部开始 ↓</a><a class="btn ghost" href="#library">直接查资料库</a></div>'
+ '<div class="cta"><a class="btn" href="#part1">从第一部开始</a><a class="btn ghost" href="#library">直接查资料库</a></div>'
  '<a class="scrollcue" href="#part1"><span class="arr">↓</span> 向 下 逛 <span class="arr">↓</span></a></div></section>')
 counts={y:0 for y in ['2026','2025','2024']}
 for e in entries.values():
  if e['date'][:4] in counts:counts[e['date'][:4]]+=1
 total=len(entries)
 intro=('<section class="intro reveal"><p>不用从头读起。先挑一部顺眼的，读一则故事、听一段原声，觉得对味，再往深处走。</p>'
- '<form class="searchbar" id="search-form"><input id="search-input" type="search" placeholder="搜一搜：天眼、烧纸、福报、轮回…" aria-label="搜索站内文章"><button type="submit">搜索</button></form>'
+ '<form class="searchbar" id="search-form"><input id="search-input" type="search" placeholder="搜一搜：天眼、烧纸、福报、轮回…" aria-label="搜索站内文章"><button type="submit">搜索</button></form><div class="qchips"><span class="qchips-lab">点一下就搜：</span><button type="button" data-q="天眼">天眼</button><button type="button" data-q="烧纸">烧纸</button><button type="button" data-q="福报">福报</button><button type="button" data-q="轮回">轮回</button><button type="button" data-q="改命">改命</button><button type="button" data-q="怎么看人">怎么看人</button></div>'
  '<div class="sresults" id="search-results"></div></section>')
 library=(f'<section class="library reveal" id="library"><div><h2>完整资料库</h2>'
  f'<p>四部之外的全部原文都在这里：{total} 篇讲课整理，按年份排好，带全文搜索。想查什么，直接去资料库里找。</p></div>'
@@ -526,6 +538,8 @@ function doSearch(){
   hits.forEach(e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');b.textContent=e.t;const s=document.createElement('span');s.textContent=(e.d?e.d+' · ':'')+e.x;a.append(b,s);sBox.appendChild(a)});
 }
 if(sForm){sForm.addEventListener('submit',ev=>{ev.preventDefault();doSearch()});sInput.addEventListener('input',doSearch)}
+document.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>{if(sInput){sInput.value=b.getAttribute('data-q');doSearch();sInput.focus()}}));
+document.addEventListener('click',e=>{const c=e.target.closest?e.target.closest('.vchip[data-v]'):null;if(c){e.preventDefault();e.stopPropagation();location.href=c.getAttribute('data-v')}},true);
 const pageSearch=document.querySelector('#search');
 if(pageSearch&&!sInput){const rows=[...document.querySelectorAll('details.entry')];function filter(){let n=0;for(const r of rows){r.hidden=!r.textContent.toLowerCase().includes(pageSearch.value.trim().toLowerCase());if(!r.hidden)n++}const c=document.querySelector('#count');if(c)c.textContent=n+' 篇';const em=document.querySelector('#empty');if(em)em.hidden=n!==0}pageSearch.oninput=filter;filter()}
 '''
