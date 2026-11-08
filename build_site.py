@@ -2,7 +2,10 @@
 """归海录静态站构建：guihailu.md -> index.html（pandoc 转换）
 设计语言（照抄顶级站手法）：Apple CN 超大标题+留白 / Medium 衬线窄栏阅读 / VitePress 侧栏目录"""
 import re, pathlib, subprocess, sys, json, hashlib, html as _html, urllib.parse
-from guide_data import GUIDE, ALIASES  # 问题入口数据（10-17 施工窗 2）
+from guide_data import GUIDE, ALIASES
+
+_ENTRY_VIDEO = {'ghl-000018': 'li_zfTRp690', 'ghl-000004': 'jvRbI_nnxxM',
+                'ghl-000022': 'boVkmwiauS4', 'ghl-000026': 'q6wj4WzT1XE'}  # 与 build_reading_front 的 VIDEO_MAP 保持一致  # 问题入口数据（10-17 施工窗 2）
 
 HERE = pathlib.Path(__file__).parent
 SRC = HERE / "guihailu.md"
@@ -364,6 +367,11 @@ def wrap_entries(b):
         _title_text = _html.unescape(re.sub(r'<[^>]+>', '', title)).strip()
         _fb_url = 'feedback.html?title=' + urllib.parse.quote(_title_text, safe='')
         chunk += f'<p class="entry-feedback"><a href="{_fb_url}">📮 这篇有错字或问题？反馈一下</a></p>'
+        _vid = _ENTRY_VIDEO.get(sid)
+        if _vid:
+            chunk = (f'<div class="evideo" id="{sid}-video"><button type="button" class="evideo-play" data-ev="{_vid}" aria-label="播放本篇视频">'
+                     f'<img src="https://i.ytimg.com/vi/{_vid}/hqdefault.jpg" alt="" loading="lazy"><span class="evideo-btn">▶ 播放本篇视频</span></button>'
+                     f'<p class="evideo-alt">看不了内嵌播放？<a href="https://www.youtube.com/watch?v={_vid}" target="_blank" rel="noopener">在 YouTube 打开 ↗</a></p></div>') + chunk
         out.append(
             f'<details class="entry" id="{sid}">'
             f'<summary><h2>{title}</h2>{date_html}{ex_html}</summary>'
@@ -916,7 +924,7 @@ _home_search = ('<div class="searchbar" id="searchbar" role="search"><div class=
                 '<input id="q" type="search" placeholder="搜索全文… 试试：怎么看人 / 烧纸 / 改命" autocomplete="off" '
                 'aria-label="搜索全文" role="combobox" aria-autocomplete="list" aria-controls="qres" aria-expanded="false">'
                 '<div id="qres" aria-live="polite" aria-label="搜索结果"></div>'
-                '<p class="search-hint">试试搜：怎么看人 · 烧纸 · 改命 · 因果</p></div></div>')
+                '<p class="search-hint">试试搜：<button type="button" class="qchip" data-q="怎么看人">怎么看人</button><button type="button" class="qchip" data-q="烧纸">烧纸</button><button type="button" class="qchip" data-q="天眼">天眼</button><button type="button" class="qchip" data-q="福报">福报</button><button type="button" class="qchip" data-q="轮回">轮回</button><button type="button" class="qchip" data-q="改命">改命</button></p></div></div>')
 
 # 首页编辑选读：短题与导读为编辑拟写，原题和原文不变。
 _HOME_READINGS = [
@@ -979,22 +987,23 @@ def _video_card(card):
     video_id = card['youtube_url'].rstrip('/').split('/')[-1]
     if not re.fullmatch(r'[A-Za-z0-9_-]{11}', video_id):
         raise ValueError('无效YouTube视频ID: ' + card['id'])
-    seconds = round(card['duration_seconds'])
-    duration = f'{seconds // 60}:{seconds % 60:02d}'
+    _ds = card.get('duration_seconds')
+    seconds = round(_ds) if _ds else 0
+    duration = f'{seconds // 60}:{seconds % 60:02d}' if seconds else ''
     esc = _html.escape
     poster = card.get('poster')
     cover = ('<img src="' + esc(_safe_external_url(poster), quote=True) + '" alt="" width="480" height="360" loading="lazy">'
-             if poster else '<span class="clip-cover-title">' + esc(card.get('title', '师父原声精选')) + '</span>')
+             if poster else '<span class="clip-cover-title">' + esc(card.get('title', '志远行空原声精选')) + '</span>')
     return (
         '<article class="video-card" data-clip-id="' + esc(card['id'], quote=True) + '">'
         '<div class="video-stage"><button type="button" class="video-play" data-video-id="' + video_id + '" '
         'aria-label="播放：' + esc(card['title'], quote=True) + '">' + cover
-        + '<span class="video-play-icon" aria-hidden="true">▶</span><span class="video-duration">' + duration + '</span>'
-        '</button></div><div class="video-copy"><p class="reading-label">志远行空 · 视频选段</p>'
-        '<h2>' + esc(card['title']) + '</h2><p class="video-intro">' + esc(card.get('intro', card['description']).removeprefix('本段讲述：')) + '</p>'
+        + '<span class="video-play-icon" aria-hidden="true">▶</span>' + ('<span class="video-duration">' + duration + '</span>' if duration else '')
+        + '</button></div><div class="video-copy"><p class="reading-label">志远行空 · 视频选段</p>'
+        '<h2>' + esc(card['title']) + '</h2><p class="video-intro">' + esc((card.get('intro') or card.get('description') or card['title']).removeprefix('本段讲述：')) + '</p>'
         '<button class="intro-toggle" type="button" aria-expanded="false" hidden>展开全文</button>'
         '<div class="video-links">' + (('<a href="' + entry['page'] + '#' + entry['id'] + '">阅读完整原文</a>') if entry else '')
-        + '<a href="' + esc(_safe_external_url(card['source_video_url']), quote=True) + '" class="source-video-play" data-clip-video="' + video_id + '">观看师父完整视频</a></div>'
+        + (('<a href="' + esc(_safe_external_url(card['source_video_url']), quote=True) + '" class="source-video-play" data-clip-video="' + video_id + '">观看完整视频</a>') if card.get('source_video_url') else '') + '</div>'
         '</div></article>'
     )
 
@@ -1018,7 +1027,7 @@ def _gallery_section(section_id, eyebrow, title, description, view_href, view_la
             + (''.join(renderer(c) for c in cards) if cards else '<p>这里将陆续收录中文分享，先去首页看看其他内容。</p>') + '</div></section>')
 
 _home_vibe = _gallery_section('vibe', '精选专栏 · 人生观察', '换个角度看人生', '用一个故事，换个角度看人生。', 'vibe.html', '查看全部 →', _vibe_cards, _vibe_card)
-_home_videos = _gallery_section('video-clips', '精选专栏 · 师父原声', '从一个片段，走进完整分享', '《佛家六通》选段 · 点击试看，随时回到完整原文。', 'clips.html', '查看全部 →', _video_cards, _video_card)
+_home_videos = _gallery_section('video-clips', '精选专栏 · 志远行空原声', '从一个片段，走进完整分享', '《佛家六通》选段 · 点击试看，随时回到完整原文。', 'clips.html', '查看全部 →', _video_cards, _video_card)
 
 _home_body = (
     '<section class="home-welcome">'
@@ -1084,7 +1093,7 @@ html.dark .sitebar{background:rgba(10,20,31,.88);border-bottom-color:rgba(44,67,
 html:not(.dark) .sitebar .bimg1,html:not(.dark) .sitebar .bimg2,html:not(.dark) .sitebar .navimg{filter:invert(1) brightness(.82)}
 .sitebar nav{display:flex;gap:6px;align-items:center}
 .sitebar nav a{display:flex;align-items:center;padding:6px 10px;border:1px solid transparent;border-radius:999px;transition:border-color .25s,background .25s}
-.sitebar nav a:hover{border-color:rgba(201,165,95,.9);background:rgba(201,165,95,.12)}
+.sitebar nav a:hover{border-color:rgba(201,165,95,.9);background:rgba(201,165,95,.22);box-shadow:0 0 0 1px rgba(201,165,95,.35),0 4px 14px rgba(0,0,0,.18)}
 .sitebar .navimg{height:22px;width:auto;display:block}
 #fsbtn{border:1px solid var(--line);background:var(--chip);color:var(--gold2);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;cursor:pointer;margin-left:8px}
 #toggle{width:36px;height:36px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:var(--chip);color:var(--gold2);cursor:pointer;margin-left:2px}
@@ -1102,6 +1111,8 @@ html:not(.dark) .sitebar .bimg1,html:not(.dark) .sitebar .bimg2,html:not(.dark) 
 #qres.on{display:block}
 #qres mark{background:rgba(201,165,95,.35);color:inherit;border-radius:2px;padding:0 1px}
 .search-hint{margin:10px 0 0;text-align:center;color:var(--sub);font-size:12.5px}
+.qchip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:3px 12px;font-size:13px;cursor:pointer;margin:2px}
+.qchip:hover{border-color:var(--gold);color:var(--gold2)}
 .qitem{display:block;padding:12px 16px;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}
 .qitem:last-child{border-bottom:0}
 .qitem:hover,.qitem.active{background:var(--card2)}
@@ -1152,6 +1163,12 @@ main.content{min-width:0;max-width:760px;width:100%;justify-self:center}
 html.fs-l .entry-body{font-size:18px}
 html.fs-xl .entry-body{font-size:19.5px}
 .entry-body p{margin:0 0 1.1em}
+.evideo{margin:6px 0 20px}
+.evideo-play{position:relative;display:block;width:100%;max-width:560px;aspect-ratio:16/9;padding:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0a141f;cursor:pointer}
+.evideo-play img{display:block;width:100%;height:100%;object-fit:cover;opacity:.92}
+.evideo-btn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(10,18,28,.85);color:#f4cf74;border:1px solid rgba(244,207,116,.6);padding:10px 20px;border-radius:999px;font-size:15px;font-weight:600;white-space:nowrap}
+.evideo iframe{display:block;width:100%;max-width:560px;aspect-ratio:16/9;border:0;border-radius:14px}
+.evideo-alt{font-size:13px;color:var(--sub);margin-top:8px}
 .entry-body a{color:var(--link);text-underline-offset:4px}
 .entry-body a:hover{color:var(--gold2)}
 .entry-body h3{font-family:"Songti SC",SimSun,serif;font-size:20px;line-height:1.5;margin:1.5em 0 .6em;color:var(--ink)}
@@ -1420,7 +1437,7 @@ document.querySelectorAll('.source-video-play').forEach(function(link){
   var full=link.dataset.mode!=='full';
   var frame=document.createElement('iframe');
   frame.src='https://www.youtube.com/embed/'+(full?id:link.dataset.clipVideo)+'?autoplay=1&playsinline=1';
-  frame.title=full?'师父完整视频':'视频片段';
+  frame.title=full?'完整视频':'视频片段';
   frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';
   frame.allowFullscreen=true;
   frame.referrerPolicy='strict-origin-when-cross-origin';
@@ -1428,7 +1445,7 @@ document.querySelectorAll('.source-video-play').forEach(function(link){
   stage.classList.add('is-playing');
   stage.style.aspectRatio=full?'16 / 9':'9 / 16';
   link.dataset.mode=full?'full':'clip';
-  link.textContent=full?'返回片段':'观看师父完整视频';
+  link.textContent=full?'返回片段':'观看完整视频';
   stage.scrollIntoView({block:'nearest'});
   frame.focus();
  });
@@ -1493,7 +1510,7 @@ var t;document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout
 /* 跨页锚点（10-19 分页）：旧 #sec-NN / #ghl 若不在本页，按 id→page 表重定向（保留原 hash） */
 (function(){var h=(location.hash||'').slice(1);if(!h)return;if(document.getElementById(h))return;var LG=(window.__GHL_LEGACY__||{});var t=/^sec-[0-9]+$/.test(h)?LG[h]:h;if(!t||!/^ghl-[0-9]+$/.test(t))return;var pg=(window.__GHL_IDPAGE__||{})[t];if(pg&&pg!==(window.__GHL_PAGE__||''))location.replace(pg+'#'+h);})();
 /* 旧 #sec-NN / 新 #ghl 直链（10-14）：载入时展开命中条目（原生锚点负责滚动，这里补展开） */
-(function(){var LG=(window.__GHL_LEGACY__||{});var h=(location.hash||'').slice(1);if(!h)return;var t=/^sec-[0-9]+$/.test(h)?LG[h]:h;if(!t||!/^ghl-[0-9]+$/.test(t))return;var d=document.getElementById(t);if(d){d.open=true;}})();
+(function(){var LG=(window.__GHL_LEGACY__||{});var h=(location.hash||'').slice(1);if(!h)return;var t=/^sec-[0-9]+$/.test(h)?LG[h]:h;if(!t)return;var base=t.replace(/-video$/,'');if(!/^ghl-[0-9]+$/.test(base))return;var d=document.getElementById(base);if(d){d.open=true;if(h!==base){var v=document.getElementById(h);if(v)setTimeout(function(){v.scrollIntoView({block:'center'})},80)}}})();
 (function(){var d=document.querySelector('details.tocm');if(d){var wide=null;function sync(){var now=window.innerWidth>960;if(now!==wide){d.open=now;wide=now;}}sync();window.addEventListener('resize',sync);}})();
 (function(){var p=document.querySelector('.intro p');if(p&&p.firstChild&&p.firstChild.nodeType===3){p.firstChild.textContent=p.firstChild.textContent.replace('💜 ','');}})();
 /* ---- 全文检索 v2（10-17 施工窗 2）：简繁归一 + 多字段排序 + 问题入口引导 ---- */
@@ -1871,7 +1888,7 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
 <a class="skip" href="#main-content">跳到正文</a>
 <div id="progress"></div>
 {_sitebar()}
-{'' if page_name == 'index.html' else '<div class="searchbar" role="search"><div class="searchwrap"><input id="q" type="search" placeholder="搜索全文… 试试：怎么看人 / 烧纸 / 改命" autocomplete="off" aria-label="搜索全文" role="combobox" aria-autocomplete="list" aria-controls="qres" aria-expanded="false"><div id="qres" aria-live="polite" aria-label="搜索结果"></div><p class="search-hint">试试搜：怎么看人 · 烧纸 · 改命 · 因果</p></div></div>'}
+{'' if page_name == 'index.html' else '<div class="searchbar" role="search"><div class="searchwrap"><input id="q" type="search" placeholder="搜索全文… 试试：怎么看人 / 烧纸 / 改命" autocomplete="off" aria-label="搜索全文" role="combobox" aria-autocomplete="list" aria-controls="qres" aria-expanded="false"><div id="qres" aria-live="polite" aria-label="搜索结果"></div><p class="search-hint">试试搜：<button type="button" class="qchip" data-q="怎么看人">怎么看人</button><button type="button" class="qchip" data-q="烧纸">烧纸</button><button type="button" class="qchip" data-q="天眼">天眼</button><button type="button" class="qchip" data-q="福报">福报</button><button type="button" class="qchip" data-q="轮回">轮回</button><button type="button" class="qchip" data-q="改命">改命</button></p></div></div>'}
 <div class="paper" id="main-content">
 {body}
 </div>
@@ -1897,6 +1914,7 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
 js += "\n(()=>{\nconst area=document.querySelector('.story-carousel');if(!area)return;\nconst slides=Array.from(area.children),toggle=document.querySelector('#story-toggle'),next=document.querySelector('#story-next'),position=document.querySelector('#story-position');\nfor(let i=slides.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[slides[i],slides[j]]=[slides[j],slides[i]];}\nlet index=0,paused=matchMedia('(prefers-reduced-motion: reduce)').matches;\ntry{const previous=sessionStorage.getItem('ghl-last-story');if(slides.length>1&&slides[0].querySelector('h3 a').href===previous){slides.push(slides.shift());}}catch(e){}\nslides.forEach(s=>area.append(s));\nfunction show(){slides.forEach((s,i)=>{s.hidden=i!==index;});position.textContent=(index+1)+' / '+slides.length;try{sessionStorage.setItem('ghl-last-story',slides[index].querySelector('h3 a').href);}catch(e){}}\nfunction update(){toggle.textContent=paused?'自动轮换':'暂停轮换';toggle.setAttribute('aria-pressed',String(paused));}\nnext.addEventListener('click',()=>{index=(index+1)%slides.length;show();});toggle.addEventListener('click',()=>{paused=!paused;update();});\nsetInterval(()=>{if(!paused&&!document.hidden&&!area.matches(':hover')&&!area.contains(document.activeElement)){index=(index+1)%slides.length;show();}},9000);\nshow();update();\n})();\n"
 js += "\ndocument.querySelectorAll('.intro-toggle').forEach(button=>{\n const intro=button.previousElementSibling;\n function measure(){button.hidden=!intro.classList.contains('is-expanded')&&intro.scrollHeight<=intro.clientHeight+1;}\n button.addEventListener('click',()=>{const expanded=intro.classList.toggle('is-expanded');button.setAttribute('aria-expanded',String(expanded));button.textContent=expanded?'收起':'展开全文';measure();});\n new ResizeObserver(measure).observe(intro);measure();\n});\n"
 js += "\n(function(){var b=document.getElementById('fsbtn');if(!b)return;var order=['','l','xl'];function cur(){var c=document.documentElement.classList;return c.contains('fs-xl')?'xl':(c.contains('fs-l')?'l':'');}b.addEventListener('click',function(){var n=order[(order.indexOf(cur())+1)%order.length];document.documentElement.classList.remove('fs-l','fs-xl');if(n)document.documentElement.classList.add('fs-'+n);try{localStorage.setItem('ghl_fs',n)}catch(e){}});})();\n"
+js += "\n(function(){document.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-ev]'):null;if(b){var f=document.createElement('iframe');f.src='https://www.youtube.com/embed/'+b.getAttribute('data-ev')+'?autoplay=1&playsinline=1';f.title='视频';f.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';b.replaceWith(f);return}var c=e.target.closest?e.target.closest('.qchip'):null;if(c){var q=document.getElementById('q');if(q){q.value=c.getAttribute('data-q');q.dispatchEvent(new Event('input',{bubbles:true}));q.focus()}}});})();\n"
 (HERE / "main.v5.js").write_text(js, encoding="utf-8", newline="\n")
 
 # 7.5) 全部条目页（10-23 P1）：目录 + 年份/系列/标题筛选 + 阅读时长 + 复制链接
@@ -2009,8 +2027,8 @@ def _write_versioned_collection(filename, title, description, body):
 
 _write_versioned_collection("vibe.html", "换个角度看人生", "中文知识动画，按发布时间倒序。",
                            _collection_body("换个角度看人生", "精选专栏 · 人生观察", "共 " + str(len(_all_vibe_cards)) + " 条 · 按发布时间倒序", _all_vibe_cards, _vibe_card))
-_write_versioned_collection("clips.html", "师父原声精选", "师父原声视频选段，按发布时间倒序。",
-                           _collection_body("师父原声精选", "精选专栏 · 师父原声", "共 " + str(len(_all_video_cards)) + " 条 · 按发布时间倒序", _all_video_cards, _video_card))
+_write_versioned_collection("clips.html", "志远行空原声精选", "志远行空原声视频选段，按发布时间倒序。",
+                           _collection_body("志远行空原声精选", "精选专栏 · 志远行空原声", "共 " + str(len(_all_video_cards)) + " 条 · 按发布时间倒序", _all_video_cards, _video_card))
 
 (HERE / "all.html").write_text(
     _render_page("all.html", "📚 全部条目 · 归海录", f"归海录全部 {len(_entries)} 篇：按标题、系列、年份筛选，含阅读时长与复制链接。",
