@@ -210,7 +210,7 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .part{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(22px,4vw,54px);margin-top:110px;align-items:start;scroll-margin-top:84px;position:relative}
 .part.flip{grid-template-columns:1fr 1.15fr}
 .part ~ .part::after{content:'';position:absolute;top:-58px;left:50%;transform:translateX(-50%);width:min(430px,62%);height:1px;background:linear-gradient(90deg,transparent,rgba(201,165,95,.55),transparent)}
-.artwrap{position:sticky;top:96px;z-index:1}.part .art{position:relative}.part .wm{grid-row:2;grid-column:1;display:block;margin:0 auto;height:clamp(260px,26vw,380px);width:auto;opacity:.19;pointer-events:none;user-select:none}
+.artwrap{position:sticky;top:96px;z-index:1}.part .art{position:relative}.part .wm{display:none}
 html:not(.dark) .part .wm{filter:invert(1) brightness(.85);opacity:.24}
 .part.flip .wm{grid-column:2}
 .part .art{position:relative;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px var(--shadow);z-index:1;background:#0d1826;min-height:180px}
@@ -296,7 +296,7 @@ html.dark .foot-orn{color:#e6c578}
 .orn-div{display:flex;align-items:center;gap:14px;justify-content:center;max-width:760px;margin:26px auto 6px;padding:0 22px;color:#b3862c}
 .orn-div i{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line))}
 .orn-div i:last-child{background:linear-gradient(90deg,var(--line),transparent)}
-html.dark .orn-div{color:#e6c578}
+html.dark .orn-div{color:#e6c578}\n.partdiv{display:flex;align-items:center;gap:clamp(16px,2.6vw,40px);margin:clamp(28px,3.6vw,50px) 0 -34px;color:#b3862c}\nhtml.dark .partdiv{color:#e6c578}\n.pd-plate{flex:1 1 0;min-width:0;line-height:0}\n.pd-plate svg{width:100%;height:auto;display:block}\n.pd-plate.flip{transform:scaleX(-1)}\n.pd-wm{height:clamp(168px,18vw,236px);width:auto;opacity:.3;user-select:none}\nhtml:not(.dark) .pd-wm{filter:invert(1) brightness(.82);opacity:.34}\n@media(max-width:820px){.partdiv{display:none}}
 .footwm{user-select:none}
 .footwm img{height:clamp(80px,12vw,150px);width:auto;opacity:.16}
 html:not(.dark) .footwm img{filter:invert(1) brightness(.85);opacity:.13}
@@ -313,7 +313,7 @@ dialog .src{color:var(--sub);font-size:12.5px;border-top:1px solid var(--line);p
 [hidden]{display:none!important}
 a:focus-visible,button:focus-visible{outline:3px solid #aa8036;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.hero .rays{animation:none}.scrollcue .arr{animation:none}.hero .bg{animation:none}.hero .dust span{animation:none}.reveal{transition:none;opacity:1;transform:none}}
-@media(max-width:820px){.part,.part.flip{grid-template-columns:1fr}.part .art{position:static}.artwrap{position:static;order:-1}.part .wm,.part.flip .wm{position:absolute;top:-140px;bottom:auto;left:auto;right:10px;height:150px;transform:none;margin:0}.part .txt{text-align:center}.part .firstread{text-align:left}.part .doors{justify-content:center}.library{grid-template-columns:1fr;text-align:center}.brand{font-size:20px;width:134px}header{flex-wrap:wrap;row-gap:4px}nav{order:3;width:100%;flex-wrap:nowrap;justify-content:space-between;gap:6px;margin-top:2px}nav a{font-size:12.5px;letter-spacing:1px}nav a .navimg{height:19px;width:auto}.themebtn{margin-left:auto}header.over-hero{background:linear-gradient(180deg,rgba(8,12,18,.40),rgba(8,12,18,0))}.board-hero{padding-top:158px}.hero-seal{top:118px}.hero .sub{font-size:14.5px;padding:24px 18px 18px}}
+@media(max-width:820px){.part,.part.flip{grid-template-columns:1fr}.part .art{position:static}.artwrap{position:static;order:-1}.part .wm,.part.flip .wm{display:block;position:absolute;top:-140px;bottom:auto;left:auto;right:10px;height:150px;transform:none;margin:0}.part .txt{text-align:center}.part .firstread{text-align:left}.part .doors{justify-content:center}.library{grid-template-columns:1fr;text-align:center}.brand{font-size:20px;width:134px}header{flex-wrap:wrap;row-gap:4px}nav{order:3;width:100%;flex-wrap:nowrap;justify-content:space-between;gap:6px;margin-top:2px}nav a{font-size:12.5px;letter-spacing:1px}nav a .navimg{height:19px;width:auto}.themebtn{margin-left:auto}header.over-hero{background:linear-gradient(180deg,rgba(8,12,18,.40),rgba(8,12,18,0))}.board-hero{padding-top:158px}.hero-seal{top:118px}.hero .sub{font-size:14.5px;padding:24px 18px 18px}}
 @media(max-width:820px){nav a .navimg{height:17.5px}nav a{padding:5px 4px}#theme-toggle{position:absolute;top:15px;right:16px;margin:0}}
 '''
 (out/'reading.css').write_text(css,encoding='utf-8')
@@ -340,7 +340,7 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261108p13"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261108p14"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
@@ -348,7 +348,7 @@ def shell(title,body,home=False):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261108p13"></script></body></html>')
+ '<script src="reading.js?v=20261108p14"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -419,6 +419,9 @@ def part_section(b):
  return f'<section class="{cls}" id="part{b["n"]}">'+inner+'</section>'
 _LOTUS_CC='<svg width="22" height="18" viewBox="0 0 64 52" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path d="M32 6 C39 17 39 27 32 37 C25 27 25 17 32 6 Z"/><path d="M15 13 C23 19 25 29 23 38 C15 34 11 23 15 13 Z"/><path d="M49 13 C41 19 39 29 41 38 C49 34 53 23 49 13 Z"/><path d="M3 25 C11 27 15 33 16 40 C9 40 4 34 3 25 Z"/><path d="M61 25 C53 27 49 33 48 40 C55 40 60 34 61 25 Z"/><path d="M8 44 C20 49 44 49 56 44"/></svg>'
 ORN_DIV='<div class="orn-div" aria-hidden="true"><i></i>'+_LOTUS_CC+'<i></i></div>'
+_PD_PLATE='<svg viewBox="0 0 560 120" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="0" y1="57" x2="118" y2="57" stroke-width="1.4" opacity=".55"/><line x1="0" y1="64" x2="118" y2="64" stroke-width=".8" opacity=".35"/><path d="M138 51 l9 9 -9 9 -9 -9 Z" fill="currentColor" stroke="none" opacity=".85"/><circle cx="222" cy="60" r="31" stroke-width="2.2"/><path d="M222 29 V91 M191 60 H253 M200 38 L244 82 M244 38 L200 82" stroke-width="1.6"/><circle cx="222" cy="60" r="7" stroke-width="2"/><g transform="translate(322,33)" stroke-width="3"><path d="M32 6 C39 17 39 27 32 37 C25 27 25 17 32 6 Z"/><path d="M15 13 C23 19 25 29 23 38 C15 34 11 23 15 13 Z"/><path d="M49 13 C41 19 39 29 41 38 C49 34 53 23 49 13 Z"/><path d="M3 25 C11 27 15 33 16 40 C9 40 4 34 3 25 Z"/><path d="M61 25 C53 27 49 33 48 40 C55 40 60 34 61 25 Z"/><path d="M8 44 C20 49 44 49 56 44"/></g><g transform="translate(428,26) scale(1.55)" stroke-width="1.8"><path d="M18.5 18.5 q6.5 0 6.5 6.5 q0 5.5 -5.5 5.5 q-4.5 0 -4.5 -4.5 q0 -3.5 3.5 -3.5"/></g><path d="M492 51 l9 9 -9 9 -9 -9 Z" fill="currentColor" stroke="none" opacity=".85"/><line x1="512" y1="57" x2="560" y2="57" stroke-width="1.4" opacity=".55"/><line x1="512" y1="64" x2="560" y2="64" stroke-width=".8" opacity=".35"/></svg>'
+def part_divider(b):
+    return f'<div class="partdiv" aria-hidden="true"><span class="pd-plate">{_PD_PLATE}</span><img class="pd-wm" src="{WMIMG[b["n"]]}" alt=""><span class="pd-plate flip">{_PD_PLATE}</span></div>'
 def board_page(b):
  es=board_entries(b['n'])
  body=(f'<section class="board-hero"><span class="tag">第{b["cn"]}部</span><h1><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h1>'
@@ -488,7 +491,8 @@ library=(f'<section class="library reveal" id="library"><div><h2>完整资料库
  f'<a href="2024.html"><b>2024 年</b><span>{counts["2024"]} 篇</span></a>'
  f'<a href="all.html"><b>全部文章</b><span>{total} 篇 · 全文搜索</span></a>'
  '<a href="topics.html" style="grid-column:1/-1"><b>按问题找</b><span>钱 · 工作 · 家人 · 身体 · 命运——按你带着来的问题选篇</span></a></div></section>')
-index_body=hero+'<main>'+intro+''.join(part_section(b) for b in BOARDS)+ORN_DIV+library+'</main>'
+parts_html=''.join(part_section(b)+(part_divider(b) if i<3 else '') for i,b in enumerate(BOARDS))
+index_body=hero+'<main>'+intro+parts_html+ORN_DIV+library+'</main>'
 (out/'index.html').write_text(shell('归海录 · 志远行空讲课整理',index_body,home=True),encoding='utf-8')
 for b in BOARDS:
  (out/f'board{b["n"]}.html').write_text(board_page(b),encoding='utf-8')
