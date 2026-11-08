@@ -210,9 +210,9 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .part{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(22px,4vw,54px);margin-top:110px;align-items:start;scroll-margin-top:84px;position:relative}
 .part.flip{grid-template-columns:1fr 1.15fr}
 .part ~ .part::after{content:'';position:absolute;top:-58px;left:50%;transform:translateX(-50%);width:min(430px,62%);height:1px;background:linear-gradient(90deg,transparent,rgba(201,165,95,.55),transparent)}
-.part .wm{position:absolute;bottom:-18px;left:2%;right:auto;top:auto;height:clamp(300px,34vw,460px);width:auto;opacity:.19;pointer-events:none;user-select:none;z-index:0}
+.artwrap{position:sticky;top:96px;z-index:1}.part .art{position:relative}.part .wm{position:absolute;top:calc(100% + 22px);left:50%;transform:translateX(-50%);height:clamp(280px,30vw,400px);width:auto;opacity:.19;pointer-events:none;user-select:none;z-index:0}
 html:not(.dark) .part .wm{filter:invert(1) brightness(.85);opacity:.24}
-.part.flip .wm{left:auto;right:2%}
+.part.flip .wm{left:50%;right:auto}
 .part .art{position:sticky;top:96px;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px var(--shadow);z-index:1;background:#0d1826;min-height:180px}
 .part .art::after{content:'';position:absolute;inset:11px;border:1px solid rgba(240,212,138,.38);border-radius:9px;pointer-events:none}
 .part .art img{display:block;width:100%;height:auto}
@@ -313,7 +313,7 @@ dialog .src{color:var(--sub);font-size:12.5px;border-top:1px solid var(--line);p
 [hidden]{display:none!important}
 a:focus-visible,button:focus-visible{outline:3px solid #aa8036;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.hero .rays{animation:none}.scrollcue .arr{animation:none}.hero .bg{animation:none}.hero .dust span{animation:none}.reveal{transition:none;opacity:1;transform:none}}
-@media(max-width:820px){.part,.part.flip{grid-template-columns:1fr}.part .art{position:static}.part .wm,.part.flip .wm{top:-140px;bottom:auto;left:auto;right:10px;height:150px}.part .txt{text-align:center}.part .firstread{text-align:left}.part .doors{justify-content:center}.library{grid-template-columns:1fr;text-align:center}.brand{font-size:20px;width:134px}header{flex-wrap:wrap;row-gap:4px}nav{order:3;width:100%;flex-wrap:nowrap;justify-content:space-between;gap:6px;margin-top:2px}nav a{font-size:12.5px;letter-spacing:1px}nav a .navimg{height:19px;width:auto}.themebtn{margin-left:auto}header.over-hero{background:linear-gradient(180deg,rgba(8,12,18,.40),rgba(8,12,18,0))}.board-hero{padding-top:158px}.hero-seal{top:118px}.hero .sub{font-size:14.5px;padding:24px 18px 18px}}
+@media(max-width:820px){.part,.part.flip{grid-template-columns:1fr}.part .art{position:static}.artwrap{position:static;order:-1}.part .wm,.part.flip .wm{top:-140px;bottom:auto;left:auto;right:10px;height:150px;transform:none}.part .txt{text-align:center}.part .firstread{text-align:left}.part .doors{justify-content:center}.library{grid-template-columns:1fr;text-align:center}.brand{font-size:20px;width:134px}header{flex-wrap:wrap;row-gap:4px}nav{order:3;width:100%;flex-wrap:nowrap;justify-content:space-between;gap:6px;margin-top:2px}nav a{font-size:12.5px;letter-spacing:1px}nav a .navimg{height:19px;width:auto}.themebtn{margin-left:auto}header.over-hero{background:linear-gradient(180deg,rgba(8,12,18,.40),rgba(8,12,18,0))}.board-hero{padding-top:158px}.hero-seal{top:118px}.hero .sub{font-size:14.5px;padding:24px 18px 18px}}
 @media(max-width:820px){nav a .navimg{height:17.5px}nav a{padding:5px 4px}#theme-toggle{position:absolute;top:15px;right:16px;margin:0}}
 '''
 (out/'reading.css').write_text(css,encoding='utf-8')
@@ -340,7 +340,7 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261108p9"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261108p10"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
@@ -348,7 +348,7 @@ def shell(title,body,home=False):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261108p9"></script></body></html>')
+ '<script src="reading.js?v=20261108p10"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -413,10 +413,10 @@ def part_section(b):
  f'<div class="plain">{b["plain"]}</div><p class="desc"><img class="dropcap" src="{TITLE_ZHE}" alt="">{b["desc"][1:]}</p>'
  f'<div class="firstread">{first_block(b)}</div>'
  f'<div class="doors">{doors(b)}</div>{blist}</div>')
- art=f'<div class="art"><img src="{b["img"]}" alt="{b["name"]}" loading="lazy"></div>'
+ art=f'<div class="artwrap"><div class="art"><img src="{b["img"]}" alt="{b["name"]}" loading="lazy"></div><img class="wm" src="{WMIMG[b["n"]]}" alt="" aria-hidden="true"></div>'
  inner=(txt+art) if b['n']%2==0 else (art+txt)
  cls='part flip reveal' if b['n']%2==0 else 'part reveal'
- return f'<section class="{cls}" id="part{b["n"]}"><img class="wm" src="{WMIMG[b["n"]]}" alt="" aria-hidden="true">'+inner+'</section>'
+ return f'<section class="{cls}" id="part{b["n"]}">'+inner+'</section>'
 _LOTUS_CC='<svg width="22" height="18" viewBox="0 0 64 52" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path d="M32 6 C39 17 39 27 32 37 C25 27 25 17 32 6 Z"/><path d="M15 13 C23 19 25 29 23 38 C15 34 11 23 15 13 Z"/><path d="M49 13 C41 19 39 29 41 38 C49 34 53 23 49 13 Z"/><path d="M3 25 C11 27 15 33 16 40 C9 40 4 34 3 25 Z"/><path d="M61 25 C53 27 49 33 48 40 C55 40 60 34 61 25 Z"/><path d="M8 44 C20 49 44 49 56 44"/></svg>'
 ORN_DIV='<div class="orn-div" aria-hidden="true"><i></i>'+_LOTUS_CC+'<i></i></div>'
 def board_page(b):
