@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 root=Path(__file__).resolve().parent;src=root;out=root
 esc=html.escape
 cases=json.loads((root/'reading_cases.json').read_text(encoding='utf-8'))
+board_map=json.loads((root/'board_map.json').read_text(encoding='utf-8'))
 entries={}
 for p in sorted(src.glob('*.html')):
  if not re.fullmatch(r'202\d|undated(?:_\d+)?',p.stem):continue
@@ -25,49 +26,517 @@ for p in sorted(src.glob('*.html')):
     if not asset.is_relative_to(src.resolve()) or not asset.is_file():raise ValueError('Missing source asset: '+u.path)
     target=out/unquote(u.path);target.parent.mkdir(parents=True,exist_ok=True);
     if asset.resolve()!=target.resolve():shutil.copyfile(asset,target)
-  entries[d['id']]={'id':d['id'],'title':title,'body':str(d),'text':d.get_text(' ',strip=True)}
-css='''*{box-sizing:border-box}body{margin:0;background:#f5f2ea;color:#172b39;font-family:"Microsoft YaHei",sans-serif}a{color:inherit;text-decoration:none}a:hover{text-decoration:underline}button,input{font:inherit}button,a.button{cursor:pointer;border:1px solid #b6a378;background:transparent;color:inherit;padding:11px 18px;border-radius:3px}button:hover,a.button:hover{background:#e9dfc9}header{background:#112c3c;color:#f4f0e6;padding:22px max(5vw,20px);display:flex;gap:20px;align-items:center;justify-content:space-between}header strong{font-family:SimSun,serif;font-size:29px;letter-spacing:6px}header nav{display:flex;gap:20px;align-items:center;font-size:14px}header .button{background:#e7d7b3;color:#162e3c}main{max-width:1120px;margin:auto;padding:45px 24px}small,.eyebrow{color:#876b39;font-size:12px;letter-spacing:2px}.hero{padding:20px 0 38px;border-bottom:1px solid #cfc7b9}.hero h1{font-family:SimSun,serif;font-weight:normal;font-size:clamp(32px,5vw,52px);margin:18px 0}.hero p{color:#607078;line-height:1.9}.lead{display:grid;grid-template-columns:1.6fr 1fr;gap:24px;margin-top:32px}.feature{padding:34px;background:#fffdf7;border-top:3px solid #b59860}.feature h2{font-family:SimSun,serif;font-weight:normal;font-size:30px;line-height:1.5}.feature p{line-height:1.9;color:#51616b}.side{background:#e9e5db;padding:28px}.side a{display:block;padding:20px 0;border-bottom:1px solid #cdc7bb}.heading{display:flex;align-items:center;justify-content:space-between;margin:46px 0 22px;gap:15px}.heading h2{font-family:SimSun,serif;font-size:27px;font-weight:normal;margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.card{background:#fffdf8;border:1px solid #ddd7c9;padding:24px}.card h3{font-size:19px;line-height:1.6;font-weight:500}.card p{font-size:14px;color:#607078;line-height:1.9}.card a{color:#866632}.screen{aspect-ratio:16/9;background:#183544;color:#f1e2be;display:grid;place-content:center;text-align:center;padding:20px;font-family:SimSun,serif;font-size:23px}.screen button{color:inherit;margin-top:15px}.screen iframe{width:100%;height:100%;border:0}.screen:has(iframe){padding:0;display:block}.muted{color:#6e7475;font-size:13px;line-height:1.8}input{width:100%;padding:16px;border:1px solid #c4b79a;background:#fffdf8;margin:20px 0}details.entry{background:#fffdf8;border-bottom:1px solid #ddd7c9;padding:20px;margin-bottom:10px}summary{cursor:pointer}summary h2{font-size:18px;display:inline;font-weight:500}summary .date{display:block;font-size:12px;color:#777;margin-top:7px}summary .excerpt{display:none}.entry-body{line-height:2;max-width:780px;margin:24px auto;overflow-wrap:anywhere}.entry-body h3{font-size:20px}dialog{max-width:720px;width:calc(100% - 32px);max-height:85vh;border:0;background:#fffdf7;padding:32px;color:#172b39}dialog::backdrop{background:#102c3bc9}dialog p{line-height:2}footer{padding:30px;text-align:center;color:#727877;font-size:12px}a:focus-visible,button:focus-visible{outline:3px solid #aa8036;outline-offset:4px}[hidden]{display:none!important}@media(max-width:700px){header{align-items:flex-start}header nav{flex-wrap:wrap;justify-content:flex-end;gap:12px}.lead,.grid{grid-template-columns:1fr}.hero{padding-top:0}.feature{padding:25px}.heading{margin-top:32px}main{padding:28px 18px}}'''
-css+='\n.play-help{font-size:13px;color:#677277;margin-top:18px;border-top:1px solid #ded8ca;padding-top:12px}.play-help p{font-size:13px}.play-help a{text-decoration:underline}\n'
+  entries[d['id']]={'id':d['id'],'title':title,'raw':title,'body':str(d),'text':d.get_text(' ',strip=True),'page':p.name}
+meta={}
+for f in sorted(src.glob('search_index_*.json'))+sorted(src.glob('search_shared.json')):
+ try:data=json.loads(f.read_text(encoding='utf-8'))
+ except Exception:continue
+ for e in data.get('entries',[]):
+  if e['id'] not in meta:meta[e['id']]={'date':e.get('date',''),'text':e.get('text','')}
+def clean_title(t):
+ m=re.match(r'^EP\s?\d+\s+(.{1,14}?)·\s*(.+)$',t)
+ if m:return m.group(2)
+ return re.sub(r'^EP\s?\d+\s+','',t)
+HOOK_BAD=['大家好','点赞','关注','订阅','谢谢观看','下期见','直播间','评论区','视频里']
+HOOK_SKIP=re.compile(r'^(开场|开头|导语|摘要|本期|这一期|首先)|\d{4}[-/年]\d{1,2}|·\s*\d+:\d{2}')
+def make_hook(e):
+ t=e['text']
+ raw=e.get('raw',e['title'])
+ if t.startswith(raw):t=t[len(raw):]
+ t=t.strip()
+ t=re.sub(r'^\d{4}[-/年]\d{1,2}([-/月]\d{1,2}日?)?\s*(·\s*\d+:\d{2}(:\d{2})?)?\s*','',t)
+ cands=[]
+ for s in re.split(r'(?<=[。！？])',t):
+  s=s.strip().strip(' " "「」『』')
+  s=re.sub(r'^[\s💡🔸🔹🎯\-—·•"“”\'（(]+','',s)
+  if 12<=len(s)<=70 and not any(b in s for b in HOOK_BAD) and not HOOK_SKIP.search(s[:14]):
+   cands.append(s)
+ for s in cands:
+  if len(s)<=48:return s
+ for s in cands:
+  cut=max(s.rfind(p,0,48) for p in '，；：、——')
+  return (s[:cut+1]+'…') if cut>=16 else (s[:48]+'…')
+ return (t[:44]+'…') if len(t)>44 else t
+for eid,e in entries.items():
+ e['date']=meta.get(eid,{}).get('date','')
+ e['board']=board_map[eid]['board'] if eid in board_map else 0
+ e['title']=clean_title(e['title'])
+ e['hook']=make_hook(e)
+ e['mins']=max(1,round(len(e['text'])/400))
+missing=[eid for eid in entries if eid not in board_map]
+assert not missing,'board_map missing entries: '+str(missing)
+extra=[eid for eid in board_map if eid not in entries]
+assert not extra,'board_map has unknown entries: '+str(extra)
+def datauri(fname,mime):
+ raw=(root/'assets'/'boards'/(fname+'.b64')).read_text(encoding='ascii')
+ return 'data:'+mime+';base64,'+''.join(raw.split())
+IMG1=datauri('board1-nixiu.webp','image/webp')
+IMG2=datauri('board2-linghun.webp','image/webp')
+IMG3=datauri('board3-fajie.webp','image/webp')
+IMG4=datauri('board4-daofa.webp','image/webp')
+HERO_IMG=datauri('hero-fajie.webp','image/webp')
+SEAL_IMG=datauri('seal.png','image/png')
+FAVICON=datauri('favicon.png','image/png')
+SITEDESC='志远行空讲课内容的整理站：121 篇讲课整理分成四部——逆修觉者、灵魂觉者、法界天机、道法自然，每部都有故事案例、讲课原声和小动画。'
+TITLE_GUIHAI=datauri('title-guihai.webp','image/webp')
+TITLE_SUB=datauri('title-brandsub.webp','image/webp')
+TITLE_ZHE=datauri('title-zhe.webp','image/webp')
+WMIMG={1:datauri('title-wm1.webp','image/webp'),2:datauri('title-wm2.webp','image/webp'),3:datauri('title-wm3.webp','image/webp'),4:datauri('title-wm4.webp','image/webp')}
+TITLES={1:datauri('title-nixiu.webp','image/webp'),2:datauri('title-linghun.webp','image/webp'),3:datauri('title-fajie.webp','image/webp'),4:datauri('title-daofa.webp','image/webp')}
+TITLE_LIB=datauri('title-lib.webp','image/webp')
+BOARDS=[
+ {'n':1,'cn':'一','wm':'壹','name':'逆修觉者','img':IMG1,
+  'plain':'日子照过，活法换一种——在红尘里把自己修回来。',
+  'desc':'这一部讲的是普通人的修行：为什么修、修行到底是什么、从哪儿开始。福报怎么做、话怎么说、事怎么做，逆修自查一条条对着自己量。离生活最近的一部，先从这里进门。',
+  'first':'ghl-000018'},
+ {'n':2,'cn':'二','wm':'贰','name':'灵魂觉者','img':IMG2,
+  'plain':'人除了身体，还有一个「自己」在水底下。',
+  'desc':'这一部讲灵魂这一层：灵魂是怎么回事，洗灵有什么用，人在镜子里外是怎样两个样子。听着玄，其实讲的都是为什么你明明想做好、却总是做不到。',
+  'first':'ghl-000070'},
+ {'n':3,'cn':'三','wm':'叁','name':'法界天机','img':IMG3,
+  'plain':'看不见的那一界，也有它的规矩和账本。',
+  'desc':'这一部讲看不见的世界怎么运作：三界是怎么分的，阴间也有经济学，烧纸为什么有讲究、怎么做才对。好奇心最重的人，通常是从这一部被勾住的。',
+  'first':'ghl-000051'},
+ {'n':4,'cn':'四','wm':'肆','name':'道法自然','img':IMG4,
+  'plain':'道理听完，最后要落回一日三餐里。',
+  'desc':'这一部最落地：前面听懂的道理，怎么用在过日子上——对家人、对工作、对钱、对脾气。修行不在山上，在你每天怎么活。',
+  'first':'ghl-000026'},
+]
+def board_entries(n):
+ es=[e for e in entries.values() if e['board']==n]
+ es=sorted(es,key=lambda e:(e['date'] or '0000',e['id']),reverse=True)
+ es.sort(key=lambda e:0 if 'video' in e else 1)
+ return es
+css='''*{box-sizing:border-box}
+:root{--bg:#f3ecd9;--ink:#1b2f3c;--sub:#44545f;--card:#fffaf0;--card2:#f7efdb;--line:#d8cba6;--gold:#8a6a24;--gold2:#7c5c13;--chip:#fffaf0;--shadow:rgba(90,70,20,.18)}
+html.dark{--bg:#0a141f;--ink:#ede4cd;--sub:#a7b5ba;--card:#101f2c;--card2:#0e1e2e;--line:#2c4353;--gold:#c9a55f;--gold2:#f0d48a;--chip:transparent;--shadow:rgba(0,0,0,.4)}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden;transition:background .4s,color .4s}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer}
+::selection{background:#c9a55f;color:#101f2c}
+header{position:fixed;inset:0 0 auto 0;z-index:60;display:flex;justify-content:space-between;align-items:center;padding:16px max(4vw,20px);transition:transform .38s ease,opacity .38s ease,background .35s ease,box-shadow .35s ease}
+header.solid{background:rgba(243,236,217,.88);-webkit-backdrop-filter:blur(14px) saturate(1.25);backdrop-filter:blur(14px) saturate(1.25);box-shadow:0 10px 30px rgba(90,70,20,.10);border-bottom:1px solid rgba(216,203,166,.7)}
+html.dark header.solid{background:rgba(10,20,31,.86);border-bottom-color:rgba(44,67,83,.8);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+header.hidden{transform:translateY(-115%);opacity:0;pointer-events:none}
+header .brand,header nav a{text-shadow:0 1px 12px rgba(4,10,16,.35),0 0 3px rgba(4,10,16,.18)}
+html.dark header .brand,html.dark header nav a{text-shadow:0 1px 12px rgba(4,10,16,.9),0 0 3px rgba(4,10,16,.65)}
+html:not(.dark) header .brand,html:not(.dark) header nav a{text-shadow:0 1px 12px rgba(250,244,226,.95),0 0 3px rgba(250,244,226,.9)}
+header.over-hero .brand img,header.over-hero nav a .navimg{filter:drop-shadow(0 2px 12px rgba(0,0,0,.62))}
+html:not(.dark) header.over-hero .brand img,html:not(.dark) header.over-hero nav a .navimg{filter:drop-shadow(0 2px 12px rgba(0,0,0,.62))}
+header.over-hero #theme-toggle{color:#f3ecd9;border-color:rgba(243,236,217,.55)}
+.brand{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:29px;font-weight:700;display:block;width:160px;color:var(--ink)}
+.brand img{display:block}
+.brand .bimg1{width:100%;height:auto;display:block}
+.brand .bimg2{width:100%;height:auto;display:block;margin-top:4px}
+html:not(.dark) .brand img{filter:invert(1) brightness(.85)}
+nav{display:flex;gap:16px;align-items:center}
+nav a{opacity:.92;font-family:"Songti SC","STSong",SimSun,serif;font-size:16.5px;font-weight:700;letter-spacing:2.5px;position:relative;color:var(--ink);padding:7px 13px;border:1px solid transparent;border-radius:999px;transition:border-color .25s ease,background .25s ease}
+nav a .navimg{height:26px;width:auto;display:block}
+html:not(.dark) nav a .navimg{filter:invert(1) brightness(.82)}
+nav a:hover{opacity:1;border-color:rgba(201,165,95,.9);background:rgba(201,165,95,.12)}
+#theme-toggle{border:1px solid #b6a378;background:transparent;color:var(--ink);border-radius:999px;padding:7px 13px;line-height:1}
+#to-top{position:fixed;right:22px;bottom:22px;z-index:55;background:#c9a55f;color:#101f2c;border:0;border-radius:999px;padding:12px 17px;font-weight:700;box-shadow:0 10px 26px rgba(0,0,0,.3)}
+.hero{position:relative;min-height:100svh;display:grid;place-items:center;text-align:center;overflow:hidden}
+.hero .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:kb 30s ease-in-out infinite alternate}
+@keyframes kb{from{transform:scale(1.02)}to{transform:scale(1.10)}}
+.hero::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,10,16,.34),rgba(4,10,16,0) 26%),radial-gradient(ellipse at 50% 42%,rgba(0,0,0,0) 30%,rgba(4,10,16,.38) 100%);z-index:1}
+.hero .bg,.hero .rays,.hero .dust,.hero::before{-webkit-mask-image:linear-gradient(180deg,#000 74%,transparent 98%);mask-image:linear-gradient(180deg,#000 74%,transparent 98%)}
+.hero .rays{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;background:conic-gradient(from 180deg at 50% -12%,transparent 40%,rgba(255,214,120,.30) 47%,rgba(255,226,150,.42) 50%,rgba(255,214,120,.30) 53%,transparent 60%),conic-gradient(from 180deg at 50% -12%,transparent 30%,rgba(255,220,140,.20) 36%,transparent 43%),conic-gradient(from 180deg at 50% -12%,transparent 58%,rgba(255,220,140,.20) 64%,transparent 71%),radial-gradient(ellipse 62% 34% at 50% 0%,rgba(255,222,140,.5),transparent 70%);filter:blur(12px);animation:sway 11s ease-in-out infinite alternate,pulse 6.5s ease-in-out infinite alternate;transition:opacity 1.2s}
+html:not(.dark) .hero .rays{opacity:.85}
+@keyframes sway{from{transform:rotate(-1.6deg) scale(1.15)}to{transform:rotate(1.6deg) scale(1.15)}}
+@keyframes pulse{from{filter:blur(12px) brightness(1)}to{filter:blur(12px) brightness(1.28)}}
+.hero .dust{position:absolute;inset:0;z-index:1;pointer-events:none}
+.hero .dust span{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(255,230,160,.95),rgba(255,230,160,0) 70%);animation:floatup linear infinite}
+@keyframes floatup{from{transform:translateY(26px);opacity:0}18%{opacity:.9}82%{opacity:.7}to{transform:translateY(-120px);opacity:0}}
+.hero-seal{position:absolute;top:86px;right:4vw;width:clamp(56px,7vw,92px);z-index:4;filter:drop-shadow(0 8px 22px rgba(0,0,0,.4))}
+.hero .inner{position:relative;padding:120px 20px 90px;max-width:900px;z-index:3}
+.kicker{display:inline-block;padding:12px 34px 12px 42px;border-radius:999px;background:radial-gradient(ellipse at center,rgba(8,14,22,.55),rgba(8,14,22,0) 72%);color:#f4cf74;letter-spacing:8px;font-size:14px;font-weight:700;font-family:"Songti SC","STSong",SimSun,serif;text-shadow:0 1px 2px rgba(24,20,6,.95),0 0 12px rgba(24,20,6,.7),0 2px 22px rgba(0,0,0,.55)}
+.hero h1{margin:10px 0 6px;line-height:1.1}
+.hero h1 img{height:clamp(100px,16.5vw,168px);width:auto;max-width:88vw;filter:drop-shadow(0 6px 44px rgba(0,0,0,.55))}
+html:not(.dark) .hero h1 img{filter:invert(1) brightness(.88) drop-shadow(0 0 26px rgba(255,236,170,.9))}
+.title-img{display:block}
+.part h2 .title-img{height:clamp(50px,7vw,80px);width:auto;max-width:100%}
+html:not(.dark) .part h2 .title-img{filter:invert(1) brightness(.82)}
+.board-hero h1 .title-img{height:clamp(58px,8.5vw,96px);width:auto;max-width:100%;margin:0 auto}
+html:not(.dark) .board-hero h1 .title-img{filter:invert(1) brightness(.82)}
+.hero .sub{color:#f5edd3;font-size:clamp(15px,2vw,19px);line-height:2.05;font-weight:500;text-shadow:0 1px 2px rgba(8,12,6,.92),0 0 12px rgba(8,12,6,.78),0 2px 26px rgba(0,0,0,.62)}
+html:not(.dark) .hero .sub{color:#fff6da;text-shadow:0 1px 2px rgba(8,12,6,.92),0 0 12px rgba(8,12,6,.78),0 2px 26px rgba(0,0,0,.62)}
+.hl{display:block}
+.cta{margin-top:30px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-block;border:1px solid #c9a55f;padding:13px 26px;border-radius:999px;background:rgba(10,20,31,.42);color:#f0d48a;font-weight:600;transition:transform .25s ease,filter .25s ease,background .25s ease}
+.btn.ghost{background:rgba(10,20,31,.42);color:#f0d48a}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.07);background:rgba(201,165,95,.18)}
+.scrollcue{display:inline-flex;align-items:center;gap:12px;margin-top:46px;padding:14px 30px;border:1px solid rgba(201,165,95,.75);border-radius:999px;background:rgba(10,20,31,.42);color:#f0d48a;font-size:17px;letter-spacing:6px;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .25s ease}
+.scrollcue:hover{transform:translateY(-2px)}
+.scrollcue .arr{animation:bob 1.8s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
+.intro{max-width:760px;margin:56px auto 0;text-align:center}
+.intro p{font-size:17.5px;line-height:2.1;color:var(--sub);font-family:"Songti SC","STSong",SimSun,serif}
+.searchbar{display:flex;gap:10px;max-width:560px;margin:26px auto 0}
+.searchbar input{flex:1;padding:14px 18px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);font-size:15px}
+.searchbar button{border:1px solid #c9a55f;background:#c9a55f;color:#101f2c;border-radius:999px;padding:0 22px;font-weight:600}
+.sresults{max-width:680px;margin:14px auto 0;text-align:left}
+.sresults .hit{display:block;padding:11px 14px;border:1px solid var(--line);border-radius:10px;margin-top:8px;background:var(--card)}
+.sresults .hit b{font-weight:600}
+.sresults .hit span{display:block;font-size:12.5px;color:var(--sub);margin-top:3px;line-height:1.6}
+.sresults .none{color:var(--sub);font-size:14px;text-align:center;padding:8px}
+.part{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(22px,4vw,54px);margin-top:110px;align-items:start;scroll-margin-top:84px;position:relative}
+.part.flip{grid-template-columns:1fr 1.15fr}
+.part ~ .part::after{content:'';position:absolute;top:-58px;left:50%;transform:translateX(-50%);width:min(430px,62%);height:1px;background:linear-gradient(90deg,transparent,rgba(201,165,95,.55),transparent)}
+.part .wm{position:absolute;top:-40px;right:-4px;height:clamp(180px,21vw,300px);width:auto;opacity:.13;pointer-events:none;user-select:none;z-index:0}
+html:not(.dark) .part .wm{filter:invert(1) brightness(.85);opacity:.10}
+.part.flip .wm{right:auto;left:-4px}
+.part .art{position:sticky;top:96px;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px var(--shadow);z-index:1}
+.part .art::after{content:'';position:absolute;inset:11px;border:1px solid rgba(240,212,138,.38);border-radius:9px;pointer-events:none}
+.part .art img{display:block;width:100%;height:auto}
+.reveal .art img{transform:scale(1.045);transition:transform 1.4s ease}
+.reveal.in .art img{transform:scale(1)}
+.part .art:hover img{transform:scale(1.03)}
+.part .txt{align-self:center;position:relative;z-index:1}
+.part .tag{display:inline-block;border:1px solid var(--gold);color:var(--gold2);background:var(--chip);border-radius:999px;padding:5px 13px;font-size:12px;letter-spacing:2px;font-weight:600}
+.part h2{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-weight:600;font-size:clamp(42px,6vw,68px);letter-spacing:.06em;margin:16px 0 6px;line-height:1.15}
+.part .plain{font-size:clamp(19px,2.6vw,24px);color:var(--gold2);line-height:1.6;font-family:"Songti SC",SimSun,serif}
+.part .desc{color:var(--sub);line-height:2;font-size:15.5px}
+.part .desc .dropcap{float:left;height:52px;width:auto;margin:4px 10px 0 0}
+html:not(.dark) .part .desc .dropcap{filter:invert(1) brightness(.82)}
+.firstread{background:var(--card);border:1px solid var(--line);border-left:3px solid #c9a55f;border-radius:12px;padding:18px 20px;margin-top:20px;transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease}
+.firstread:hover{transform:translateY(-3px);border-color:rgba(201,165,95,.7);box-shadow:0 16px 36px var(--shadow)}
+.firstread .lab{color:var(--gold2);font-size:12px;letter-spacing:2px;margin-bottom:8px;font-weight:600}
+.firstread h3{margin:0 0 8px;font-size:18.5px;line-height:1.55}
+.firstread p{margin:0;color:var(--sub);font-size:14px;line-height:1.85}
+.casewall{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.casewall button{border:1px solid var(--line);background:var(--chip);color:var(--gold2);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600}
+.casewall button.on{background:#f3e5bd;border-color:#c9a55f;color:#7c5c13}
+html.dark .casewall button.on{background:#243843;color:#f0d48a}
+.rot-fade{transition:opacity .45s ease}
+.rot-fade.out{opacity:0}
+.rot-open{margin-top:10px;background:none;border:0;color:var(--gold2);font-size:14.5px;padding:0;font-weight:600}
+.doors{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap}
+.doors a{border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:13.5px;color:var(--gold2);background:var(--chip);font-weight:600}
+.stage{position:relative;aspect-ratio:16/9;background:#183544;border-radius:10px;overflow:hidden;margin-top:10px}
+.stage>button{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:#183544;cursor:pointer}
+.stage>button img{width:100%;height:100%;object-fit:cover;display:block}
+.stage .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;background:rgba(201,165,95,.94);color:#101f2c;display:grid;place-items:center;font-size:20px}
+.stage iframe{width:100%;height:100%;border:0;display:block}
+.vopen{margin:9px 2px 0;color:var(--sub);font-size:13.5px}
+.vopen a{color:var(--gold2);text-decoration:underline;text-underline-offset:3px}
+.vibechips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.vibechips button{border:1px solid var(--line);background:var(--chip);color:var(--gold2);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600}
+.vibechips button.on{background:#f3e5bd;border-color:#c9a55f;color:#7c5c13}
+html.dark .vibechips button.on{background:#243843;color:#f0d48a}
+.boardlist{margin-top:22px;border-top:1px solid var(--line)}
+.boardlist .first{margin-top:16px}
+.boardlist h4{margin:20px 0 4px;font-size:13px;letter-spacing:2px;color:var(--gold);font-weight:600}
+.alist a{display:flex;justify-content:space-between;gap:14px;padding:10px 4px;border-bottom:1px solid var(--line);font-size:15px;line-height:1.6}
+.alist a:hover{color:var(--gold2)}
+.alist .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.alist .hook{color:var(--sub);font-size:13px;line-height:1.55}
+.alist .vchip{display:inline-block;background:#a52a21;color:#fff;font-size:11px;line-height:1;padding:3px 8px;border-radius:999px;margin-left:8px;vertical-align:2px;white-space:nowrap;letter-spacing:1px}
+.alist .d{color:var(--sub);font-size:12.5px;white-space:nowrap;padding-top:3px;text-align:right}
+.more{display:inline-block;margin-top:16px;border:1px solid #c9a55f;color:var(--gold2);border-radius:999px;padding:10px 20px;font-size:14px;background:var(--chip)}
+.library{scroll-margin-top:84px;margin:120px auto 0;max-width:1180px;border:1px solid var(--line);border-radius:18px;padding:clamp(26px,4vw,44px);background:linear-gradient(135deg,var(--card2),var(--card));display:grid;grid-template-columns:1.25fr 1fr;gap:26px;align-items:center}
+.library h2{font-family:"Songti SC",SimSun,serif;font-size:clamp(24px,3.4vw,34px);margin:0 0 10px}
+.library p{color:var(--sub);line-height:1.95;margin:0}
+.library .years{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.library .years a{border:1px solid var(--line);border-radius:12px;padding:15px;text-align:center;background:var(--card)}
+.library .years b{display:block;font-size:19px;margin-bottom:3px}
+.library .years span{font-size:12px;color:var(--sub)}
+.board-hero{max-width:1180px;margin:0 auto;padding:130px 22px 0;text-align:center}
+.board-hero .board-art{width:min(880px,100%);max-height:330px;object-fit:cover;border-radius:18px;margin:24px auto 4px;display:block;box-shadow:0 24px 60px var(--shadow)}
+.topics-h1{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(42px,6vw,60px);margin:14px 0 6px}
+.topic{margin:46px 0 8px}
+.topic h2{font-family:"Songti SC","STSong",SimSun,serif;font-size:clamp(22px,3vw,28px);margin:0 0 4px}
+.topic .tdesc{color:var(--sub);margin:0 0 8px;line-height:1.8}
+.board-hero h1{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(46px,7vw,76px);margin:14px 0 8px;letter-spacing:.06em}
+.board-hero .plain{font-size:clamp(18px,2.4vw,23px);color:var(--gold2);font-family:"Songti SC",SimSun,serif;line-height:1.6}
+.board-hero p{color:var(--sub);line-height:2;max-width:720px;margin:14px auto 0}
+.board-main{max-width:900px;margin:0 auto;padding:26px 22px 20px}
+.board-main .alist a{font-size:16.5px;padding:13px 4px}
+footer{text-align:center;color:var(--sub);font-size:12.5px;padding:44px 10px 50px;position:relative}
+.footwm{user-select:none}
+.footwm img{height:clamp(80px,12vw,150px);width:auto;opacity:.16}
+html:not(.dark) .footwm img{filter:invert(1) brightness(.85);opacity:.13}
+.flinks{margin:14px 0 10px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.flinks a{border:1px solid var(--gold);color:var(--gold2);background:var(--chip);border-radius:999px;padding:9px 16px;font-size:13.5px}
+dialog{max-width:720px;width:calc(100% - 32px);max-height:85vh;border:0;background:var(--card);padding:32px;color:var(--ink);border-radius:14px}
+dialog::backdrop{background:rgba(9,18,28,.72)}
+dialog p{line-height:2}
+dialog .src{color:var(--sub);font-size:12.5px;border-top:1px solid var(--line);padding-top:10px}
+#close{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:8px 15px}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s ease,transform .9s ease}
+.reveal.in{opacity:1;transform:none}
+[hidden]{display:none!important}
+a:focus-visible,button:focus-visible{outline:3px solid #aa8036;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.hero .rays{animation:none}.scrollcue .arr{animation:none}.hero .bg{animation:none}.hero .dust span{animation:none}.reveal{transition:none;opacity:1;transform:none}}
+@media(max-width:820px){.part,.part.flip{grid-template-columns:1fr}.part .art{position:static}.part .txt{text-align:center}.part .firstread{text-align:left}.part .doors{justify-content:center}.library{grid-template-columns:1fr;text-align:center}.brand{font-size:20px;width:134px}header{flex-wrap:wrap;row-gap:4px}nav{order:3;width:100%;flex-wrap:wrap;gap:8px 16px}nav a{font-size:12.5px;letter-spacing:1px}.hero-seal{top:118px}.hero .sub{font-size:14.5px}}
+@media(max-width:820px){nav a .navimg{height:22px}nav a{padding:5px 10px}}
+'''
 (out/'reading.css').write_text(css,encoding='utf-8')
-def shell(title,body,domestic=False,index=False):
- nav='<a href="index.html">视频与阅读</a>' if domestic else '<a class="button" href="domestic.html">国内版 · 纯文字 →</a>'
- seo=''
- if index:
-  canonical='https://guihailu.github.io/'
-  ld=json.dumps({'@context':'https://schema.org','@type':'WebSite','name':'归海录 · 志远行空','url':canonical,'description':'归海录：志远行空的公开分享与 YouTube 视频讲法合集','inLanguage':'zh-CN'},ensure_ascii=False)
-  seo=('<link rel="canonical" href="'+canonical+'">'
-       '<meta property="og:url" content="'+canonical+'">'
-       '<meta property="og:title" content="'+esc(title)+'">'
-       '<meta property="og:description" content="归海录：志远行空的公开分享与 YouTube 视频讲法合集">'
-       '<meta property="og:type" content="website">'
-       '<meta property="og:site_name" content="归海录 · 志远行空">'
-       '<meta property="og:locale" content="zh_CN">'
-       '<meta property="og:image" content="https://guihailu.github.io/cover.jpg">'
-       '<meta name="twitter:card" content="summary_large_image">'
-       '<script type="application/ld+json">'+ld+'</script>')
- return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+title+'</title>'+seo+'<link rel="stylesheet" href="reading.css"></head><body><header><a href="index.html"><strong>归海录</strong></a><nav><a href="domestic.html#library">完整资料库</a>'+nav+'</nav></header><main>'+body+'</main><footer>志远行空公开分享整理</footer><dialog id="reader"><button id="close">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div></dialog><script src="reading.js"></script></body></html>'
-feature=cases[0]
-body='<section class="hero"><small>志远行空公开分享整理</small><h1>从一则故事，慢慢读进去。</h1><p>读过的分享，在这里找到；感兴趣的话题，从这里继续。</p></section><div class="lead"><article class="feature" id="'+esc(feature['id'])+'"><small>先读一则 · 案例选读</small><h2>'+esc(feature['title'])+'</h2><p>'+esc(feature['intro'])+'</p><a class="button" href="#'+feature['id']+'">读完整故事 →</a></article><aside class="side"><small>从这里继续</small><a href="#stories">再读一则故事 →</a><a href="#videos">看看最近的分享 →</a><a href="domestic.html#library">查找师父完整原文 →</a><p class="muted">读故事，也可以继续查找相关讲课原文。</p></aside></div><section id="stories"><div class="heading"><h2>也许，你还想读</h2><button id="shuffle">换一组 ↻</button></div><div class="grid" id="stories-grid"></div></section>'
-body+='<section id="videos"><div class="heading"><h2>换个角度看人生</h2><span class="muted">中文故事短片</span></div><div class="grid">'
+def article_href(article_id):
+ e=entries.get(article_id)
+ return (e['page']+'#'+article_id) if e else ('all.html#'+article_id)
+LARK='https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf'
+def shell(title,body,home=False):
+ navp='' if home else 'index.html'
+ nav=''.join(f'<a href="{navp}#part{b["n"]}" aria-label="{b["name"]}"><img class="navimg" src="{TITLES[b["n"]]}" alt="{b["name"]}"></a>' for b in BOARDS)
+ return ('<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+ '<title>'+esc(title)+'</title>'
+ f'<link rel="icon" type="image/png" href="{FAVICON}">'
+ f'<meta name="description" content="{SITEDESC}">'
+ f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
+ '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
+ '<link rel="stylesheet" href="reading.css"></head><body>'
+ f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
+ f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
+ '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+TITLE_LIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
+ +body+
+ f'<footer><div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt=""></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
+ '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
+ '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
+ '<script src="reading.js"></script></body></html>')
+def alist_rows(es):
+ rows=''
+ for e in es:
+  meta_line=f'{esc(e["date"])}<br>约 {e["mins"]} 分钟' if e['date'] else f'约 {e["mins"]} 分钟'
+  chip='<span class="vchip">▶ 有视频</span>' if 'video' in e else ''
+  rows+=f'<a href="{article_href(e["id"])}"><span class="tx"><span>{esc(e["title"])}{chip}</span><span class="hook">{esc(e["hook"])}</span></span><span class="d">{meta_line}</span></a>'
+ return rows
+def rotator(start):
+ return (f'<div data-rot data-start="{start}"><div class="lab">故事案例 · 一则接一则随机播</div>'
+ '<h3 class="rot-title rot-fade"></h3><p class="rot-intro rot-fade"></p>'
+ '<button class="rot-open" type="button">看看这个故事 →</button>'
+ '<div class="casewall"></div></div>')
 vibes=json.loads((src/'vibe_cards.json').read_text(encoding='utf-8'))['cards']
-for c in sorted(vibes,key=lambda x:x['published_at'],reverse=True)[:3]:
- body+='<article class="card"><div class="screen">'+esc(c['title'])+'</div><p>'+esc(c['description'])+'</p><a href="domestic.html#'+c['article_id']+'">先读相关原文 →</a></article>'
-body+='</div></section><section><div class="heading"><h2>听师父讲一段</h2></div><div class="grid">'
+vibes=sorted((c for c in vibes if c.get('status')=='published' and c.get('youtube_url')),key=lambda x:x['published_at'])
 clips=json.loads((src/'video_cards.json').read_text(encoding='utf-8'))['cards']
-for c in sorted(clips,key=lambda x:x['published_at'],reverse=True)[:3]:
- vid=c['youtube_url'].split('/')[-1]
- body+='<article class="card"><div class="screen"><span>'+esc(c['title'])+'</span><button data-video="'+vid+'">▶ 点击播放</button></div><p>'+esc(c['description'])+'</p><a href="domestic.html#'+c['article_id']+'">阅读完整原文 →</a></article>'
-body+='</div></section><div class="heading"><h2>想找以前讲过的内容？</h2><a class="button" href="domestic.html#library">进入完整资料库 →</a></div>'
-(out/'index.html').write_text(shell('归海录 · 视频与阅读',body,index=True),encoding='utf-8')
-body='<section class="hero"><small>国内版 · 纯文字</small><h1>把读过的，再找回来。</h1><p>完整原文与案例阅读，不加载视频、封面或第三方播放器。</p></section><section id="stories"><div class="heading"><h2>先读一则故事</h2><button id="shuffle">换一组 ↻</button></div><p class="muted">案例经匿名整理，叙述与观点来自原案例。</p><div class="grid" id="stories-grid"></div></section><section id="library"><div class="heading"><h2>完整原文</h2><span id="count"></span></div><label for="search">搜索标题或正文</label><input id="search" type="search" placeholder="输入你想找的词，例如：六通"><div id="entries">'+''.join(e['body'] for e in entries.values())+'</div><p id="empty" hidden>没有找到匹配原文，试试更短的关键词。</p></section>'
-(out/'domestic.html').write_text(shell('归海录 · 国内纯文字版',body,True),encoding='utf-8')
-js='const cases='+json.dumps(cases,ensure_ascii=False)+';\n'+'''const grid=document.querySelector('#stories-grid');let last=[];function render(){const pool=cases.filter(c=>!last.includes(c.id));for(let i=pool.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}const batch=pool.slice(0,3);last=batch.map(c=>c.id);grid.replaceChildren(...batch.map(c=>{const el=document.createElement('article');el.className='card';const h=document.createElement('h3'),p=document.createElement('p'),a=document.createElement('a');h.textContent=c.title;p.textContent=c.intro;a.href='#'+c.id;a.textContent='阅读完整故事 →';el.append(h,p,a);return el}));}document.querySelector('#shuffle').onclick=render;render();const dialog=document.querySelector('dialog');function route(){const id=location.hash.slice(1),c=cases.find(c=>c.id===id);if(c){document.querySelector('#reader-title').textContent=c.title;document.querySelector('#reader-body').replaceChildren(...c.paragraphs.map(t=>{const p=document.createElement('p');p.textContent=t;return p}));if(!dialog.open)dialog.showModal()}else{const d=document.getElementById(id);if(d&&d.matches('details')){d.open=true;d.scrollIntoView()}}}window.addEventListener('hashchange',route);document.querySelector('#close').onclick=()=>dialog.close();dialog.addEventListener('close',()=>history.replaceState(null,'',location.pathname));route();const search=document.querySelector('#search');if(search){const rows=[...document.querySelectorAll('details.entry')];function filter(){let n=0;for(const r of rows){r.hidden=!r.textContent.toLowerCase().includes(search.value.trim().toLowerCase());if(!r.hidden)n++}document.querySelector('#count').textContent=n+' 篇';document.querySelector('#empty').hidden=n!==0}search.oninput=filter;filter()}document.querySelectorAll('[data-video]').forEach(b=>{const stage=b.parentElement,card=stage.parentElement,title=stage.querySelector('span').textContent;const help=document.createElement('details');help.className='play-help';const summary=document.createElement('summary');summary.textContent='播放遇到问题？';const note=document.createElement('p');note.textContent='若播放器要求登录，可打开此视频的 YouTube 页面；也可以继续阅读完整原文。';const link=document.createElement('a');link.href='https://www.youtube.com/watch?v='+b.dataset.video;link.target='_blank';link.rel='noopener';link.textContent='在 YouTube 打开此视频 ↗';help.append(summary,note,link);card.append(help);const stop=document.createElement('button');stop.textContent='收起播放器';stop.hidden=true;stop.style.marginTop='12px';card.append(stop);const original=[...stage.childNodes];b.onclick=()=>{document.querySelectorAll('[data-stop]').forEach(x=>{if(!x.hidden)x.click()});const f=document.createElement('iframe');f.src='https://www.youtube.com/embed/'+b.dataset.video+'?autoplay=1&playsinline=1';f.title=title;f.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';stage.style.aspectRatio='9 / 16';stage.replaceChildren(f);stop.hidden=false;};stop.dataset.stop='';stop.onclick=()=>{stage.replaceChildren(...original);stage.style.aspectRatio='16 / 9';stop.hidden=true;b.focus();};});
+clips=sorted((c for c in clips if c.get('status')=='published' and c.get('youtube_url')),key=lambda x:x['published_at'],reverse=True)
+# 文章↔Vibe视频对照（逐条按标题/正文核对后写死；新增视频先核对再加行，勿自动猜配）
+VIDEO_MAP={'ghl-000018':('li_zfTRp690','卡车司机理论'),'ghl-000004':('jvRbI_nnxxM','聪明人走进死局'),'ghl-000022':('boVkmwiauS4','人生如棋，别做那个臭棋篓子'),'ghl-000026':('q6wj4WzT1XE','选择大于努力')}
+_vibe_urls={c['youtube_url'].rsplit('/',1)[-1] for c in vibes}
+for _eid,(_vid,_vt) in VIDEO_MAP.items():
+ assert _vid in _vibe_urls,'VIDEO_MAP video not in published vibe cards: '+_vid
+ assert _eid in entries,'VIDEO_MAP unknown article: '+_eid
+ entries[_eid]['video']=(_vid,_vt)
+def vid_of(c):return c['youtube_url'].rstrip('/').split('/')[-1].split('?')[0]
+def poster_of(c):
+ v=vid_of(c)
+ return c.get('poster') or ('https://i.ytimg.com/vi/'+v+'/hqdefault.jpg')
+def video_block():
+ c=clips[0];v=vid_of(c)
+ return ('<div class="lab">讲课原声 · 先听一段</div>'
+ f'<h3>《{esc(c["title"])}》· 志远行空原声</h3><p>{esc(c.get("description",""))}</p>'
+ f'<div class="stage" id="clip-stage"><button type="button" data-video="{v}" aria-label="播放：{esc(c["title"])}"><img src="{poster_of(c)}" alt="" loading="lazy"><span class="play">▶</span></button></div>'
+ f'<p class="vopen">这里播不了的话，<a href="https://youtu.be/{v}" target="_blank" rel="noopener">去 YouTube 看这一条 ↗</a></p>')
+def vibe_block():
+ c0=vibes[0];v0=vid_of(c0)
+ chips=''.join(f'<button type="button" data-vibe="{vid_of(c)}" data-t="{esc(c["title"])}"{" class=\"on\"" if i==0 else ""}>《{esc(c["title"])}》</button>' for i,c in enumerate(vibes))
+ return ('<div class="lab">知识大赏 · 小动画</div>'
+ f'<h3 id="vibe-title">《{esc(c0["title"])}》</h3>'
+ f'<div class="stage" id="vibe-stage"><button type="button" data-video="{v0}" aria-label="播放：{esc(c0["title"])}"><img src="{poster_of(c0)}" alt="" loading="lazy"><span class="play">▶</span></button></div>'
+ f'<p class="vopen">这里播不了的话，<a id="vibe-open" href="https://youtu.be/{v0}" target="_blank" rel="noopener">去 YouTube 看这一条 ↗</a></p>'
+ f'<div class="vibechips">{chips}</div>')
+def first_block(b):
+ if b['n']==1:return rotator(3)
+ if b['n']==2:return rotator(5)
+ if b['n']==3:return video_block()
+ return vibe_block()
+def doors(b):
+ if b['n']==1:return '<a href="#part1" data-shuffle>换一则案例</a><a href="#library">本部原文（资料库）</a>'
+ if b['n']==2:return '<a href="#part2" data-shuffle>换一则案例</a><a href="#part3">听一段原声</a>'
+ if b['n']==3:return '<a href="#part3" data-replay>再播一遍</a><a href="clips.html">切片合集</a>'
+ return '<a href="#library">本部原文（资料库）</a><a href="#part1">回到第一部</a>'
+def part_section(b):
+ es=board_entries(b['n'])
+ fe=entries[b['first']]
+ fechip='<span class="vchip">▶ 有视频</span>' if 'video' in fe else ''
+ prev=[e for e in es if e['id']!=b['first']][:5]
+ blist=('<div class="boardlist"><h4>本部文章 · 共 '+str(len(es))+' 篇</h4>'
+ f'<div class="alist"><a href="{article_href(fe["id"])}"><span>从这一篇开始 · {esc(fe["title"])}{fechip}</span></a>'
+ +alist_rows(prev)+'</div>'
+ f'<a class="more" href="board{b["n"]}.html">本部全部 {len(es)} 篇 →</a></div>')
+ txt=(f'<div class="txt"><span class="tag">第{b["cn"]}部</span><h2><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h2>'
+ f'<div class="plain">{b["plain"]}</div><p class="desc"><img class="dropcap" src="{TITLE_ZHE}" alt="">{b["desc"][1:]}</p>'
+ f'<div class="firstread">{first_block(b)}</div>'
+ f'<div class="doors">{doors(b)}</div>{blist}</div>')
+ art=f'<div class="art"><img src="{b["img"]}" alt="{b["name"]}" loading="lazy"></div>'
+ inner=(txt+art) if b['n']%2==0 else (art+txt)
+ cls='part flip reveal' if b['n']%2==0 else 'part reveal'
+ return f'<section class="{cls}" id="part{b["n"]}"><img class="wm" src="{WMIMG[b["n"]]}" alt="" aria-hidden="true">'+inner+'</section>'
+def board_page(b):
+ es=board_entries(b['n'])
+ body=(f'<section class="board-hero"><span class="tag">第{b["cn"]}部</span><h1><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h1>'
+ f'<img class="board-art" src="{b["img"]}" alt="" loading="lazy">'
+ f'<div class="plain">{b["plain"]}</div><p>{b["desc"]}</p>'
+ f'<p>本部共 {len(es)} 篇：有视频版的排在前面，其余按时间从新到旧，点开就是完整原文。</p></section>'
+ f'<main class="board-main"><div class="alist">{alist_rows(es)}</div>'
+ '<p style="margin-top:26px"><a class="more" href="index.html">← 回到首页</a> <a class="more" href="all.html">完整资料库 →</a></p></main>')
+ return shell(f'归海录 · {b["name"]}',body)
+PROBLEMS=[
+ {'name':'钱和生意','desc':'赚钱、花钱、做生意栽过跟头，先看看这笔账在讲什么。','kw':['钱','财','生意','经商','创业','投资','股票','赚钱','老板','财富']},
+ {'name':'工作和前途','desc':'换工作、考学、走仕途，卡住的时候先看清局势再动。','kw':['工作','职业','事业','跳槽','职场','上班','考试','高考','体制','当官','行业','转行','辞职','中年危机','适合干什么']},
+ {'name':'家人和关系','desc':'父母、孩子、夫妻之间过不去的坎，先看看别人的故事。','kw':['父母','孩子','夫妻','婚姻','家庭','亲子','婆婆','子女','儿女']},
+ {'name':'身体和心里','desc':'身体出了问题、心静不下来，讲清背后的道理再谈怎么办。','kw':['身体','生病','健康','癌症','医院','焦虑','失眠','情绪','脾气','抑郁']},
+ {'name':'命运和选择','desc':'站在岔路口不知道怎么选，先看懂这盘棋再落子。','kw':['命运','改命','运气','选择','算命','占卜','八字','风水','大运','命里']},
+]
+def problem_entries(p):
+ scored=[]
+ for e in entries.values():
+  th=sum(1 for k in p['kw'] if k in e['title'])
+  tx=len({k for k in p['kw'] if k in e['text']})
+  lead=len({k for k in p['kw'] if k in e['text'][:600]})
+  s=3*th+tx
+  if s>=3 and (th>=1 or s>=5):scored.append((s+lead,e['date'] or '0000',e))
+ scored.sort(key=lambda x:(x[0],x[1]),reverse=True)
+ es=[e for s,d,e in scored]
+ es.sort(key=lambda e:0 if 'video' in e else 1)
+ return es
+def topics_page():
+ secs=''
+ for p in PROBLEMS:
+  es=problem_entries(p)
+  secs+=(f'<section class="topic"><h2>{p["name"]}</h2><p class="tdesc">{p["desc"]}这一类共选出 {len(es)} 篇，先读靠前的几篇。</p>'
+  f'<div class="alist">{alist_rows(es[:12])}</div></section>')
+ body=('<section class="board-hero"><span class="tag">资料库</span><h1 class="topics-h1">按问题找</h1>'
+ '<p>不用先弄懂四部是什么。带着你现在最头疼的问题来，从下面挑一篇开始读，就是入口。</p></section>'
+ f'<main class="board-main">{secs}'
+ '<p style="margin-top:26px"><a class="more" href="index.html">← 回到首页</a> <a class="more" href="all.html">完整资料库 →</a></p></main>')
+ return shell('归海录 · 按问题找',body)
+search_entries=[]
+for e in sorted(entries.values(),key=lambda x:x['id']):
+ t=' '.join(meta.get(e['id'],{}).get('text','').split())[:240]
+ search_entries.append({'id':e['id'],'t':e['title'],'p':e['page'],'d':e['date'],'x':t})
+hero=('<section class="hero">'
+ f'<img class="bg" src="{HERO_IMG}" alt="" aria-hidden="true"><div class="rays" aria-hidden="true"></div><div class="dust" id="dust" aria-hidden="true"></div>'
+ f'<img class="hero-seal" src="{SEAL_IMG}" alt="归海">'
+ f'<div class="inner"><div class="kicker">第 一 次 来 · 从 这 里 开 始</div><h1><img src="{TITLE_GUIHAI}" alt="归海录"></h1>'
+ '<p class="sub"><span class="hl">这里是志远行空讲课内容的整理站</span>'
+ '<span class="hl">全部内容分成四部&ensp;<span style="white-space:nowrap">逆修觉者</span>&ensp;<span style="white-space:nowrap">灵魂觉者</span>&ensp;<span style="white-space:nowrap">法界天机</span>&ensp;<span style="white-space:nowrap">道法自然</span></span>'
+ '<span class="hl">每一部里都有故事案例、讲课原声和小动画，点开就能看</span>'
+ '<span class="hl">第一次来，从第一部开始往下看</span></p>'
+ '<div class="cta"><a class="btn" href="#part1">↓ 从第一部开始 ↓</a><a class="btn ghost" href="#library">直接查资料库</a></div>'
+ '<a class="scrollcue" href="#part1"><span class="arr">↓</span> 向 下 逛 <span class="arr">↓</span></a></div></section>')
+counts={y:0 for y in ['2026','2025','2024']}
+for e in entries.values():
+ if e['date'][:4] in counts:counts[e['date'][:4]]+=1
+total=len(entries)
+intro=('<section class="intro reveal"><p>不用从头读起。先挑一部顺眼的，读一则故事、听一段原声，觉得对味，再往深处走。</p>'
+ '<form class="searchbar" id="search-form"><input id="search-input" type="search" placeholder="搜一搜：天眼、烧纸、福报、轮回…" aria-label="搜索站内文章"><button type="submit">搜索</button></form>'
+ '<div class="sresults" id="search-results"></div></section>')
+library=(f'<section class="library reveal" id="library"><div><h2>完整资料库</h2>'
+ f'<p>四部之外的全部原文都在这里：{total} 篇讲课整理，按年份排好，带全文搜索。想查什么，直接去资料库里找。</p></div>'
+ '<div class="years">'
+ f'<a href="2026.html"><b>2026 年</b><span>{counts["2026"]} 篇</span></a>'
+ f'<a href="2025.html"><b>2025 年</b><span>{counts["2025"]} 篇</span></a>'
+ f'<a href="2024.html"><b>2024 年</b><span>{counts["2024"]} 篇</span></a>'
+ f'<a href="all.html"><b>全部文章</b><span>{total} 篇 · 全文搜索</span></a>'
+ '<a href="topics.html" style="grid-column:1/-1"><b>按问题找</b><span>钱 · 工作 · 家人 · 身体 · 命运——按你带着来的问题选篇</span></a></div></section>')
+index_body=hero+'<main>'+intro+''.join(part_section(b) for b in BOARDS)+library+'</main>'
+(out/'index.html').write_text(shell('归海录 · 志远行空讲课整理',index_body,home=True),encoding='utf-8')
+for b in BOARDS:
+ (out/f'board{b["n"]}.html').write_text(board_page(b),encoding='utf-8')
+(out/'topics.html').write_text(topics_page(),encoding='utf-8')
+(out/'domestic.html').write_text('<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=all.html"><title>归海录 · 完整资料库</title><p>正在进入<a href="all.html">完整资料库</a>…</p>',encoding='utf-8')
+related=('<section class="board-hero"><span class="tag">知识大赏</span><h1>换个角度看人生</h1><p>小动画对应的完整原文都在这里，点开就是全文。</p></section>'
+ '<main class="board-main"><div class="alist">'
+ +''.join(f'<a href="{article_href(c["article_id"])}"><span>{esc(c["title"])}</span></a>' for c in vibes)
+ +'</div><p style="margin-top:26px"><a class="more" href="index.html#part4">← 回到道法自然</a></p></main>')
+(out/'vibe.html').write_text(shell('归海录 · 人生观察相关阅读',related),encoding='utf-8')
+js='const cases='+json.dumps(cases,ensure_ascii=False)+';\n'
+js+='const SEARCH='+json.dumps(search_entries,ensure_ascii=False)+';\n'
+js+=r'''
+const hdr=document.querySelector('header');
+const heroEl=document.querySelector('.hero');
+let lastY=0;
+const toTop=document.querySelector('#to-top');
+function onScroll(){
+  const y=window.scrollY;
+  if(hdr){const oh=heroEl?(y<heroEl.offsetHeight-120):false;hdr.classList.toggle('over-hero',oh);hdr.classList.toggle('solid',!oh&&y>30)}
+  if(hdr){ if(y>140&&y>lastY+4){hdr.classList.add('hidden');} else if(y<lastY-4||y<=140){hdr.classList.remove('hidden');} }
+  lastY=y;
+  if(toTop)toTop.hidden=y<600;
+}
+window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+if(toTop)toTop.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+const themeBtn=document.querySelector('#theme-toggle');
+function paintTheme(){if(themeBtn){const dark=document.documentElement.classList.contains('dark');themeBtn.textContent=dark?'☀️':'🌙';themeBtn.setAttribute('aria-label',dark?'切换白天模式':'切换晚上模式')}}
+if(themeBtn){themeBtn.onclick=()=>{const dark=document.documentElement.classList.toggle('dark');try{localStorage.setItem('ghl_theme',dark?'dark':'light')}catch(e){}paintTheme()};paintTheme()}
+const dustBox=document.getElementById('dust');
+if(dustBox){for(let i=0;i<16;i++){const s=document.createElement('span');const sz=3+Math.random()*6;s.style.width=sz+'px';s.style.height=sz+'px';s.style.left=(18+Math.random()*64)+'%';s.style.top=(12+Math.random()*62)+'%';s.style.animationDuration=(9+Math.random()*14)+'s';s.style.animationDelay=(-Math.random()*16)+'s';dustBox.appendChild(s)}}
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const dialog=document.querySelector('#reader');
+function openCase(c){
+  if(!c||!dialog)return;
+  document.querySelector('#reader-title').textContent=c.title;
+  const body=document.querySelector('#reader-body');
+  body.replaceChildren(...c.paragraphs.map(t=>{const p=document.createElement('p');p.textContent=t;return p}));
+  if(!dialog.open)dialog.showModal();
+}
+if(dialog){document.querySelector('#close').onclick=()=>dialog.close();dialog.addEventListener('close',()=>history.replaceState(null,'',location.pathname+location.search))}
+function route(){const id=location.hash.slice(1);const c=cases.find(c=>c.id===id);if(c)openCase(c)}
+window.addEventListener('hashchange',route);route();
+document.querySelectorAll('[data-rot]').forEach(box=>{
+  const title=box.querySelector('.rot-title'),intro=box.querySelector('.rot-intro'),wall=box.querySelector('.casewall'),open=box.querySelector('.rot-open');
+  let idx=parseInt(box.dataset.start||'0',10)%cases.length;
+  function paint(fade){
+    const c=cases[idx];
+    const apply=()=>{title.textContent='《'+c.title+'》';intro.textContent=c.intro;[...wall.children].forEach((b,i)=>b.classList.toggle('on',cases[i].id===c.id));title.classList.remove('out');intro.classList.remove('out')};
+    if(fade){title.classList.add('out');intro.classList.add('out');setTimeout(apply,450)}else apply();
+  }
+  cases.forEach((c,i)=>{const b=document.createElement('button');b.type='button';b.textContent=c.title;b.onclick=()=>{idx=i;paint(true)};wall.appendChild(b)});
+  if(open)open.onclick=()=>openCase(cases[idx]);
+  box._next=()=>{idx=(idx+1)%cases.length;paint(true)};
+  paint(false);
+  setInterval(()=>{if(!document.hidden)box._next()},5200);
+});
+document.querySelectorAll('[data-shuffle]').forEach(a=>{a.addEventListener('click',ev=>{const sec=a.closest('section');const box=sec&&sec.querySelector('[data-rot]');if(box&&box._next){ev.preventDefault();box._next()}})});
+function playInto(stage,vid,title){
+  const f=document.createElement('iframe');f.src='https://www.youtube.com/embed/'+vid+'?autoplay=1&playsinline=1';f.title=title||'视频';f.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';stage.replaceChildren(f);
+}
+document.querySelectorAll('.stage>button[data-video]').forEach(b=>{b.onclick=()=>playInto(b.parentElement,b.dataset.video,b.getAttribute('aria-label'))});
+document.querySelectorAll('[data-replay]').forEach(a=>{a.addEventListener('click',ev=>{ev.preventDefault();location.reload()})});
+const vibeStage=document.getElementById('vibe-stage'),vibeTitle=document.getElementById('vibe-title');
+document.querySelectorAll('[data-vibe]').forEach(ch=>{
+  ch.onclick=()=>{
+    document.querySelectorAll('[data-vibe]').forEach(x=>x.classList.remove('on'));ch.classList.add('on');
+    if(vibeTitle)vibeTitle.textContent='《'+ch.dataset.t+'》';
+    const vo=document.getElementById('vibe-open');if(vo)vo.href='https://youtu.be/'+ch.dataset.vibe;
+    if(vibeStage){const old=vibeStage.querySelector('button');if(old){old.dataset.video=ch.dataset.vibe;old.setAttribute('aria-label','播放：'+ch.dataset.t);const img=old.querySelector('img');if(img)img.src='https://i.ytimg.com/vi/'+ch.dataset.vibe+'/hqdefault.jpg'}else{playInto(vibeStage,ch.dataset.vibe,ch.dataset.t)}}
+  };
+});
+const sForm=document.getElementById('search-form'),sInput=document.getElementById('search-input'),sBox=document.getElementById('search-results');
+function doSearch(){
+  if(!sBox)return;
+  const q=(sInput.value||'').trim().toLowerCase();sBox.replaceChildren();
+  if(!q)return;
+  const hits=SEARCH.filter(e=>(e.t+' '+e.x).toLowerCase().includes(q)).slice(0,8);
+  if(!hits.length){const d=document.createElement('div');d.className='none';d.textContent='没找到，去资料库里用全文搜索试试。';sBox.appendChild(d);return}
+  hits.forEach(e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');b.textContent=e.t;const s=document.createElement('span');s.textContent=(e.d?e.d+' · ':'')+e.x;a.append(b,s);sBox.appendChild(a)});
+}
+if(sForm){sForm.addEventListener('submit',ev=>{ev.preventDefault();doSearch()});sInput.addEventListener('input',doSearch)}
+const pageSearch=document.querySelector('#search');
+if(pageSearch&&!sInput){const rows=[...document.querySelectorAll('details.entry')];function filter(){let n=0;for(const r of rows){r.hidden=!r.textContent.toLowerCase().includes(pageSearch.value.trim().toLowerCase());if(!r.hidden)n++}const c=document.querySelector('#count');if(c)c.textContent=n+' 篇';const em=document.querySelector('#empty');if(em)em.hidden=n!==0}pageSearch.oninput=filter;filter()}
 '''
 (out/'reading.js').write_text(js,encoding='utf-8')
 print('Preview created:',len(entries),'full original articles;',len(cases),'anonymous samples')
 assert len(entries)>=100
-assert not BeautifulSoup((out/'domestic.html').read_text(encoding='utf-8'),'html.parser').select('iframe,video,img,[data-video]')
-for page in ['index.html','domestic.html']:
+assert sum(1 for e in entries.values() if e['board'])==len(entries)
+for b in BOARDS:
+ assert len(board_entries(b['n']))>=10,b['name']
+ assert b['first'] in entries
+idx=(out/'index.html').read_text(encoding='utf-8')
+assert 'douyin' not in idx.lower()
+assert '未编年' not in idx
+for page in ['index.html','board1.html','board2.html','board3.html','board4.html','vibe.html','topics.html']:
  soup=BeautifulSoup((out/page).read_text(encoding='utf-8'),'html.parser')
- for a in soup.select('a[href^="domestic.html#"]'):assert a['href'].split('#')[1] in entries or a['href'].endswith('#library')
-print('PASS: domestic page no video/image triggers; article destinations exist')
+ for a in soup.select('a[href]'):
+  href=a['href'].split('#')[0]
+  if not href or href.startswith('http'):continue
+  assert (out/href).exists(),page+' -> missing '+href
+ for im in soup.select('img[src]'):
+  s=im['src']
+  if s.startswith('http') or s.startswith('data:'):continue
+  assert (out/s).exists(),page+' -> missing img '+s
+print('PASS: boards cover all',len(entries),'articles; all local links and images exist; no Douyin links')
