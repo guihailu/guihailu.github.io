@@ -88,19 +88,19 @@ NAVLIB=datauri('title-lib-sm.webp','image/webp')
 TITLE_LIB=datauri('title-lib.webp','image/webp')
 BOARDS=[
  {'n':1,'cn':'一','wm':'壹','name':'逆修觉者','img':IMG1,
-  'plain':'日子照过，活法换一种<br>在红尘里把自己修回来。',
+  'plain':'日子照过活法换一种<br>在红尘里把自己修回来',
   'desc':'这一部讲的是普通人的修行：为什么修、修行到底是什么、从哪儿开始。福报怎么做、话怎么说、事怎么做，逆修自查一条条对着自己量。离生活最近的一部，先从这里进门。',
   'first':'ghl-000018'},
  {'n':2,'cn':'二','wm':'贰','name':'灵魂觉者','img':IMG2,
-  'plain':'人除了身体，还有一个<br>「自己」在水底下。',
+  'plain':'人除了身体还有一个<br>「自己」在水底下',
   'desc':'这一部讲灵魂这一层：灵魂是怎么回事，洗灵有什么用，人在镜子里外是怎样两个样子。听着玄，其实讲的都是为什么你明明想做好、却总是做不到。',
   'first':'ghl-000070'},
  {'n':3,'cn':'三','wm':'叁','name':'法界天机','img':IMG3,
-  'plain':'看不见的那一界，<br>也有它的规矩和账本。',
+  'plain':'看不见的那一界<br>也有它的规矩和账本',
   'desc':'这一部讲看不见的世界怎么运作：三界是怎么分的，阴间也有经济学，烧纸为什么有讲究、怎么做才对。好奇心最重的人，通常是从这一部被勾住的。',
   'first':'ghl-000051'},
  {'n':4,'cn':'四','wm':'肆','name':'道法自然','img':IMG4,
-  'plain':'道理听完，最后要<br>落回一日三餐里。',
+  'plain':'道理听完要落回<br>一日三餐里',
   'desc':'这一部最落地：前面听懂的道理，怎么用在过日子上——对家人、对工作、对钱、对脾气。修行不在山上，在你每天怎么活。',
   'first':'ghl-000026'},
 ]
@@ -339,7 +339,7 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261108p4"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261108p5"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
@@ -347,7 +347,7 @@ def shell(title,body,home=False):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261108p4"></script></body></html>')
+ '<script src="reading.js?v=20261108p5"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
