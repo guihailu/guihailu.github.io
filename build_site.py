@@ -1810,8 +1810,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css">'
-        js_tag = '<script src="main.v5.js" defer></script>'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261108p2">'
+        js_tag = '<script src="main.v5.js?v=20261108p2" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
                        ';window.__GHL_IDPAGE__=' + _idpage_json +
