@@ -102,7 +102,7 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .part .wm{position:absolute;top:-40px;right:-4px;height:clamp(180px,21vw,300px);width:auto;opacity:.13;pointer-events:none;user-select:none;z-index:0}
 html:not(.dark) .part .wm{filter:invert(1) brightness(.85);opacity:.10}
 .part.flip .wm{right:auto;left:-4px}
-.part .art{position:sticky;top:96px;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px var(--shadow);z-index:1}
+.part .art{position:sticky;top:96px;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px var(--shadow);z-index:1;background:#0d1826;min-height:180px}
 .part .art::after{content:'';position:absolute;inset:11px;border:1px solid rgba(240,212,138,.38);border-radius:9px;pointer-events:none}
 .part .art img{display:block;width:100%;height:auto}
 .reveal .art img{transform:scale(1.045);transition:transform 1.4s ease}
@@ -162,7 +162,7 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .library .years b{display:block;font-size:19px;margin-bottom:3px}
 .library .years span{font-size:12px;color:var(--sub)}
 .board-hero{max-width:1180px;margin:0 auto;padding:130px 22px 0;text-align:center}
-.board-hero .board-art{width:min(880px,100%);max-height:330px;object-fit:cover;border-radius:18px;margin:24px auto 4px;display:block;box-shadow:0 24px 60px var(--shadow)}
+.board-hero .board-art{background:#0d1826;width:min(880px,100%);max-height:330px;object-fit:cover;border-radius:18px;margin:24px auto 4px;display:block;box-shadow:0 24px 60px var(--shadow)}
 .topics-h1{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(42px,6vw,60px);margin:14px 0 6px}
 .topic{margin:46px 0 8px}
 .topic h2{font-family:"Songti SC","STSong",SimSun,serif;font-size:clamp(22px,3vw,28px);margin:0 0 4px}
@@ -196,7 +196,8 @@ dialog::backdrop{background:rgba(9,18,28,.72)}
 dialog p{line-height:2}
 dialog .src{color:var(--sub);font-size:12.5px;border-top:1px solid var(--line);padding-top:10px}
 #close{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:8px 15px}
-.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s ease,transform .9s ease}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s ease,transform .9s ease;animation:revealSafe .8s ease 1.6s forwards}
+@keyframes revealSafe{to{opacity:1;transform:none}}
 .reveal.in{opacity:1;transform:none}
 [hidden]{display:none!important}
 a:focus-visible,button:focus-visible{outline:3px solid #aa8036;outline-offset:3px}
