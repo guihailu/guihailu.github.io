@@ -163,7 +163,17 @@ html:not(.dark) .part h2 .title-img{filter:invert(1) brightness(.82)}
 html:not(.dark) .board-hero h1 .title-img{filter:invert(1) brightness(.82)}
 .hero .sub{position:relative;color:#f8f0d4;font-size:clamp(15.5px,2.05vw,19.5px);line-height:2.05;font-weight:500;background:linear-gradient(165deg,rgba(9,16,25,.78),rgba(9,16,25,.56));backdrop-filter:blur(9px) saturate(1.15);-webkit-backdrop-filter:blur(9px) saturate(1.15);border:1px solid rgba(230,197,120,.5);border-radius:16px;padding:30px 42px 24px;box-shadow:0 26px 60px rgba(0,0,0,.5),0 0 90px rgba(240,205,120,.10),inset 0 1px 0 rgba(255,240,200,.14);text-shadow:0 1px 2px rgba(8,12,6,.9)}
 .hero .sub::before{content:'';position:absolute;inset:7px;border:1px solid rgba(230,197,120,.30);border-radius:10px;pointer-events:none}
-.hero .sub::after{content:'◆';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#0d1826;border:1px solid rgba(230,197,120,.5);border-radius:999px;color:#e6c578;font-size:10px;line-height:1;padding:4px 9px}
+.hero .sub .hl{position:relative;z-index:1}
+.hero .sub .cnr{position:absolute;width:36px;height:36px;color:rgba(230,197,120,.9);pointer-events:none;z-index:2}
+.hero .sub .cnr svg{width:100%;height:100%;display:block}
+.hero .sub .cnr.tl{top:5px;left:5px}
+.hero .sub .cnr.tr{top:5px;right:5px;transform:scaleX(-1)}
+.hero .sub .cnr.bl{bottom:5px;left:5px;transform:scaleY(-1)}
+.hero .sub .cnr.br{bottom:5px;right:5px;transform:scale(-1,-1)}
+.hero .sub .lotus-chip{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#0d1826;border:1px solid rgba(230,197,120,.55);border-radius:999px;padding:5px 13px 3px;line-height:0;z-index:3}
+.hero .sub .lotus-chip svg{height:17px;width:auto;display:block}
+.hero .sub .lotus-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.08;z-index:0}
+.hero .sub .lotus-bg svg{height:225px;width:auto}
 .hero .sub .hl:first-child{font-size:1.15em;font-weight:700;letter-spacing:.05em;color:#fdf6dd}
 .hero .sub .hl span{color:#f0cd7d;font-weight:700}
 .hero .sub .hl:last-child{font-size:.94em;letter-spacing:.22em;color:#eadfc0}
@@ -434,11 +444,12 @@ search_entries=[]
 for e in sorted(entries.values(),key=lambda x:x['id']):
  t=' '.join(meta.get(e['id'],{}).get('text','').split())[:240]
  search_entries.append({'id':e['id'],'t':e['title'],'p':e['page'],'d':e['date'],'x':t})
+_PLAQUE_ORN=('<span class="lotus-bg"><svg viewBox="0 0 64 52" fill="none" stroke="#e6c578" stroke-width="0.9" stroke-linejoin="round" stroke-linecap="round"><path d="M32 6 C39 17 39 27 32 37 C25 27 25 17 32 6 Z"/><path d="M15 13 C23 19 25 29 23 38 C15 34 11 23 15 13 Z"/><path d="M49 13 C41 19 39 29 41 38 C49 34 53 23 49 13 Z"/><path d="M3 25 C11 27 15 33 16 40 C9 40 4 34 3 25 Z"/><path d="M61 25 C53 27 49 33 48 40 C55 40 60 34 61 25 Z"/><path d="M8 44 C20 49 44 49 56 44"/></svg></span><span class="lotus-chip"><svg viewBox="0 0 64 52" fill="none" stroke="#e6c578" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><path d="M32 6 C39 17 39 27 32 37 C25 27 25 17 32 6 Z"/><path d="M15 13 C23 19 25 29 23 38 C15 34 11 23 15 13 Z"/><path d="M49 13 C41 19 39 29 41 38 C49 34 53 23 49 13 Z"/><path d="M3 25 C11 27 15 33 16 40 C9 40 4 34 3 25 Z"/><path d="M61 25 C53 27 49 33 48 40 C55 40 60 34 61 25 Z"/><path d="M8 44 C20 49 44 49 56 44"/></svg></span>'+'<span class="cnr tl"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 43 V16 Q5 5 16 5 H43"/><path d="M11.5 43 V20 Q11.5 11.5 20 11.5 H43"/><path d="M18.5 18.5 q6.5 0 6.5 6.5 q0 5.5 -5.5 5.5 q-4.5 0 -4.5 -4.5 q0 -3.5 3.5 -3.5"/><path d="M43 2.6 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/><path d="M2.6 43 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/></svg></span><span class="cnr tr"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 43 V16 Q5 5 16 5 H43"/><path d="M11.5 43 V20 Q11.5 11.5 20 11.5 H43"/><path d="M18.5 18.5 q6.5 0 6.5 6.5 q0 5.5 -5.5 5.5 q-4.5 0 -4.5 -4.5 q0 -3.5 3.5 -3.5"/><path d="M43 2.6 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/><path d="M2.6 43 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/></svg></span><span class="cnr bl"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 43 V16 Q5 5 16 5 H43"/><path d="M11.5 43 V20 Q11.5 11.5 20 11.5 H43"/><path d="M18.5 18.5 q6.5 0 6.5 6.5 q0 5.5 -5.5 5.5 q-4.5 0 -4.5 -4.5 q0 -3.5 3.5 -3.5"/><path d="M43 2.6 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/><path d="M2.6 43 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/></svg></span><span class="cnr br"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 43 V16 Q5 5 16 5 H43"/><path d="M11.5 43 V20 Q11.5 11.5 20 11.5 H43"/><path d="M18.5 18.5 q6.5 0 6.5 6.5 q0 5.5 -5.5 5.5 q-4.5 0 -4.5 -4.5 q0 -3.5 3.5 -3.5"/><path d="M43 2.6 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/><path d="M2.6 43 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/></svg></span>')
 hero=('<section class="hero">'
  f'<img class="bg" src="{HERO_IMG}" alt="" aria-hidden="true"><div class="rays" aria-hidden="true"></div><div class="dust" id="dust" aria-hidden="true"></div>'
  f'<img class="hero-seal" src="{SEAL_IMG}" alt="归海">'
  f'<div class="inner"><h1><img src="{TITLE_GUIHAI}" alt="归海录"></h1>'
- '<p class="sub"><span class="hl">这里是志远行空讲课内容的整理站</span>'
+ '<p class="sub">'+_PLAQUE_ORN+'<span class="hl">这里是志远行空讲课内容的整理站</span>'
  '<span class="hl">全部内容分成四部&ensp;<span style="white-space:nowrap">逆修觉者</span>&ensp;<span style="white-space:nowrap">灵魂觉者</span>&ensp;<span style="white-space:nowrap">法界天机</span>&ensp;<span style="white-space:nowrap">道法自然</span></span>'
  '<span class="hl">每一部里都有故事案例、讲课原声和小动画，点开就能看</span>'
  '<span class="hl">第一次来，从第一部开始往下看</span></p>'
