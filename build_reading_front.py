@@ -313,8 +313,8 @@ dialog .src{color:var(--sub);font-size:12.5px;border-top:1px solid var(--line);p
 [hidden]{display:none!important}
 a:focus-visible,button:focus-visible{outline:3px solid #aa8036;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.hero .rays{animation:none}.scrollcue .arr{animation:none}.hero .bg{animation:none}.hero .dust span{animation:none}.reveal{transition:none;opacity:1;transform:none}}
-@media(max-width:820px){.part,.part.flip{grid-template-columns:1fr}.part .art{position:static}.part .wm,.part.flip .wm{top:-140px;bottom:auto;left:auto;right:10px;height:150px}.part .txt{text-align:center}.part .firstread{text-align:left}.part .doors{justify-content:center}.library{grid-template-columns:1fr;text-align:center}.brand{font-size:20px;width:134px}header{flex-wrap:wrap;row-gap:4px}nav{order:3;width:100%;flex-wrap:wrap;gap:8px 16px}nav a{font-size:12.5px;letter-spacing:1px}.hero-seal{top:118px}.hero .sub{font-size:14.5px;padding:24px 18px 18px}}
-@media(max-width:820px){nav a .navimg{height:22px}nav a{padding:5px 10px}}
+@media(max-width:820px){.part,.part.flip{grid-template-columns:1fr}.part .art{position:static}.part .wm,.part.flip .wm{top:-140px;bottom:auto;left:auto;right:10px;height:150px}.part .txt{text-align:center}.part .firstread{text-align:left}.part .doors{justify-content:center}.library{grid-template-columns:1fr;text-align:center}.brand{font-size:20px;width:134px}header{flex-wrap:wrap;row-gap:4px}nav{order:3;width:100%;flex-wrap:nowrap;justify-content:space-between;gap:6px;margin-top:2px}nav a{font-size:12.5px;letter-spacing:1px}nav a .navimg{height:19px;width:auto}.themebtn{margin-left:auto}header.over-hero{background:linear-gradient(180deg,rgba(8,12,18,.40),rgba(8,12,18,0))}.board-hero{padding-top:158px}.hero-seal{top:118px}.hero .sub{font-size:14.5px;padding:24px 18px 18px}}
+@media(max-width:820px){nav a .navimg{height:17.5px}nav a{padding:5px 4px}#theme-toggle{position:absolute;top:15px;right:16px;margin:0}}
 '''
 (out/'reading.css').write_text(css,encoding='utf-8')
 def article_href(article_id):
@@ -340,7 +340,7 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261108p8"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261108p9"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
@@ -348,7 +348,7 @@ def shell(title,body,home=False):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261108p8"></script></body></html>')
+ '<script src="reading.js?v=20261108p9"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -478,7 +478,7 @@ for e in entries.values():
  if e['date'][:4] in counts:counts[e['date'][:4]]+=1
 total=len(entries)
 intro=('<section class="intro reveal"><p class="lede">不用从头读起。先挑一部顺眼的，<br>读一则故事、听一段原声，觉得对味，再往深处走。</p>'
- '<form class="searchbar" id="search-form"><input id="search-input" type="search" placeholder="搜一搜：天眼、烧纸、福报、轮回…" aria-label="搜索站内文章"><button type="submit">搜索</button></form><div class="qchips"><span class="qchips-lab">点一下就搜：</span><button type="button" data-q="天眼">天眼</button><button type="button" data-q="烧纸">烧纸</button><button type="button" data-q="福报">福报</button><button type="button" data-q="轮回">轮回</button><button type="button" data-q="改命">改命</button><button type="button" data-q="怎么看人">怎么看人</button></div>'
+ '<form class="searchbar" id="search-form"><input id="search-input" type="search" placeholder="搜一搜：天眼、烧纸、轮回…" aria-label="搜索站内文章"><button type="submit">搜索</button></form><div class="qchips"><span class="qchips-lab">点一下就搜：</span><button type="button" data-q="天眼">天眼</button><button type="button" data-q="烧纸">烧纸</button><button type="button" data-q="福报">福报</button><button type="button" data-q="轮回">轮回</button><button type="button" data-q="改命">改命</button><button type="button" data-q="怎么看人">怎么看人</button></div>'
  '<div class="sresults" id="search-results"></div></section>')
 library=(f'<section class="library reveal" id="library"><div><h2>完整资料库</h2>'
  f'<p>四部之外的全部原文都在这里：{total} 篇讲课整理，按年份排好，带全文搜索。想查什么，直接去资料库里找。</p></div>'
