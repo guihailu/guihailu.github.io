@@ -47,7 +47,7 @@ html:not(.dark) .sitebar .bimg1,html:not(.dark) .sitebar .bimg2,html:not(.dark) 
 #qres.on{display:block}
 #qres mark{background:rgba(201,165,95,.35);color:inherit;border-radius:2px;padding:0 1px}
 .search-hint{margin:10px 0 0;text-align:center;color:var(--sub);font-size:12.5px}
-.qchip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:3px 12px;font-size:13px;cursor:pointer;margin:2px}
+.qchip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:3px 12px;font-size:13px;cursor:pointer;margin:2px;transition:opacity .45s ease}
 .qchip:hover{border-color:var(--gold);color:var(--gold2)}
 .qitem{display:block;padding:12px 16px;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}
 .qitem:last-child{border-bottom:0}
