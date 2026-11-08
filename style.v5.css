@@ -14,6 +14,17 @@ html.dark{
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;transition:background .4s,color .4s}
+body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 52'%3E%3Cg fill='none' stroke='%23c9a55f' stroke-opacity='.032' stroke-width='2'%3E%3Cpath d='M32 6C39 17 39 27 32 37C25 27 25 17 32 6Z'/%3E%3Cpath d='M15 13C23 19 25 29 23 38C15 34 11 23 15 13Z'/%3E%3Cpath d='M49 13C41 19 39 29 41 38C49 34 53 23 49 13Z'/%3E%3Cpath d='M8 44C20 49 44 49 56 44'/%3E%3C/g%3E%3C/svg%3E");background-size:168px auto}
+html.dark body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 52'%3E%3Cg fill='none' stroke='%23c9a55f' stroke-opacity='.026' stroke-width='2'%3E%3Cpath d='M32 6C39 17 39 27 32 37C25 27 25 17 32 6Z'/%3E%3Cpath d='M15 13C23 19 25 29 23 38C15 34 11 23 15 13Z'/%3E%3Cpath d='M49 13C41 19 39 29 41 38C49 34 53 23 49 13Z'/%3E%3Cpath d='M8 44C20 49 44 49 56 44'/%3E%3C/g%3E%3C/svg%3E")}
+::selection{background:rgba(201,165,95,.32)}
+html{scrollbar-color:rgba(201,165,95,.55) transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:rgba(201,165,95,.45);border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+.foot-orn{display:flex;align-items:center;gap:12px;justify-content:center;margin:0 auto 18px;color:#b3862c;max-width:420px}
+.foot-orn i{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line))}
+.foot-orn i:last-child{background:linear-gradient(90deg,var(--line),transparent)}
+html.dark .foot-orn{color:#e6c578}
 .skip{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
 .skip:focus{left:12px;top:12px;width:auto;height:auto;padding:9px 15px;background:var(--deep);color:var(--gold2);border:1px solid var(--gold);border-radius:8px;z-index:9999;font-size:14px;text-decoration:none}
 button,a,summary{-webkit-tap-highlight-color:transparent}
