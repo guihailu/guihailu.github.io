@@ -102,7 +102,7 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .artwrap{position:sticky;top:96px;z-index:1}.part .art{position:relative}.part .wm{display:block;margin:22px auto 0;height:clamp(280px,30vw,400px);width:auto;opacity:.19;pointer-events:none;user-select:none}
 html:not(.dark) .part .wm{filter:invert(1) brightness(.85);opacity:.24}
 .part.flip .wm{}
-.part .art{position:sticky;top:96px;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px var(--shadow);z-index:1;background:#0d1826;min-height:180px}
+.part .art{position:relative;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px var(--shadow);z-index:1;background:#0d1826;min-height:180px}
 .part .art::after{content:'';position:absolute;inset:11px;border:1px solid rgba(240,212,138,.38);border-radius:9px;pointer-events:none}
 .part .art img{display:block;width:100%;height:auto}
 .reveal .art img{transform:scale(1.045);transition:transform 1.4s ease}
