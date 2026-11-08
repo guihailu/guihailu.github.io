@@ -96,7 +96,7 @@ BOARDS=[
   'desc':'这一部讲灵魂这一层：灵魂是怎么回事，洗灵有什么用，人在镜子里外是怎样两个样子。听着玄，其实讲的都是为什么你明明想做好、却总是做不到。',
   'first':'ghl-000070'},
  {'n':3,'cn':'三','wm':'叁','name':'法界天机','img':IMG3,
-  'plain':'看不见的那一界，也有<br>它的规矩和账本。',
+  'plain':'看不见的那一界，<br>也有它的规矩和账本。',
   'desc':'这一部讲看不见的世界怎么运作：三界是怎么分的，阴间也有经济学，烧纸为什么有讲究、怎么做才对。好奇心最重的人，通常是从这一部被勾住的。',
   'first':'ghl-000051'},
  {'n':4,'cn':'四','wm':'肆','name':'道法自然','img':IMG4,
@@ -219,11 +219,11 @@ html:not(.dark) .part .wm{filter:invert(1) brightness(.85);opacity:.10}
 .part .art:hover img{transform:scale(1.03)}
 .part .txt{align-self:center;position:relative;z-index:1}
 .part .tag{display:inline-block;border:1px solid var(--gold);color:var(--gold2);background:var(--chip);border-radius:999px;padding:5px 13px;font-size:12px;letter-spacing:2px;font-weight:600}
+.part .txt .tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--card);white-space:nowrap;z-index:2}
 .part h2{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-weight:600;font-size:clamp(42px,6vw,68px);letter-spacing:.06em;margin:16px 0 6px;line-height:1.15}
-.part .plain{font-size:clamp(19px,2.6vw,24px);color:var(--gold2);line-height:1.6;font-family:"Songti SC",SimSun,serif}
-.part .txt{border:1px solid var(--line);border-radius:18px;padding:clamp(24px,3.2vw,38px);background:var(--card);box-shadow:0 18px 44px var(--shadow)}
-.part .txt::before{content:'';position:absolute;top:12px;left:22px;right:22px;border-top:3px double var(--gold);opacity:.5;pointer-events:none}
-.part .txt::after{content:'◆';position:absolute;top:3px;left:50%;transform:translateX(-50%);color:var(--gold);font-size:10px;background:var(--card);padding:0 8px;pointer-events:none}
+.part h2{text-align:center}
+.part .plain{font-size:clamp(19px,2.6vw,24px);color:var(--gold2);line-height:1.6;font-family:"Songti SC",SimSun,serif;text-align:center}
+.part .txt{border:1px solid var(--line);border-radius:18px;padding:clamp(32px,3.8vw,44px) clamp(24px,3.2vw,38px) clamp(24px,3.2vw,38px);background:var(--card);box-shadow:0 18px 44px var(--shadow)}
 .part .art{box-shadow:0 0 0 1px var(--line),0 24px 60px var(--shadow)}
 .part .desc{color:var(--sub);line-height:2;font-size:15.5px}
 .part .desc .dropcap{float:left;height:52px;width:auto;margin:4px 10px 0 0}
@@ -240,7 +240,7 @@ html.dark .casewall button.on{background:#243843;color:#f0d48a}
 .rot-fade{transition:opacity .45s ease}
 .rot-fade.out{opacity:0}
 .rot-open{margin-top:10px;background:none;border:0;color:var(--gold2);font-size:14.5px;padding:0;font-weight:600}
-.doors{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap}
+.doors{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .doors a{border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:13.5px;color:var(--gold2);background:var(--chip);font-weight:600}
 .stage{position:relative;aspect-ratio:16/9;background:#183544;border-radius:10px;overflow:hidden;margin-top:10px}
 .stage>button{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:#183544;cursor:pointer}
@@ -324,7 +324,7 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261108p2"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261108p3"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
@@ -332,7 +332,7 @@ def shell(title,body,home=False):
  f'<footer><div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261108p2"></script></body></html>')
+ '<script src="reading.js?v=20261108p3"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
