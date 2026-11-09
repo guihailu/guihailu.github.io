@@ -68,8 +68,8 @@ assert not missing,'board_map missing entries: '+str(missing)
 extra=[eid for eid in board_map if eid not in entries]
 assert not extra,'board_map has unknown entries: '+str(extra)
 def datauri(fname,mime):
- raw=(root/'assets'/'boards'/(fname+'.b64')).read_text(encoding='ascii')
- return 'data:'+mime+';base64,'+''.join(raw.split())
+ # p15 首页瘦身（2026-11-09 公开前改造一）：图片改外链独立文件（assets/boards/ 下与 .b64 并存的解码原件），不再内嵌 data URI；回退＝恢复下方两行原实现。
+ return 'assets/boards/'+fname+'?v=20261109p15'
 IMG1=datauri('board1-nixiu.webp','image/webp')
 IMG2=datauri('board2-linghun.webp','image/webp')
 IMG3=datauri('board3-fajie.webp','image/webp')
@@ -340,15 +340,15 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261108p14"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261109p15"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
  +body+
- f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
+ f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261108p14"></script></body></html>')
+ '<script src="reading.js?v=20261109p15"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -409,11 +409,11 @@ def part_section(b):
  f'<div class="alist"><a href="{article_href(fe["id"])}"><span>从这一篇开始 · {esc(fe["title"])}{fechip}</span></a>'
  +alist_rows(prev)+'</div>'
  f'<a class="more" href="board{b["n"]}.html">本部全部 {len(es)} 篇 →</a></div>')
- txt=(f'<div class="txt"><span class="tag">第{b["cn"]}部</span><h2><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h2>'
- f'<div class="plain">{b["plain"]}</div><p class="desc"><img class="dropcap" src="{TITLE_ZHE}" alt="">{b["desc"][1:]}</p>'
+ txt=(f'<div class="txt"><span class="tag">第{b["cn"]}部</span><h2><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}" loading="lazy"></h2>'
+ f'<div class="plain">{b["plain"]}</div><p class="desc"><img class="dropcap" src="{TITLE_ZHE}" alt="" loading="lazy">{b["desc"][1:]}</p>'
  f'<div class="firstread">{first_block(b)}</div>'
  f'<div class="doors">{doors(b)}</div>{blist}</div>')
- art=f'<div class="artwrap"><div class="art"><img src="{b["img"]}" alt="{b["name"]}" loading="lazy"></div></div><img class="wm" src="{WMIMG[b["n"]]}" alt="" aria-hidden="true">'
+ art=f'<div class="artwrap"><div class="art"><img src="{b["img"]}" alt="{b["name"]}" loading="lazy"></div></div><img class="wm" src="{WMIMG[b["n"]]}" alt="" aria-hidden="true" loading="lazy">'
  inner=(txt+art) if b['n']%2==0 else (art+txt)
  cls='part flip reveal' if b['n']%2==0 else 'part reveal'
  return f'<section class="{cls}" id="part{b["n"]}">'+inner+'</section>'
@@ -421,7 +421,7 @@ _LOTUS_CC='<svg width="22" height="18" viewBox="0 0 64 52" fill="none" stroke="c
 ORN_DIV='<div class="orn-div" aria-hidden="true"><i></i>'+_LOTUS_CC+'<i></i></div>'
 _PD_PLATE='<svg viewBox="0 0 560 120" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="0" y1="57" x2="118" y2="57" stroke-width="1.4" opacity=".55"/><line x1="0" y1="64" x2="118" y2="64" stroke-width=".8" opacity=".35"/><path d="M138 51 l9 9 -9 9 -9 -9 Z" fill="currentColor" stroke="none" opacity=".85"/><circle cx="222" cy="60" r="31" stroke-width="2.2"/><path d="M222 29 V91 M191 60 H253 M200 38 L244 82 M244 38 L200 82" stroke-width="1.6"/><circle cx="222" cy="60" r="7" stroke-width="2"/><g transform="translate(322,33)" stroke-width="3"><path d="M32 6 C39 17 39 27 32 37 C25 27 25 17 32 6 Z"/><path d="M15 13 C23 19 25 29 23 38 C15 34 11 23 15 13 Z"/><path d="M49 13 C41 19 39 29 41 38 C49 34 53 23 49 13 Z"/><path d="M3 25 C11 27 15 33 16 40 C9 40 4 34 3 25 Z"/><path d="M61 25 C53 27 49 33 48 40 C55 40 60 34 61 25 Z"/><path d="M8 44 C20 49 44 49 56 44"/></g><g transform="translate(428,26) scale(1.55)" stroke-width="1.8"><path d="M18.5 18.5 q6.5 0 6.5 6.5 q0 5.5 -5.5 5.5 q-4.5 0 -4.5 -4.5 q0 -3.5 3.5 -3.5"/></g><path d="M492 51 l9 9 -9 9 -9 -9 Z" fill="currentColor" stroke="none" opacity=".85"/><line x1="512" y1="57" x2="560" y2="57" stroke-width="1.4" opacity=".55"/><line x1="512" y1="64" x2="560" y2="64" stroke-width=".8" opacity=".35"/></svg>'
 def part_divider(b):
-    return f'<div class="partdiv" aria-hidden="true"><span class="pd-plate">{_PD_PLATE}</span><img class="pd-wm" src="{WMIMG[b["n"]]}" alt=""><span class="pd-plate flip">{_PD_PLATE}</span></div>'
+    return f'<div class="partdiv" aria-hidden="true"><span class="pd-plate">{_PD_PLATE}</span><img class="pd-wm" src="{WMIMG[b["n"]]}" alt="" loading="lazy"><span class="pd-plate flip">{_PD_PLATE}</span></div>'
 def board_page(b):
  es=board_entries(b['n'])
  body=(f'<section class="board-hero"><span class="tag">第{b["cn"]}部</span><h1><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h1>'
@@ -599,7 +599,7 @@ for page in ['index.html','board1.html','board2.html','board3.html','board4.html
   if not href or href.startswith('http'):continue
   assert (out/href).exists(),page+' -> missing '+href
  for im in soup.select('img[src]'):
-  s=im['src']
+  s=im['src'].split('?')[0]
   if s.startswith('http') or s.startswith('data:'):continue
   assert (out/s).exists(),page+' -> missing img '+s
 print('PASS: boards cover all',len(entries),'articles; all local links and images exist; no Douyin links')
