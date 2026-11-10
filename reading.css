@@ -48,7 +48,7 @@ html:not(.dark) .hero .rays{opacity:.85}
 .hero h1 img{height:clamp(100px,16.5vw,168px);width:auto;max-width:88vw;filter:drop-shadow(0 6px 44px rgba(0,0,0,.55))}
 html:not(.dark) .hero h1 img{filter:invert(1) brightness(.88) drop-shadow(0 0 26px rgba(255,236,170,.9))}
 .title-img{display:block}
-.part h2 .title-img{height:clamp(50px,7vw,80px);width:auto;max-width:100%}
+.part h2 .title-img{height:clamp(50px,7vw,80px);width:auto;max-width:100%;margin:0 auto}
 html:not(.dark) .part h2 .title-img{filter:invert(1) brightness(.82)}
 .board-hero h1 .title-img{height:clamp(58px,8.5vw,96px);width:auto;max-width:100%;margin:0 auto}
 html:not(.dark) .board-hero h1 .title-img{filter:invert(1) brightness(.82)}
