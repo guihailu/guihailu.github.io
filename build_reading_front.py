@@ -69,7 +69,7 @@ extra=[eid for eid in board_map if eid not in entries]
 assert not extra,'board_map has unknown entries: '+str(extra)
 def datauri(fname,mime):
  # p15 首页瘦身（2026-11-09 公开前改造一）：图片改外链独立文件（assets/boards/ 下与 .b64 并存的解码原件），不再内嵌 data URI；回退＝恢复下方两行原实现。
- return 'assets/boards/'+fname+'?v=20261110p16b'
+ return 'assets/boards/'+fname+'?v=20261111p17'
 IMG1=datauri('board1-nixiu.webp','image/webp')
 IMG2=datauri('board2-linghun.webp','image/webp')
 IMG3=datauri('board3-fajie.webp','image/webp')
@@ -340,7 +340,7 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261110p16b"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261111p17"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
@@ -348,7 +348,7 @@ def shell(title,body,home=False):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261110p16b"></script></body></html>')
+ '<script src="reading.js?v=20261111p17"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -376,18 +376,20 @@ def vid_of(c):return c['youtube_url'].rstrip('/').split('/')[-1].split('?')[0]
 def poster_of(c):
  v=vid_of(c)
  return c.get('poster') or ('https://i.ytimg.com/vi/'+v+'/hqdefault.jpg')
+# p17 失效兜底：外站海报（i.ytimg.com）加载失败时换成本地归海印章，不留破图；data-fb 防兜底图自身失败时死循环。
+POSTER_FB=' onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+SEAL_IMG+'\'}"'
 def video_block():
  c=clips[0];v=vid_of(c)
  return ('<div class="lab">讲课原声 · 先听一段</div>'
  f'<h3>《{esc(c["title"])}》· 志远行空原声</h3><p>{esc(c.get("description",""))}</p>'
- f'<div class="stage" id="clip-stage"><button type="button" data-video="{v}" aria-label="播放：{esc(c["title"])}"><img src="{poster_of(c)}" alt="" loading="lazy"><span class="play">▶</span></button></div>'
+ f'<div class="stage" id="clip-stage"><button type="button" data-video="{v}" aria-label="播放：{esc(c["title"])}"><img src="{poster_of(c)}" alt="" loading="lazy"{POSTER_FB}><span class="play">▶</span></button></div>'
  f'<p class="vopen">这里播不了的话，<a href="https://youtu.be/{v}" target="_blank" rel="noopener">去 YouTube 看这一条 ↗</a></p>')
 def vibe_block():
  c0=vibes[0];v0=vid_of(c0)
  chips=''.join(f'<button type="button" data-vibe="{vid_of(c)}" data-t="{esc(c["title"])}"{" class=\"on\"" if i==0 else ""}>《{esc(c["title"])}》</button>' for i,c in enumerate(vibes))
  return ('<div class="lab">知识大赏 · 小动画</div>'
  f'<h3 id="vibe-title">《{esc(c0["title"])}》</h3>'
- f'<div class="stage" id="vibe-stage"><button type="button" data-video="{v0}" aria-label="播放：{esc(c0["title"])}"><img src="{poster_of(c0)}" alt="" loading="lazy"><span class="play">▶</span></button></div>'
+ f'<div class="stage" id="vibe-stage"><button type="button" data-video="{v0}" aria-label="播放：{esc(c0["title"])}"><img src="{poster_of(c0)}" alt="" loading="lazy"{POSTER_FB}><span class="play">▶</span></button></div>'
  f'<p class="vopen">这里播不了的话，<a id="vibe-open" href="https://youtu.be/{v0}" target="_blank" rel="noopener">去 YouTube 看这一条 ↗</a></p>'
  f'<div class="vibechips">{chips}</div>')
 def first_block(b):
@@ -563,7 +565,7 @@ document.querySelectorAll('[data-vibe]').forEach(ch=>{
     document.querySelectorAll('[data-vibe]').forEach(x=>x.classList.remove('on'));ch.classList.add('on');
     if(vibeTitle)vibeTitle.textContent='《'+ch.dataset.t+'》';
     const vo=document.getElementById('vibe-open');if(vo)vo.href='https://youtu.be/'+ch.dataset.vibe;
-    if(vibeStage){const old=vibeStage.querySelector('button');if(old){old.dataset.video=ch.dataset.vibe;old.setAttribute('aria-label','播放：'+ch.dataset.t);const img=old.querySelector('img');if(img)img.src='https://i.ytimg.com/vi/'+ch.dataset.vibe+'/hqdefault.jpg'}else{playInto(vibeStage,ch.dataset.vibe,ch.dataset.t)}}
+    if(vibeStage){const old=vibeStage.querySelector('button');if(old){old.dataset.video=ch.dataset.vibe;old.setAttribute('aria-label','播放：'+ch.dataset.t);const img=old.querySelector('img');if(img){img.removeAttribute('data-fb');img.src='https://i.ytimg.com/vi/'+ch.dataset.vibe+'/hqdefault.jpg'}}else{playInto(vibeStage,ch.dataset.vibe,ch.dataset.t)}}
   };
 });
 const sForm=document.getElementById('search-form'),sInput=document.getElementById('search-input'),sBox=document.getElementById('search-results');

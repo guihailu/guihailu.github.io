@@ -339,6 +339,9 @@ def _first_para_text(html):
             return t
     return ''
 
+# p17 失效兜底：外站海报（i.ytimg.com）加载失败时换成本地归海印章，不留破图；data-fb 防兜底图自身失败时死循环。
+_POSTER_FB = ' onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\'assets/boards/seal.png?v=20261108p4\'}"'
+
 def wrap_entries(b):
     pat = re.compile(r'<h([23])\s+id="(ghl-\d+)">(.*?)</h\1>\n', re.S)
     matches = list(pat.finditer(b))
@@ -370,7 +373,7 @@ def wrap_entries(b):
         _vid = _ENTRY_VIDEO.get(sid)
         if _vid:
             chunk = (f'<div class="evideo" id="{sid}-video"><button type="button" class="evideo-play" data-ev="{_vid}" aria-label="播放本篇视频">'
-                     f'<img src="https://i.ytimg.com/vi/{_vid}/hqdefault.jpg" alt="" loading="lazy"><span class="evideo-btn">▶ 播放本篇视频</span></button>'
+                     f'<img src="https://i.ytimg.com/vi/{_vid}/hqdefault.jpg" alt="" loading="lazy"{_POSTER_FB}><span class="evideo-btn">▶ 播放本篇视频</span></button>'
                      f'<p class="evideo-alt">看不了内嵌播放？<a href="https://www.youtube.com/watch?v={_vid}" target="_blank" rel="noopener">在 YouTube 打开 ↗</a></p></div>') + chunk
         out.append(
             f'<details class="entry" id="{sid}">'
@@ -992,7 +995,7 @@ def _video_card(card):
     duration = f'{seconds // 60}:{seconds % 60:02d}' if seconds else ''
     esc = _html.escape
     poster = card.get('poster')
-    cover = ('<img src="' + esc(_safe_external_url(poster), quote=True) + '" alt="" width="480" height="360" loading="lazy">'
+    cover = ('<img src="' + esc(_safe_external_url(poster), quote=True) + '" alt="" width="480" height="360" loading="lazy"' + _POSTER_FB + '>'
              if poster else '<span class="clip-cover-title">' + esc(card.get('title', '志远行空原声精选')) + '</span>')
     return (
         '<article class="video-card" data-clip-id="' + esc(card['id'], quote=True) + '">'
