@@ -58,7 +58,7 @@ document.querySelectorAll('[data-vibe]').forEach(ch=>{
     document.querySelectorAll('[data-vibe]').forEach(x=>x.classList.remove('on'));ch.classList.add('on');
     if(vibeTitle)vibeTitle.textContent='《'+ch.dataset.t+'》';
     const vo=document.getElementById('vibe-open');if(vo)vo.href='https://youtu.be/'+ch.dataset.vibe;
-    if(vibeStage){const old=vibeStage.querySelector('button');if(old){old.dataset.video=ch.dataset.vibe;old.setAttribute('aria-label','播放：'+ch.dataset.t);const img=old.querySelector('img');if(img)img.src='https://i.ytimg.com/vi/'+ch.dataset.vibe+'/hqdefault.jpg'}else{playInto(vibeStage,ch.dataset.vibe,ch.dataset.t)}}
+    if(vibeStage){const old=vibeStage.querySelector('button');if(old){old.dataset.video=ch.dataset.vibe;old.setAttribute('aria-label','播放：'+ch.dataset.t);const img=old.querySelector('img');if(img){img.removeAttribute('data-fb');img.src='https://i.ytimg.com/vi/'+ch.dataset.vibe+'/hqdefault.jpg'}}else{playInto(vibeStage,ch.dataset.vibe,ch.dataset.t)}}
   };
 });
 const sForm=document.getElementById('search-form'),sInput=document.getElementById('search-input'),sBox=document.getElementById('search-results');
