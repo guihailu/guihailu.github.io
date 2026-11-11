@@ -14,6 +14,8 @@ for p in sorted(src.glob('*.html')):
   if d['id'] in entries:continue
   title=d.find('h2').get_text(' ',strip=True)
   for el in d.select('iframe,video,audio,img,script,button,style'):el.decompose()
+  # p18 接着读是条目末尾的导航层，不计入正文文本（阅读时长/钩子/按问题找评分须与改前一致）
+  for el in d.select('.next-read'):el.decompose()
   for a in d.select('a[href]'):
    if any(x in a['href'] for x in ['youtu','douyin','tiktok']):a.decompose()
   for a in d.select('a[href]'):

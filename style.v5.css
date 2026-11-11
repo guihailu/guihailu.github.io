@@ -133,6 +133,19 @@ html.fs-xl .entry-body{font-size:19.5px}
 .entry-body th{background:var(--card2);font-family:"Songti SC",SimSun,serif}
 .entry-feedback{padding:0 26px 20px;color:var(--sub);font-size:12.5px}
 .entry-feedback a{color:var(--gold2)}
+/* ---- 接着读（p18 清单①）：条目末尾同板块＋同系列后续篇目 ---- */
+.next-read{margin:22px 0 4px;padding:18px 20px 16px;border-top:1px solid var(--line);background:var(--card2);border-radius:14px}
+.entry-body .next-read h3{margin:0 0 4px;font-size:17px}
+.entry-body .next-read p{margin:0}
+.next-read-note{color:var(--sub);font-size:12.5px;line-height:1.7}
+.next-read ul{margin:10px 0 12px;padding:0;list-style:none}
+.next-read li{padding:10px 0;border-top:1px solid var(--line)}
+.next-read li:first-child{border-top:0}
+.next-read li a{display:block;color:var(--ink);font-family:"Songti SC",SimSun,serif;font-size:16px;font-weight:600;line-height:1.55;text-decoration:none}
+.next-read li a:hover{color:var(--gold2)}
+.next-read li span{display:block;margin-top:2px;color:var(--sub);font-size:12.5px;line-height:1.7}
+.next-read-more{font-size:13.5px}
+.next-read-more a{color:var(--gold2);font-weight:600}
 .lanchor{display:block;width:0;height:0;overflow:hidden;scroll-margin-top:86px}
 /* ---- 全部条目（目录页） ---- */
 .catalog-wrap{max-width:900px;margin:0 auto;padding:10px 24px 100px}
@@ -346,6 +359,7 @@ html:not(.dark) .navbtn{background:rgba(255,250,240,.92);color:var(--gold2)}
   .gallery-heading{display:block}
   .entry>summary{padding:17px 16px}
   .entry-body{padding:2px 17px 20px;font-size:16px}
+  .next-read{padding:14px 16px 12px}
   .entry>summary h2{font-size:19px}
   .home-reading-grid{grid-template-columns:1fr}
   .home-reading h2{font-size:27px}

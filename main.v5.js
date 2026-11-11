@@ -64,6 +64,14 @@ document.querySelectorAll('.toc a[href^="#ghl-"]').forEach(function(a){
     cur=id;
   });
 });
+/* p18 接着读：同页推荐点开即展开目标条目（与目录链接同行为）；跨页链接本页无目标、放行导航，由目标页加载时展开 */
+document.querySelectorAll('.next-read a[href*="#ghl-"]').forEach(function(a){
+  a.addEventListener('click',function(){
+    var id=a.getAttribute('href').split('#')[1];
+    var d=id&&document.getElementById(id);
+    if(d){d.open=true;if(read.indexOf(id)<0){read.push(id);try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}}
+  });
+});
 document.querySelectorAll('.entry summary').forEach(function(s){
   s.addEventListener('click',function(){var e=s.parentElement;if(e&&e.id){cur=e.id;window.ghlTrack('entry_open',{id:e.id});}});
 });
