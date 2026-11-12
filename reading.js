@@ -15,7 +15,7 @@ function onScroll(){
 window.addEventListener('scroll',onScroll,{passive:true});onScroll();
 if(toTop)toTop.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
 const themeBtn=document.querySelector('#theme-toggle');
-function paintTheme(){if(themeBtn){const dark=document.documentElement.classList.contains('dark');themeBtn.textContent=dark?'☀️':'🌙';themeBtn.setAttribute('aria-label',dark?'切换白天模式':'切换晚上模式')}}
+const MOON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';const SUN='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.6M12 19.4V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.6M19.4 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';function paintTheme(){if(themeBtn){const dark=document.documentElement.classList.contains('dark');themeBtn.innerHTML=dark?SUN:MOON;themeBtn.setAttribute('aria-label',dark?'切换白天模式':'切换晚上模式')}}
 if(themeBtn){themeBtn.onclick=()=>{const dark=document.documentElement.classList.toggle('dark');try{localStorage.setItem('ghl_theme',dark?'dark':'light')}catch(e){}paintTheme()};paintTheme()}
 const dustBox=document.getElementById('dust');
 if(dustBox){for(let i=0;i<16;i++){const s=document.createElement('span');const sz=3+Math.random()*6;s.style.width=sz+'px';s.style.height=sz+'px';s.style.left=(18+Math.random()*64)+'%';s.style.top=(12+Math.random()*62)+'%';s.style.animationDuration=(9+Math.random()*14)+'s';s.style.animationDelay=(-Math.random()*16)+'s';dustBox.appendChild(s)}}
