@@ -14,6 +14,8 @@ for p in sorted(src.glob('*.html')):
   if d['id'] in entries:continue
   title=d.find('h2').get_text(' ',strip=True)
   for el in d.select('iframe,video,audio,img,script,button,style'):el.decompose()
+  # p18 接着读是条目末尾的导航层，不计入正文文本（阅读时长/钩子/按问题找评分须与改前一致）
+  for el in d.select('.next-read'):el.decompose()
   for a in d.select('a[href]'):
    if any(x in a['href'] for x in ['youtu','douyin','tiktok']):a.decompose()
   for a in d.select('a[href]'):
@@ -69,7 +71,7 @@ extra=[eid for eid in board_map if eid not in entries]
 assert not extra,'board_map has unknown entries: '+str(extra)
 def datauri(fname,mime):
  # p15 首页瘦身（2026-11-09 公开前改造一）：图片改外链独立文件（assets/boards/ 下与 .b64 并存的解码原件），不再内嵌 data URI；回退＝恢复下方两行原实现。
- return 'assets/boards/'+fname+'?v=20261111p17'
+ return 'assets/boards/'+fname+'?v=20261112p18'
 IMG1=datauri('board1-nixiu.webp','image/webp')
 IMG2=datauri('board2-linghun.webp','image/webp')
 IMG3=datauri('board3-fajie.webp','image/webp')
@@ -139,7 +141,7 @@ nav a{opacity:.92;font-family:"Songti SC","STSong",SimSun,serif;font-size:16.5px
 nav a .navimg{height:26px;width:auto;display:block}
 html:not(.dark) nav a .navimg{filter:invert(1) brightness(.82)}
 nav a:hover{opacity:1;border-color:rgba(201,165,95,.9);background:rgba(201,165,95,.22);box-shadow:0 0 0 1px rgba(201,165,95,.35),0 4px 14px rgba(0,0,0,.18)}
-#theme-toggle{border:1px solid #b6a378;background:transparent;color:var(--ink);border-radius:999px;padding:7px 13px;line-height:1}
+#theme-toggle{border:1px solid #b6a378;background:transparent;color:var(--ink);border-radius:999px;width:48px;height:32px;display:grid;place-items:center;padding:0;line-height:1;cursor:pointer}#theme-toggle svg{display:block}
 #to-top{position:fixed;right:22px;bottom:22px;z-index:55;background:#c9a55f;color:#101f2c;border:0;border-radius:999px;padding:12px 17px;font-weight:700;box-shadow:0 10px 26px rgba(0,0,0,.3)}
 .hero{position:relative;min-height:100svh;display:grid;place-items:center;text-align:center;overflow:hidden}
 .hero .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:kb 30s ease-in-out infinite alternate}
@@ -340,15 +342,15 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261111p17"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261112p18"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
- '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式">🌙</button></nav></header>'
+ '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button></nav></header>'
  +body+
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261111p17"></script></body></html>')
+ '<script src="reading.js?v=20261112p18"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -522,7 +524,7 @@ function onScroll(){
 window.addEventListener('scroll',onScroll,{passive:true});onScroll();
 if(toTop)toTop.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
 const themeBtn=document.querySelector('#theme-toggle');
-function paintTheme(){if(themeBtn){const dark=document.documentElement.classList.contains('dark');themeBtn.textContent=dark?'☀️':'🌙';themeBtn.setAttribute('aria-label',dark?'切换白天模式':'切换晚上模式')}}
+const MOON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';const SUN='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.6M12 19.4V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.6M19.4 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';function paintTheme(){if(themeBtn){const dark=document.documentElement.classList.contains('dark');themeBtn.innerHTML=dark?SUN:MOON;themeBtn.setAttribute('aria-label',dark?'切换白天模式':'切换晚上模式')}}
 if(themeBtn){themeBtn.onclick=()=>{const dark=document.documentElement.classList.toggle('dark');try{localStorage.setItem('ghl_theme',dark?'dark':'light')}catch(e){}paintTheme()};paintTheme()}
 const dustBox=document.getElementById('dust');
 if(dustBox){for(let i=0;i<16;i++){const s=document.createElement('span');const sz=3+Math.random()*6;s.style.width=sz+'px';s.style.height=sz+'px';s.style.left=(18+Math.random()*64)+'%';s.style.top=(12+Math.random()*62)+'%';s.style.animationDuration=(9+Math.random()*14)+'s';s.style.animationDelay=(-Math.random()*16)+'s';dustBox.appendChild(s)}}

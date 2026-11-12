@@ -521,6 +521,33 @@ for _e in _entries:
     _e['chars'] = _entry_chars(_e['block'])
     _e['minutes'] = max(1, round(_e['chars'] / 400))
 
+# 接着读（p18 清单①）：每条目末尾推同板块＋同系列的后续 2 篇。
+# 数据只用现成的 board_map.json（板块）与 _series_for_title（系列标签）；不改 URL 与锚点结构。
+_BOARD_MAP = {}
+try:
+    _BOARD_MAP = json.loads((HERE / "board_map.json").read_text(encoding="utf-8"))
+except Exception as _bm_e:
+    print("WARN board_map.json 读取失败，接着读跳过:", _bm_e)
+_NR_N = len(_entries)
+for _i, _e in enumerate(_entries):
+    _bm = _BOARD_MAP.get(_e['id']) or {}
+    _e['board'] = _bm.get('board')
+    _e['board_name'] = _bm.get('board_name', '')
+    _recs = []
+    if _e['board']:
+        _cands = []
+        for _j, _x in enumerate(_entries):
+            if _x['id'] == _e['id']:
+                continue
+            if (_BOARD_MAP.get(_x['id']) or {}).get('board') != _e['board']:
+                continue
+            _same_series = 1 if (_x['series'] == _e['series'] and _e['series'] != '单篇/其他') else 0
+            _cands.append((_same_series, (_j - _i) % _NR_N, _x))
+        _cands.sort(key=lambda t: (-t[0], t[1]))
+        _recs = [c[2] for c in _cands[:2]]
+    _e['next_reads'] = _recs
+print(f"OK: 接着读 {sum(1 for _e in _entries if _e['next_reads'])} / {len(_entries)} 篇有推荐（同板块＋同系列优先、按目录顺序取后续）")
+
 _id_page = {e['id']: e['page'] for e in _entries}
 
 _pages = {}
@@ -539,11 +566,38 @@ def _toc_ul(items):
         f'<li><a href="#{e["id"]}">{_html.escape(_toc_text_by_sid.get(e["id"], e["title"]))}</a></li>'
         for e in items) + '</ul>'
 
-def _layout_html(items):
+def _next_read_html(e, href_for):
+    _recs = e.get('next_reads') or []
+    if not _recs:
+        return ''
+    _lis = ''
+    for r in _recs:
+        _meta = ' · '.join([p for p in [r.get('date') or '',
+                                        r['series'] if r['series'] != '单篇/其他' else '',
+                                        e['board_name']] if p])
+        _lis += ('<li><a href="' + href_for(r['id']) + '">' + _html.escape(r['title']) + '</a>'
+                 '<span>' + _html.escape(_meta) + '</span></li>')
+    return ('<div class="next-read"><h3>接着读</h3>'
+            '<p class="next-read-note">同属「' + _html.escape(e['board_name']) + '」的后续篇目</p><ul>' + _lis + '</ul>'
+            '<p class="next-read-more"><a href="board' + str(e['board']) + '.html">看「'
+            + _html.escape(e['board_name']) + '」全部文章 →</a></p></div>')
+
+def _with_next_read(block, e, href_for):
+    _nr = _next_read_html(e, href_for)
+    if not _nr:
+        return block
+    _head, _sep, _tail = block.rpartition('</div></details>')
+    if not _sep:
+        print(f"WARN 接着读注入点缺失: {e['id']}")
+        return block
+    return _head + _nr + '</div></details>' + _tail
+
+def _layout_html(items, href_for=None):
+    _hf = href_for or _online_href
     return ('<div class="layout"><aside class="toc"><details class="tocm">'
             '<summary>📋 目录</summary>' + _toc_ul(items) +
             '</details></aside><main class="content">' +
-            "".join(e['block'] for e in items) + '</main></div>')
+            "".join(_with_next_read(e['block'], e, _hf) for e in items) + '</main></div>')
 
 def _latest_section(n=10):
     lis = []
@@ -1062,7 +1116,7 @@ for _y, _items in _pages.items():
     _yearch_head[_y] = ('<div class="yearhead"><a class="back" href="index.html">← 返回首页</a>'
                         f'<h1>{_label}</h1><p>共 {len(_items)} 篇 · 按时间倒序</p></div>')
     _year_bodies[_y] = _yearch_head[_y] + _layout_html(_items)
-_offline_body = _intro_html + _guide_offline + _layout_html(_entries)
+_offline_body = _intro_html + _guide_offline + _layout_html(_entries, _offline_href)
 
 # 5) 组装 index.html（Apple CN 排版 + Medium 阅读 + 侧栏目录）
 css = """
@@ -1200,6 +1254,19 @@ html.fs-xl .entry-body{font-size:19.5px}
 .entry-body th{background:var(--card2);font-family:"Songti SC",SimSun,serif}
 .entry-feedback{padding:0 26px 20px;color:var(--sub);font-size:12.5px}
 .entry-feedback a{color:var(--gold2)}
+/* ---- 接着读（p18 清单①）：条目末尾同板块＋同系列后续篇目 ---- */
+.next-read{margin:22px 0 4px;padding:18px 20px 16px;border-top:1px solid var(--line);background:var(--card2);border-radius:14px}
+.entry-body .next-read h3{margin:0 0 4px;font-size:17px}
+.entry-body .next-read p{margin:0}
+.next-read-note{color:var(--sub);font-size:12.5px;line-height:1.7}
+.next-read ul{margin:10px 0 12px;padding:0;list-style:none}
+.next-read li{padding:10px 0;border-top:1px solid var(--line)}
+.next-read li:first-child{border-top:0}
+.next-read li a{display:block;color:var(--ink);font-family:"Songti SC",SimSun,serif;font-size:16px;font-weight:600;line-height:1.55;text-decoration:none}
+.next-read li a:hover{color:var(--gold2)}
+.next-read li span{display:block;margin-top:2px;color:var(--sub);font-size:12.5px;line-height:1.7}
+.next-read-more{font-size:13.5px}
+.next-read-more a{color:var(--gold2);font-weight:600}
 .lanchor{display:block;width:0;height:0;overflow:hidden;scroll-margin-top:86px}
 /* ---- 全部条目（目录页） ---- */
 .catalog-wrap{max-width:900px;margin:0 auto;padding:10px 24px 100px}
@@ -1413,6 +1480,7 @@ html:not(.dark) .navbtn{background:rgba(255,250,240,.92);color:var(--gold2)}
   .gallery-heading{display:block}
   .entry>summary{padding:17px 16px}
   .entry-body{padding:2px 17px 20px;font-size:16px}
+  .next-read{padding:14px 16px 12px}
   .entry>summary h2{font-size:19px}
   .home-reading-grid{grid-template-columns:1fr}
   .home-reading h2{font-size:27px}
@@ -1487,6 +1555,14 @@ document.querySelectorAll('.toc a[href^="#ghl-"]').forEach(function(a){
     document.querySelectorAll('.toc a.here').forEach(function(x){x.classList.remove('here')});
     a.classList.add('here');a.classList.add('done');
     cur=id;
+  });
+});
+/* p18 接着读：同页推荐点开即展开目标条目（与目录链接同行为）；跨页链接本页无目标、放行导航，由目标页加载时展开 */
+document.querySelectorAll('.next-read a[href*="#ghl-"]').forEach(function(a){
+  a.addEventListener('click',function(){
+    var id=a.getAttribute('href').split('#')[1];
+    var d=id&&document.getElementById(id);
+    if(d){d.open=true;if(read.indexOf(id)<0){read.push(id);try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}}
   });
 });
 document.querySelectorAll('.entry summary').forEach(function(s){
@@ -1824,8 +1900,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261108p4">'
-        js_tag = '<script src="main.v5.js?v=20261108p4" defer></script>'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261111p5">'
+        js_tag = '<script src="main.v5.js?v=20261111p5" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
                        ';window.__GHL_IDPAGE__=' + _idpage_json +
