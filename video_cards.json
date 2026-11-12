@@ -1,7 +1,7 @@
 {
  "source": "guihailu/muse-backup:handoff/codex/切片链接表.md",
- "source_blob_sha": "3375107c6633fc55404665d0755e2cd279270f2d",
- "checked_at": "2026-11-03",
+ "source_blob_sha": "e2ed9a92b953e3e2c251709f57dddd33242f42b4",
+ "checked_at": "2026-11-12",
  "cards": [
   {
    "id": "F09",
@@ -134,6 +134,51 @@
    "article_id": "ghl-000105",
    "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
    "published_at": "2026-11-05",
+   "status": "published",
+   "audio_language": "zh",
+   "subtitle_language": "en"
+  },
+  {
+   "id": "F10",
+   "title": "他心通不一定是本人的能力：打念",
+   "description": "讲他心通不一定是本人的能力：打念——念头可能是被“打”进来的；谁先看到对方心里想什么，谁就占了先机。",
+   "intro": "本段讲述：讲他心通不一定是本人的能力：打念——念头可能是被“打”进来的；谁先看到对方心里想什么，谁就占了先机。",
+   "duration_seconds": 28.6,
+   "youtube_url": "https://www.youtube.com/shorts/0IU1G74Bynk",
+   "poster": "https://i.ytimg.com/vi/0IU1G74Bynk/hqdefault.jpg",
+   "article_id": "ghl-000105",
+   "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
+   "published_at": "2026-11-07",
+   "status": "published",
+   "audio_language": "zh",
+   "subtitle_language": "en"
+  },
+  {
+   "id": "F11",
+   "title": "他心通什么时候会失灵",
+   "description": "讲他心通什么时候会失灵：有点他心通的人也会被人演给你看——对方把内心的想法封住不让你看见；他心通不是万能的，也有被做局的时候。",
+   "intro": "本段讲述：讲他心通什么时候会失灵：有点他心通的人也会被人演给你看——对方把内心的想法封住不让你看见；他心通不是万能的，也有被做局的时候。",
+   "duration_seconds": 40.78,
+   "youtube_url": "https://www.youtube.com/shorts/ua6w4rk3n7c",
+   "poster": "https://i.ytimg.com/vi/ua6w4rk3n7c/hqdefault.jpg",
+   "article_id": "ghl-000105",
+   "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
+   "published_at": "2026-11-10",
+   "status": "published",
+   "audio_language": "zh",
+   "subtitle_language": "en"
+  },
+  {
+   "id": "F12",
+   "title": "如果他心通永远都准，世界就乱套了",
+   "description": "思想实验：如果他心通永远都准，世界就乱套了——谈判桌旁只要坐一个有他心通的人，人背后的能量层级就一目了然。",
+   "intro": "本段讲述：思想实验：如果他心通永远都准，世界就乱套了——谈判桌旁只要坐一个有他心通的人，人背后的能量层级就一目了然。",
+   "duration_seconds": 41.28,
+   "youtube_url": "https://www.youtube.com/shorts/xdk6CWVkro4",
+   "poster": "https://i.ytimg.com/vi/xdk6CWVkro4/hqdefault.jpg",
+   "article_id": "ghl-000105",
+   "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
+   "published_at": "2026-11-11",
    "status": "published",
    "audio_language": "zh",
    "subtitle_language": "en"
