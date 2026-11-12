@@ -72,6 +72,13 @@ document.querySelectorAll('.next-read a[href*="#ghl-"]').forEach(function(a){
     if(d){d.open=true;if(read.indexOf(id)<0){read.push(id);try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}}
   });
 });
+/* p19 年份页月份定位：点月份跳到该月首篇并展开（与目录链接同行为；只定位，不记已读） */
+document.querySelectorAll('.month-nav a[href^="#ghl-"]').forEach(function(a){
+  a.addEventListener('click',function(){
+    var d=document.getElementById(a.getAttribute('href').slice(1));
+    if(d){d.open=true;}
+  });
+});
 document.querySelectorAll('.entry summary').forEach(function(s){
   s.addEventListener('click',function(){var e=s.parentElement;if(e&&e.id){cur=e.id;window.ghlTrack('entry_open',{id:e.id});}});
 });
