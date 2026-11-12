@@ -71,7 +71,7 @@ extra=[eid for eid in board_map if eid not in entries]
 assert not extra,'board_map has unknown entries: '+str(extra)
 def datauri(fname,mime):
  # p15 首页瘦身（2026-11-09 公开前改造一）：图片改外链独立文件（assets/boards/ 下与 .b64 并存的解码原件），不再内嵌 data URI；回退＝恢复下方两行原实现。
- return 'assets/boards/'+fname+'?v=20261112p18'
+ return 'assets/boards/'+fname+'?v=20261112p19'
 IMG1=datauri('board1-nixiu.webp','image/webp')
 IMG2=datauri('board2-linghun.webp','image/webp')
 IMG3=datauri('board3-fajie.webp','image/webp')
@@ -130,7 +130,7 @@ html.dark header .brand,html.dark header nav a{text-shadow:0 1px 12px rgba(4,10,
 html:not(.dark) header .brand,html:not(.dark) header nav a{text-shadow:0 1px 12px rgba(250,244,226,.95),0 0 3px rgba(250,244,226,.9)}
 header.over-hero .brand img,header.over-hero nav a .navimg{filter:drop-shadow(0 2px 12px rgba(0,0,0,.62))}
 html:not(.dark) header.over-hero .brand img,html:not(.dark) header.over-hero nav a .navimg{filter:drop-shadow(0 2px 12px rgba(0,0,0,.62))}
-header.over-hero #theme-toggle{color:#f3ecd9;border-color:rgba(243,236,217,.55)}
+header.over-hero + #theme-toggle{color:#f3ecd9;border-color:rgba(243,236,217,.55)}
 .brand{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:29px;font-weight:700;display:block;width:160px;color:var(--ink)}
 .brand img{display:block}
 .brand .bimg1{width:100%;height:auto;display:block}
@@ -141,7 +141,7 @@ nav a{opacity:.92;font-family:"Songti SC","STSong",SimSun,serif;font-size:16.5px
 nav a .navimg{height:26px;width:auto;display:block}
 html:not(.dark) nav a .navimg{filter:invert(1) brightness(.82)}
 nav a:hover{opacity:1;border-color:rgba(201,165,95,.9);background:rgba(201,165,95,.22);box-shadow:0 0 0 1px rgba(201,165,95,.35),0 4px 14px rgba(0,0,0,.18)}
-#theme-toggle{border:1px solid #b6a378;background:transparent;color:var(--ink);border-radius:999px;width:48px;height:32px;display:grid;place-items:center;padding:0;line-height:1;cursor:pointer}#theme-toggle svg{display:block}
+#theme-toggle{position:fixed;top:42px;right:max(4vw,20px);z-index:65;border:1px solid #b6a378;background:transparent;color:var(--ink);border-radius:999px;width:48px;height:32px;display:grid;place-items:center;padding:0;line-height:1;cursor:pointer}#theme-toggle svg{display:block}.theme-slot{width:48px;height:32px;flex:none}
 #to-top{position:fixed;right:22px;bottom:22px;z-index:55;background:#c9a55f;color:#101f2c;border:0;border-radius:999px;padding:12px 17px;font-weight:700;box-shadow:0 10px 26px rgba(0,0,0,.3)}
 .hero{position:relative;min-height:100svh;display:grid;place-items:center;text-align:center;overflow:hidden}
 .hero .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:kb 30s ease-in-out infinite alternate}
@@ -316,7 +316,7 @@ dialog .src{color:var(--sub);font-size:12.5px;border-top:1px solid var(--line);p
 a:focus-visible,button:focus-visible{outline:3px solid #aa8036;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.hero .rays{animation:none}.scrollcue .arr{animation:none}.hero .bg{animation:none}.hero .dust span{animation:none}.reveal{transition:none;opacity:1;transform:none}}
 @media(max-width:820px){.part,.part.flip{grid-template-columns:1fr}.part .art{position:static}.artwrap{position:static;order:-1}.part .wm,.part.flip .wm{display:block;position:absolute;top:-140px;bottom:auto;left:auto;right:10px;height:150px;transform:none;margin:0}.part .txt{text-align:center}.part .firstread{text-align:left}.part .doors{justify-content:center}.library{grid-template-columns:1fr;text-align:center}.brand{font-size:20px;width:134px}header{flex-wrap:wrap;row-gap:4px}nav{order:3;width:100%;flex-wrap:nowrap;justify-content:space-between;gap:6px;margin-top:2px}nav a{font-size:12.5px;letter-spacing:1px}nav a .navimg{height:19px;width:auto}.themebtn{margin-left:auto}header.over-hero{background:linear-gradient(180deg,rgba(8,12,18,.40),rgba(8,12,18,0))}.board-hero{padding-top:158px}.hero-seal{top:118px}.hero .sub{font-size:14.5px;padding:24px 18px 18px}}
-@media(max-width:820px){nav a .navimg{height:17.5px}nav a{padding:5px 4px}#theme-toggle{position:absolute;top:15px;right:16px;margin:0}}
+@media(max-width:820px){nav a .navimg{height:17.5px}nav a{padding:5px 4px}#theme-toggle{position:fixed;top:15px;right:16px;margin:0}.theme-slot{display:none}}
 '''
 (out/'reading.css').write_text(css,encoding='utf-8')
 def article_href(article_id):
@@ -342,15 +342,15 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261112p18"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261112p19"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
- '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><button id="theme-toggle" type="button" aria-label="切换晚上模式"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button></nav></header>'
+ '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><span class="theme-slot" aria-hidden="true"></span></nav></header><button id="theme-toggle" type="button" aria-label="切换晚上模式"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>'
  +body+
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261112p18"></script></body></html>')
+ '<script src="reading.js?v=20261112p19"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
