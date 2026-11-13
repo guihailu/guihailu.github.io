@@ -1,11 +1,24 @@
 from pathlib import Path
 import json,re,html,shutil
 from urllib.parse import urlsplit,unquote
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString, Tag
 root=Path(__file__).resolve().parent;src=root;out=root
 esc=html.escape
 cases=json.loads((root/'reading_cases.json').read_text(encoding='utf-8'))
 board_map=json.loads((root/'board_map.json').read_text(encoding='utf-8'))
+def _merge_strings(el):
+ for ch in list(el.children):
+  if isinstance(ch,Tag):_merge_strings(ch)
+ run=[]
+ def flush():
+  if len(run)>1:
+   merged=''.join(str(x) for x in run)
+   for x in run[1:]:x.extract()
+   run[0].replace_with(NavigableString(merged))
+ for ch in list(el.contents):
+  if isinstance(ch,NavigableString):run.append(ch)
+  else:flush();run=[]
+ flush()
 entries={}
 for p in sorted(src.glob('*.html')):
  if not re.fullmatch(r'202\d|undated(?:_\d+)?',p.stem):continue
@@ -15,10 +28,11 @@ for p in sorted(src.glob('*.html')):
   _h2=d.find('h2');_tm=_h2.find('span',class_='t-main')
   if _tm is not None:
    _tq=_h2.find('span',class_='t-meta')
-   title=_tm.get_text(strip=True)+'｜'+(_tq.get_text(strip=True) if _tq is not None else '')
+   title=_tm.get_text('',strip=False).strip()+'｜'+(_tq.get_text('',strip=False).strip() if _tq is not None else '')
    _h2.clear();_h2.append(title)
   else:
-   title=_h2.get_text(' ',strip=True)
+   title=_h2.get_text('',strip=False).strip()
+   _h2.clear();_h2.append(title)
   for el in d.select('iframe,video,audio,img,script,button,style'):el.decompose()
   # p18 接着读是条目末尾的导航层，不计入正文文本（阅读时长/钩子/按问题找评分须与改前一致）
   for el in d.select('.next-read'):el.decompose()
@@ -34,6 +48,9 @@ for p in sorted(src.glob('*.html')):
     if not asset.is_relative_to(src.resolve()) or not asset.is_file():raise ValueError('Missing source asset: '+u.path)
     target=out/unquote(u.path);target.parent.mkdir(parents=True,exist_ok=True);
     if asset.resolve()!=target.resolve():shutil.copyfile(asset,target)
+  for _w in d.select('wbr'):_w.decompose()
+  for _sp in d.select('span.nb'):_sp.unwrap()
+  for _hd in d.select('h3,h4,h5'):_merge_strings(_hd)
   entries[d['id']]={'id':d['id'],'title':title,'raw':title,'body':str(d),'text':d.get_text(' ',strip=True),'page':p.name}
 meta={}
 for f in sorted(src.glob('search_index_*.json'))+sorted(src.glob('search_shared.json')):
