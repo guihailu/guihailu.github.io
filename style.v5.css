@@ -105,9 +105,10 @@ main.content{min-width:0;max-width:760px;width:100%;justify-self:center}
 .entry>summary{display:grid;grid-template-columns:20px minmax(0,1fr);column-gap:13px;align-items:start;padding:20px 22px;list-style:none;cursor:pointer}
 .entry>summary::before{content:"+";grid-column:1;grid-row:1;color:var(--gold);font-size:21px;font-weight:300;line-height:1.5}
 .entry[open]>summary::before{content:"−"}
-.entry>summary h2{margin:0;font-family:"Songti SC",SimSun,serif;font-size:20.5px;line-height:1.5;font-weight:700;letter-spacing:.01em;text-align:center}
-.entry>summary h2 .t-main{display:block}
-.entry>summary h2 .t-meta{display:block}
+.entry>summary h2{margin:0;font-family:"Songti SC",SimSun,serif;font-size:20.5px;line-height:1.5;font-weight:700;letter-spacing:.01em;text-align:center;text-wrap:balance;line-break:strict;word-break:keep-all}
+.entry>summary h2 .t-main{display:block;text-wrap:balance;line-break:strict;word-break:keep-all}
+.entry>summary h2 .t-meta{display:block;text-wrap:balance;line-break:strict;word-break:keep-all}
+.entry>summary h2 .nb,.entry-body h3 .nb,.entry-body h4 .nb,.entry-body h5 .nb{white-space:nowrap}
 .entry>summary:hover h2{color:var(--gold2)}
 .entry>summary .date{grid-column:2;grid-row:2;justify-self:start;max-width:100%;margin-top:9px;padding:2px 10px;border-radius:999px;background:var(--card2);color:var(--sub);font-size:12px;font-weight:500;letter-spacing:.02em;line-height:1.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .entry>summary .date p{display:inline;margin:0}
@@ -125,8 +126,9 @@ html.fs-xl .entry-body{font-size:19.5px}
 .evideo-alt{font-size:13px;color:var(--sub);margin-top:8px}
 .entry-body a{color:var(--link);text-underline-offset:4px}
 .entry-body a:hover{color:var(--gold2)}
-.entry-body h3{font-family:"Songti SC",SimSun,serif;font-size:20px;line-height:1.5;margin:1.5em 0 .6em;color:var(--ink)}
-.entry-body h4{font-family:"Songti SC",SimSun,serif;font-size:17.5px;margin:1.3em 0 .5em;color:var(--gold2)}
+.entry-body h3{font-family:"Songti SC",SimSun,serif;font-size:20px;line-height:1.5;margin:1.5em 0 .6em;color:var(--ink);text-align:center;text-wrap:balance;line-break:strict;word-break:keep-all}
+.entry-body h4{font-family:"Songti SC",SimSun,serif;font-size:17.5px;margin:1.3em 0 .5em;color:var(--gold2);text-align:center;text-wrap:balance;line-break:strict;word-break:keep-all}
+.entry-body h5{text-align:center;text-wrap:balance;line-break:strict;word-break:keep-all}
 .entry-body blockquote{margin:1.2em 0;padding:14px 20px;border-left:3px solid var(--gold);background:var(--card2);border-radius:0 12px 12px 0;color:var(--quote);font-family:"Songti SC",SimSun,serif}
 .entry-body blockquote p{margin:0 0 .6em}
 .entry-body blockquote p:last-child{margin-bottom:0}
@@ -142,7 +144,7 @@ html.fs-xl .entry-body{font-size:19.5px}
 .entry-feedback a{color:var(--gold2)}
 /* ---- 接着读（p18 清单①）：条目末尾同板块＋同系列后续篇目 ---- */
 .next-read{margin:22px 0 4px;padding:18px 20px 16px;border-top:1px solid var(--line);background:var(--card2);border-radius:14px}
-.entry-body .next-read h3{margin:0 0 4px;font-size:17px}
+.entry-body .next-read h3{margin:0 0 4px;font-size:17px;text-align:left;text-wrap-style:auto}
 .entry-body .next-read p{margin:0}
 .next-read-note{color:var(--sub);font-size:12.5px;line-height:1.7}
 .next-read ul{margin:10px 0 12px;padding:0;list-style:none}
