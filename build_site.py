@@ -566,6 +566,28 @@ def _toc_ul(items):
         f'<li><a href="#{e["id"]}">{_html.escape(_toc_text_by_sid.get(e["id"], e["title"]))}</a></li>'
         for e in items) + '</ul>'
 
+def _month_nav_html(items):
+    # p19 年份页长页定位：按月份跳到该月首篇（只用现有 #ghl-xxx 锚点，不新增锚点、不改 URL）
+    _months = {}
+    _order = []
+    for e in items:
+        _d = e.get('date') or ''
+        if len(_d) < 7 or not re.fullmatch(r'20\d{2}-\d{2}', _d[:7]):
+            continue
+        _m = _d[:7]
+        if _m not in _months:
+            _months[_m] = [1, e['id']]
+            _order.append(_m)
+        else:
+            _months[_m][0] += 1
+    if len(_order) < 2:
+        return ''
+    _chips = ''.join(
+        f'<a href="#{_months[_m][1]}">{int(_m[5:])}月 · {_months[_m][0]}篇</a>'
+        for _m in _order)
+    return ('<nav class="month-nav" aria-label="按月份定位">'
+            '<span class="month-nav-label">按月份定位</span>' + _chips + '</nav>')
+
 def _next_read_html(e, href_for):
     _recs = e.get('next_reads') or []
     if not _recs:
@@ -1115,7 +1137,7 @@ for _y, _items in _pages.items():
     _label = _YEAR_LABEL.get(_y, _y)
     _yearch_head[_y] = ('<div class="yearhead"><a class="back" href="index.html">← 返回首页</a>'
                         f'<h1>{_label}</h1><p>共 {len(_items)} 篇 · 按时间倒序</p></div>')
-    _year_bodies[_y] = _yearch_head[_y] + _layout_html(_items)
+    _year_bodies[_y] = _yearch_head[_y] + _month_nav_html(_items) + _layout_html(_items)
 _offline_body = _intro_html + _guide_offline + _layout_html(_entries, _offline_href)
 
 # 5) 组装 index.html（Apple CN 排版 + Medium 阅读 + 侧栏目录）
@@ -1201,6 +1223,11 @@ html:not(.dark) .sitebar .bimg1,html:not(.dark) .sitebar .bimg2,html:not(.dark) 
 .yearhead .back:hover{border-color:var(--gold)}
 .yearhead h1{font-family:"Songti SC",SimSun,serif;font-size:clamp(30px,5vw,42px);margin:20px 0 10px;letter-spacing:.04em;line-height:1.35}
 .yearhead p{margin:0;color:var(--sub);font-size:14.5px;line-height:1.9}
+/* ---- 年份页月份定位（p19：长页页内定位，点月份跳该月首篇） ---- */
+.month-nav{max-width:820px;margin:12px auto 0;padding:0 24px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
+.month-nav-label{color:var(--sub);font-size:13px;font-weight:600;margin-right:2px}
+.month-nav a{display:inline-block;color:var(--gold2);font-size:13.5px;font-weight:600;text-decoration:none;border:1px solid var(--line);background:var(--chip);border-radius:999px;padding:6px 13px}
+.month-nav a:hover{border-color:var(--gold);background:rgba(201,165,95,.14)}
 /* ---- 年份页版式：目录 + 正文 ---- */
 .layout{display:grid;grid-template-columns:224px minmax(0,1fr);gap:clamp(28px,4vw,56px);align-items:start;max-width:1180px;margin:0 auto;padding:26px 32px 110px}
 aside.toc{position:sticky;top:86px;max-height:calc(100vh - 110px);overflow-y:auto;scrollbar-width:thin;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 16px;box-shadow:0 14px 34px var(--shadow)}
@@ -1481,6 +1508,8 @@ html:not(.dark) .navbtn{background:rgba(255,250,240,.92);color:var(--gold2)}
   .entry>summary{padding:17px 16px}
   .entry-body{padding:2px 17px 20px;font-size:16px}
   .next-read{padding:14px 16px 12px}
+  .month-nav{padding:0 16px;gap:6px}
+  .month-nav a{padding:5px 11px;font-size:13px}
   .entry>summary h2{font-size:19px}
   .home-reading-grid{grid-template-columns:1fr}
   .home-reading h2{font-size:27px}
@@ -1563,6 +1592,13 @@ document.querySelectorAll('.next-read a[href*="#ghl-"]').forEach(function(a){
     var id=a.getAttribute('href').split('#')[1];
     var d=id&&document.getElementById(id);
     if(d){d.open=true;if(read.indexOf(id)<0){read.push(id);try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}}
+  });
+});
+/* p19 年份页月份定位：点月份跳到该月首篇并展开（与目录链接同行为；只定位，不记已读） */
+document.querySelectorAll('.month-nav a[href^=\"#ghl-\"]').forEach(function(a){
+  a.addEventListener('click',function(){
+    var d=document.getElementById(a.getAttribute('href').slice(1));
+    if(d){d.open=true;}
   });
 });
 document.querySelectorAll('.entry summary').forEach(function(s){
@@ -1900,8 +1936,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261111p5">'
-        js_tag = '<script src="main.v5.js?v=20261111p5" defer></script>'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p6">'
+        js_tag = '<script src="main.v5.js?v=20261113p6" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
                        ';window.__GHL_IDPAGE__=' + _idpage_json +
