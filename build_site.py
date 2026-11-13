@@ -375,9 +375,14 @@ def wrap_entries(b):
             chunk = (f'<div class="evideo" id="{sid}-video"><button type="button" class="evideo-play" data-ev="{_vid}" aria-label="播放本篇视频">'
                      f'<img src="https://i.ytimg.com/vi/{_vid}/hqdefault.jpg" alt="" loading="lazy"{_POSTER_FB}><span class="evideo-btn">▶ 播放本篇视频</span></button>'
                      f'<p class="evideo-alt">看不了内嵌播放？<a href="https://www.youtube.com/watch?v={_vid}" target="_blank" rel="noopener">在 YouTube 打开 ↗</a></p></div>') + chunk
+        if '｜' in title:
+            _t_main, _t_meta = title.split('｜', 1)
+            title_html = f'<span class="t-main">{_t_main.strip()}</span><span class="t-meta">{_t_meta.strip()}</span>'
+        else:
+            title_html = title
         out.append(
             f'<details class="entry" id="{sid}">'
-            f'<summary><h2>{title}</h2>{date_html}{ex_html}</summary>'
+            f'<summary><h2>{title_html}</h2>{date_html}{ex_html}</summary>'
             f'<div class="entry-body">' + chunk + '</div></details>')
     return ''.join(out)
 
@@ -456,7 +461,9 @@ print(f"OK: 抽取条目 {len(_entry_blocks)} 条")
 def _entry_fields(block):
     tm = re.search(r'<h2>(.*?)</h2>', block, re.S)
     dm = re.search(r'<span class="date">(.*?)</span>', block, re.S)
-    title = _html.unescape(re.sub(r'<[^>]+>', '', tm.group(1))).strip() if tm else ''
+    # 标题分行（t-main/t-meta 两 span）只改显示：抽标题时先把 span 交界复原为 ｜，下游 JSON-LD/feed/检索/接着读拿到的标题与改前逐字一致。
+    _h2 = re.sub(r'</span>\s*<span class="t-meta">', '｜', tm.group(1)) if tm else ''
+    title = _html.unescape(re.sub(r'<[^>]+>', '', _h2)).strip() if tm else ''
     meta = _html.unescape(re.sub(r'<[^>]+>', '', dm.group(1))).strip() if dm else ''
     return title, meta
 
@@ -1248,7 +1255,9 @@ main.content{min-width:0;max-width:760px;width:100%;justify-self:center}
 .entry>summary{display:grid;grid-template-columns:20px minmax(0,1fr);column-gap:13px;align-items:start;padding:20px 22px;list-style:none;cursor:pointer}
 .entry>summary::before{content:"+";grid-column:1;grid-row:1;color:var(--gold);font-size:21px;font-weight:300;line-height:1.5}
 .entry[open]>summary::before{content:"−"}
-.entry>summary h2{margin:0;font-family:"Songti SC",SimSun,serif;font-size:20.5px;line-height:1.5;font-weight:700;letter-spacing:.01em}
+.entry>summary h2{margin:0;font-family:"Songti SC",SimSun,serif;font-size:20.5px;line-height:1.5;font-weight:700;letter-spacing:.01em;text-align:center}
+.entry>summary h2 .t-main{display:block}
+.entry>summary h2 .t-meta{display:block}
 .entry>summary:hover h2{color:var(--gold2)}
 .entry>summary .date{grid-column:2;grid-row:2;justify-self:start;max-width:100%;margin-top:9px;padding:2px 10px;border-radius:999px;background:var(--card2);color:var(--sub);font-size:12px;font-weight:500;letter-spacing:.02em;line-height:1.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .entry>summary .date p{display:inline;margin:0}
@@ -1936,8 +1945,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p6">'
-        js_tag = '<script src="main.v5.js?v=20261113p6" defer></script>'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p7">'
+        js_tag = '<script src="main.v5.js?v=20261113p7" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
                        ';window.__GHL_IDPAGE__=' + _idpage_json +

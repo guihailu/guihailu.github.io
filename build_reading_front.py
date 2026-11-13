@@ -12,7 +12,13 @@ for p in sorted(src.glob('*.html')):
  soup=BeautifulSoup(p.read_text(encoding='utf-8'),'html.parser')
  for d in soup.select('details.entry[id]'):
   if d['id'] in entries:continue
-  title=d.find('h2').get_text(' ',strip=True)
+  _h2=d.find('h2');_tm=_h2.find('span',class_='t-main')
+  if _tm is not None:
+   _tq=_h2.find('span',class_='t-meta')
+   title=_tm.get_text(strip=True)+'｜'+(_tq.get_text(strip=True) if _tq is not None else '')
+   _h2.clear();_h2.append(title)
+  else:
+   title=_h2.get_text(' ',strip=True)
   for el in d.select('iframe,video,audio,img,script,button,style'):el.decompose()
   # p18 接着读是条目末尾的导航层，不计入正文文本（阅读时长/钩子/按问题找评分须与改前一致）
   for el in d.select('.next-read'):el.decompose()
