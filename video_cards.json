@@ -1,7 +1,7 @@
 {
  "source": "guihailu/muse-backup:handoff/codex/切片链接表.md",
- "source_blob_sha": "e2ed9a92b953e3e2c251709f57dddd33242f42b4",
- "checked_at": "2026-11-12",
+ "source_blob_sha": "93bd7c576baaa571ca0177372119f467e8002cab",
+ "checked_at": "2026-11-13",
  "cards": [
   {
    "id": "F09",
@@ -179,6 +179,21 @@
    "article_id": "ghl-000105",
    "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
    "published_at": "2026-11-11",
+   "status": "published",
+   "audio_language": "zh",
+   "subtitle_language": "en"
+  },
+  {
+   "id": "F13",
+   "title": "宿命通：仙家持令牌看前世，分等级",
+   "description": "讲宿命通：仙家持令牌看前世，分等级——能往前倒推多少世、看到什么，按令牌等级来；最厉害的能往前倒推到本源。",
+   "intro": "本段讲述：讲宿命通：仙家持令牌看前世，分等级——能往前倒推多少世、看到什么，按令牌等级来；最厉害的能往前倒推到本源。",
+   "duration_seconds": 63.14,
+   "youtube_url": "https://www.youtube.com/shorts/FvXlKyjsgkE",
+   "poster": "https://i.ytimg.com/vi/FvXlKyjsgkE/hqdefault.jpg",
+   "article_id": "ghl-000105",
+   "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
+   "published_at": "2026-11-13",
    "status": "published",
    "audio_language": "zh",
    "subtitle_language": "en"
