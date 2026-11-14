@@ -1623,8 +1623,9 @@ html:not(.dark) .sitebar .bimg1,html:not(.dark) .sitebar .bimg2,html:not(.dark) 
 #qres.on{display:block}
 #qres mark{background:rgba(201,165,95,.35);color:inherit;border-radius:2px;padding:0 1px}
 .search-hint{margin:10px 0 0;text-align:center;color:var(--sub);font-size:12.5px}
-.qchip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:3px 12px;font-size:13px;cursor:pointer;margin:2px;transition:opacity .45s ease}
-.qchip:hover{border-color:var(--gold);color:var(--gold2)}
+.qchip,.cat-sug{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:3px 12px;font-size:13px;cursor:pointer;margin:2px;transition:opacity .45s ease}
+.qchip:hover,.cat-sug:hover{border-color:var(--gold);color:var(--gold2)}
+.cat-sug-lab{font-weight:600;color:var(--ink)}
 .qitem{display:block;padding:12px 16px;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}
 .qitem:last-child{border-bottom:0}
 .qitem:hover,.qitem.active{background:var(--card2)}
@@ -1638,6 +1639,13 @@ html:not(.dark) .sitebar .bimg1,html:not(.dark) .sitebar .bimg2,html:not(.dark) 
 .qcount{padding:8px 16px;color:var(--sub);font-size:12px;border-bottom:1px solid var(--line)}
 .qfeedback{padding:12px 16px;font-size:13px;color:var(--sub)}
 .qfeedback a{color:var(--gold2)}
+/* 搜索无结果时的出路（p9）：相近词＋热词＋按问题找， chips 点即重搜 */
+.qsugg{padding:2px 16px 14px;font-size:13px;line-height:1.8;color:var(--sub)}
+.qsugg-lab{display:block;font-weight:600;color:var(--ink);margin:8px 0 4px}
+.qsugg .qchip{margin:2px 4px 2px 0}
+.qsugg-link{display:block;margin-top:10px}
+.qsugg-link a{color:var(--gold2)}
+.cat-empty .cat-sug{margin:2px 4px 2px 0}
 .qguide{padding:6px 0}
 /* ---- 页头（年份页/反馈页等） ---- */
 .yearhead{max-width:820px;margin:0 auto;padding:44px 24px 8px;text-align:center}
@@ -2145,7 +2153,22 @@ function renderNow(q,pending){
  }
  if(!out.length){
   if(pending){res.innerHTML='<div class="qnone">正在加载全部年份…</div>';res.classList.add('on');box.setAttribute('aria-expanded','true');return;}
-  var gg='';
+  var gg=(function(){
+   var HOTW=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];
+   function hit(w){for(var i=0;i<es.length;i++){var e=es[i];if(e._tl.indexOf(w)>-1)return true;if(cnt(e._xl,w)>0)return true;}return false;}
+   var sim=[],i,j,n;
+   for(i=0;i<HOTW.length;i++){var w=HOTW[i];if(w===qs)continue;n=0;for(j=0;j<w.length;j++){if(qs.indexOf(w[j])>-1)n++;}if(n>0&&hit(w))sim.push([n,w]);}
+   sim.sort(function(a,b){return b[0]-a[0];});
+   var simW=sim.slice(0,4).map(function(x){return x[1];});
+   var hot=[];for(i=0;i<HOTW.length&&hot.length<6;i++){if(simW.indexOf(HOTW[i])<0&&HOTW[i]!==qs&&hit(HOTW[i]))hot.push(HOTW[i]);}
+   for(i=0;i<HOTW.length&&hot.length<6;i++){if(simW.indexOf(HOTW[i])<0&&HOTW[i]!==qs&&hot.indexOf(HOTW[i])<0)hot.push(HOTW[i]);}
+   function chips(ws){return ws.map(function(w){return '<button type="button" class="qchip" data-q="'+w+'">'+w+'</button>';}).join('');}
+   var h='';
+   if(simW.length)h+='<span class="qsugg-lab">相近的词，点一下就搜：</span>'+chips(simW);
+   if(hot.length)h+='<span class="qsugg-lab">大家常搜：</span>'+chips(hot);
+   h+='<span class="qsugg-link">不知道搜什么？<a href="topics.html">按问题找 →</a></span>';
+   return '<div class="qsugg">'+h+'</div>';
+  })();
   var fb='<div class="qfeedback"><a href="feedback.html?type=search&q='+encodeURIComponent(q)+'">没找到？告诉我们你想找什么</a></div>';
   window.ghlTrack('search_zero',{q:q});
   res.innerHTML='<div class="qnone">没有找到与「'+esc(q)+'」相关的内容</div>'+gg+fb;res.classList.add('on');box.setAttribute('aria-expanded','true');return;
@@ -2364,8 +2387,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p8">'
-        js_tag = '<script src="main.v5.js?v=20261113p8" defer></script>'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p9">'
+        js_tag = '<script src="main.v5.js?v=20261113p9" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
                        ';window.__GHL_IDPAGE__=' + _idpage_json +
@@ -2470,7 +2493,7 @@ js += "\n(()=>{\nconst area=document.querySelector('.story-carousel');if(!area)r
 js += "\ndocument.querySelectorAll('.intro-toggle').forEach(button=>{\n const intro=button.previousElementSibling;\n function measure(){button.hidden=!intro.classList.contains('is-expanded')&&intro.scrollHeight<=intro.clientHeight+1;}\n button.addEventListener('click',()=>{const expanded=intro.classList.toggle('is-expanded');button.setAttribute('aria-expanded',String(expanded));button.textContent=expanded?'收起':'展开全文';measure();});\n new ResizeObserver(measure).observe(intro);measure();\n});\n"
 js += "\n(function(){var b=document.getElementById('fsbtn');if(!b)return;var order=['','l','xl'];function cur(){var c=document.documentElement.classList;return c.contains('fs-xl')?'xl':(c.contains('fs-l')?'l':'');}b.addEventListener('click',function(){var n=order[(order.indexOf(cur())+1)%order.length];document.documentElement.classList.remove('fs-l','fs-xl');if(n)document.documentElement.classList.add('fs-'+n);try{localStorage.setItem('ghl_fs',n)}catch(e){}});})();\n"
 js += "\n(function(){document.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-ev]'):null;if(b){var f=document.createElement('iframe');f.src='https://www.youtube.com/embed/'+b.getAttribute('data-ev')+'?autoplay=1&playsinline=1';f.title='视频';f.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';b.replaceWith(f);return}var c=e.target.closest?e.target.closest('.qchip'):null;if(c){var q=document.getElementById('q');if(q){q.value=c.getAttribute('data-q');q.dispatchEvent(new Event('input',{bubbles:true}));q.focus()}}});})();\n"
-js += "\n(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var chips=[].slice.call(document.querySelectorAll('.qchip'));if(!chips.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p}function apply(){var w=pick();chips.forEach(function(c,i){var v=w[i%w.length];c.textContent=v;c.setAttribute('data-q',v);c.style.opacity=''})}apply();setInterval(function(){var q=document.getElementById('q');if(q&&q.value.trim())return;chips.forEach(function(c){c.style.opacity='0'});setTimeout(apply,480)},12000)})();\n"
+js += "\n(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var chips=[].slice.call(document.querySelectorAll('.search-hint .qchip'));if(!chips.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p}function apply(){var w=pick();chips.forEach(function(c,i){var v=w[i%w.length];c.textContent=v;c.setAttribute('data-q',v);c.style.opacity=''})}apply();setInterval(function(){var q=document.getElementById('q');if(q&&q.value.trim())return;chips.forEach(function(c){c.style.opacity='0'});setTimeout(apply,480)},12000)})();\n"
 (HERE / "main.v5.js").write_text(js, encoding="utf-8", newline="\n")
 
 # 7.5) 全部条目页（10-23 P1）：目录 + 年份/系列/标题筛选 + 阅读时长 + 复制链接
@@ -2511,7 +2534,7 @@ _catalog_tpl = '''<div class="yearhead"><a class="back" href="index.html">← �
 </div>
 <p class="cat-note">时长为按字数估算的阅读时长（约 400 字 / 分钟），不是视频时长。</p>
 <div class="cat-list" id="cat-list">__ROWS__</div>
-<div class="cat-empty" id="cat-empty" hidden>没有匹配的条目，换个关键词试试。</div>
+<div class="cat-empty" id="cat-empty" hidden>没有匹配的条目，换个关键词试试。<br><span class="cat-sug-lab">大家常搜：</span>__HOT__</div>
 </div>
 <script>
 (function(){
@@ -2535,6 +2558,13 @@ _catalog_tpl = '''<div class="yearhead"><a class="back" href="index.html">← �
    apply();
   });
  });
+ [].slice.call(document.querySelectorAll('#cat-empty .cat-sug')).forEach(function(b){
+  b.addEventListener('click',function(){
+   q.value=b.getAttribute('data-q');sel.value='';curYear='';
+   [].slice.call(document.querySelectorAll('.cat-year-btn')).forEach(function(x){x.classList.toggle('on',x.getAttribute('data-year')==='');});
+   apply();q.focus();
+  });
+ });
  var sp=new URLSearchParams(location.search), qq=sp.get('q'), ss=sp.get('series'), yy=sp.get('year');
  if(qq)q.value=qq; if(ss)sel.value=ss;
  if(yy){curYear=yy;[].slice.call(document.querySelectorAll('.cat-year-btn')).forEach(function(x){x.classList.toggle('on',x.getAttribute('data-year')===yy);});}
@@ -2549,9 +2579,14 @@ _catalog_tpl = '''<div class="yearhead"><a class="back" href="index.html">← �
  });
 })();
 </script>'''
+# p9：目录筛选无结果时的出路——热词取标题/系列里真实有命中的前 6 个（构建期算好，点即填词并清空系列/年份筛选）
+_HOTW = ['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦']
+_cat_hot = [w for w in _HOTW if any(w in (_e['title'] + ' ' + _e['series']) for _e in _catalog_items)][:6]
+_cat_hot_html = ''.join(f'<button type="button" class="cat-sug" data-q="{_html.escape(w, quote=True)}">{_html.escape(w)}</button>' for w in _cat_hot)
 _catalog_body = (_catalog_tpl.replace('__TOTAL__', str(len(_entries)))
                  .replace('__SERIES__', _series_opts)
                  .replace('__YEARS__', _year_btns)
+                 .replace('__HOT__', _cat_hot_html)
                  .replace('__ROWS__', "".join(_cat_rows)))
 
 _HOME_DESC = ("归海录：志远行空的日常分享与 YouTube 视频讲法合集——每一段语音，一个故事，"

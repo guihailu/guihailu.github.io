@@ -94,7 +94,7 @@ extra=[eid for eid in board_map if eid not in entries]
 assert not extra,'board_map has unknown entries: '+str(extra)
 def datauri(fname,mime):
  # p15 首页瘦身（2026-11-09 公开前改造一）：图片改外链独立文件（assets/boards/ 下与 .b64 并存的解码原件），不再内嵌 data URI；回退＝恢复下方两行原实现。
- return 'assets/boards/'+fname+'?v=20261112p19'
+ return 'assets/boards/'+fname+'?v=20261113p20'
 IMG1=datauri('board1-nixiu.webp','image/webp')
 IMG2=datauri('board2-linghun.webp','image/webp')
 IMG3=datauri('board3-fajie.webp','image/webp')
@@ -232,6 +232,12 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .sresults .hit b{font-weight:600}
 .sresults .hit span{display:block;font-size:12.5px;color:var(--sub);margin-top:3px;line-height:1.6}
 .sresults .none{color:var(--sub);font-size:14px;text-align:center;padding:8px}
+.sresults .qsugg{padding:6px 4px 4px;font-size:13.5px;line-height:1.9;color:var(--sub);text-align:left}
+.sresults .qsugg-lab{display:block;font-weight:600;color:var(--ink);margin:8px 0 4px}
+.sresults .qsugg button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 14px;font-size:13.5px;cursor:pointer;margin:2px 4px 2px 0}
+.sresults .qsugg button:hover{border-color:var(--gold);color:var(--gold2)}
+.sresults .qsugg-link{display:block;margin-top:10px}
+.sresults .qsugg-link a{color:var(--gold2)}
 .part{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(22px,4vw,54px);margin-top:110px;align-items:start;scroll-margin-top:84px;position:relative}
 .part.flip{grid-template-columns:1fr 1.15fr}
 .part ~ .part::after{content:'';position:absolute;top:-58px;left:50%;transform:translateX(-50%);width:min(430px,62%);height:1px;background:linear-gradient(90deg,transparent,rgba(201,165,95,.55),transparent)}
@@ -365,7 +371,7 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261112p19"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261113p20"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><span class="theme-slot" aria-hidden="true"></span></nav></header><button id="theme-toggle" type="button" aria-label="切换晚上模式"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>'
@@ -373,7 +379,7 @@ def shell(title,body,home=False):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261112p19"></script></body></html>')
+ '<script src="reading.js?v=20261113p20"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -599,7 +605,22 @@ function doSearch(){
   const q=(sInput.value||'').trim().toLowerCase();sBox.replaceChildren();
   if(!q)return;
   const hits=SEARCH.filter(e=>(e.t+' '+e.x).toLowerCase().includes(q)).slice(0,8);
-  if(!hits.length){const d=document.createElement('div');d.className='none';d.textContent='没找到，去资料库里用全文搜索试试。';sBox.appendChild(d);return}
+  if(!hits.length){
+    const d=document.createElement('div');d.className='none';d.textContent='没找到「'+q+'」';sBox.appendChild(d);
+    const POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];
+    const hit=w=>SEARCH.some(e=>(e.t+' '+e.x).toLowerCase().includes(w));
+    const sim=[];for(const w of POOL){if(w===q)continue;let n=0;for(const ch of w){if(q.includes(ch))n++;}if(n>0&&hit(w))sim.push([n,w]);}
+    sim.sort((a,b)=>b[0]-a[0]);
+    const simW=sim.slice(0,4).map(x=>x[1]);
+    const hot=[];for(const w of POOL){if(hot.length>=6)break;if(simW.indexOf(w)<0&&w!==q&&hit(w))hot.push(w);}
+    for(const w of POOL){if(hot.length>=6)break;if(simW.indexOf(w)<0&&w!==q&&hot.indexOf(w)<0)hot.push(w);}
+    const sg=document.createElement('div');sg.className='qsugg';
+    const mk=(lab,ws)=>{if(!ws.length)return;const s=document.createElement('span');s.className='qsugg-lab';s.textContent=lab;sg.appendChild(s);ws.forEach(w=>{const b=document.createElement('button');b.type='button';b.textContent=w;b.onclick=()=>{sInput.value=w;doSearch();sInput.focus();};sg.appendChild(b);});};
+    mk('相近的词，点一下就搜：',simW);
+    mk('大家常搜：',hot);
+    const lk=document.createElement('span');lk.className='qsugg-link';const a=document.createElement('a');a.href='all.html';a.textContent='去资料库用全文搜索 →';lk.appendChild(a);sg.appendChild(lk);
+    sBox.appendChild(sg);return;
+  }
   hits.forEach(e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');b.textContent=e.t;const s=document.createElement('span');s.textContent=(e.d?e.d+' · ':'')+e.x;a.append(b,s);sBox.appendChild(a)});
 }
 if(sForm){sForm.addEventListener('submit',ev=>{ev.preventDefault();doSearch()});sInput.addEventListener('input',doSearch)}
