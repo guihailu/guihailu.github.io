@@ -488,7 +488,7 @@ def topics_page():
  for p in PROBLEMS:
   es=problem_entries(p)
   secs+=(f'<section class="topic"><h2>{p["name"]}</h2><p class="tdesc">{p["desc"]}这一类共选出 {len(es)} 篇，先读靠前的几篇。</p>'
-  f'<div class="alist">{alist_rows(es[:12])}</div></section>')
+  f'<div class="alist">{alist_rows(es)}</div></section>')
  body=('<section class="board-hero"><span class="tag">资料库</span><h1 class="topics-h1">按问题找</h1>'
  '<p>不用先弄懂四部是什么。带着你现在最头疼的问题来，从下面挑一篇开始读，就是入口。</p></section>'
  f'<main class="board-main">{secs}'
