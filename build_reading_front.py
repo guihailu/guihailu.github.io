@@ -129,6 +129,15 @@ BOARDS=[
   'desc':'这一部最落地：前面听懂的道理，怎么用在过日子上——对家人、对工作、对钱、对脾气。修行不在山上，在你每天怎么活。',
   'first':'ghl-000026'},
 ]
+# 板页引言语义分段（2026-11-14，窄屏孤字修）：每段拼回须等于 desc 原文，
+# 断点只落在语义气口；板页 <p> 内的 span 由 .board-hero p .nb 锁行内不断。
+BOARD_DESC_SEGS={
+ 1:['这一部讲的是普通人的修行：','为什么修、修行到底是什么、从哪儿开始。','福报怎么做、话怎么说、事怎么做，','逆修自查一条条对着自己量。','离生活最近的一部，','先从这里进门。'],
+ 2:['这一部讲灵魂这一层：','灵魂是怎么回事，','洗灵有什么用，','人在镜子里外是怎样两个样子。','听着玄，其实讲的都是为什么','你明明想做好、却总是做不到。'],
+ 3:['这一部讲看不见的世界怎么运作：','三界是怎么分的，','阴间也有经济学，','烧纸为什么有讲究、怎么做才对。','好奇心最重的人，','通常是从这一部被勾住的。'],
+ 4:['这一部最落地：','前面听懂的道理，','怎么用在过日子上——','对家人、对工作、对钱、对脾气。','修行不在山上，','在你每天怎么活。'],
+}
+def nb_segs(segs): return ''.join('<span class="nb">'+s+'</span>' for s in segs)
 def board_entries(n):
  es=[e for e in entries.values() if e['board']==n]
  es=sorted(es,key=lambda e:(e['date'] or '0000',e['id']),reverse=True)
@@ -309,6 +318,7 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .topic{margin:46px 0 8px}
 .topic h2{font-family:"Songti SC","STSong",SimSun,serif;font-size:clamp(22px,3vw,28px);margin:0 0 4px}
 .topic .tdesc{color:var(--sub);margin:0 0 8px;line-height:1.8}
+.board-hero p .nb,.topic .tdesc .nb{white-space:nowrap}
 .board-hero h1{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(46px,7vw,76px);margin:14px 0 8px;letter-spacing:.06em}
 .board-hero .plain{font-size:clamp(18px,2.4vw,23px);color:var(--gold2);font-family:"Songti SC",SimSun,serif;line-height:1.6}
 .board-hero p{color:var(--sub);line-height:2;max-width:720px;margin:14px auto 0}
@@ -371,7 +381,7 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261113p20"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261114p1"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><span class="theme-slot" aria-hidden="true"></span></nav></header><button id="theme-toggle" type="button" aria-label="切换晚上模式"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>'
@@ -379,7 +389,7 @@ def shell(title,body,home=False):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261113p20"></script></body></html>')
+ '<script src="reading.js?v=20261114p1"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -456,10 +466,11 @@ _PD_PLATE='<svg viewBox="0 0 560 120" fill="none" stroke="currentColor" stroke-l
 def part_divider(b):
     return f'<div class="partdiv" aria-hidden="true"><span class="pd-plate">{_PD_PLATE}</span><img class="pd-wm" src="{WMIMG[b["n"]]}" alt="" loading="lazy"><span class="pd-plate flip">{_PD_PLATE}</span></div>'
 def board_page(b):
+ assert ''.join(BOARD_DESC_SEGS[b['n']])==b['desc'], 'desc segs drifted'
  es=board_entries(b['n'])
  body=(f'<section class="board-hero"><span class="tag">第{b["cn"]}部</span><h1><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h1>'
  f'<img class="board-art" src="{b["img"]}" alt="" loading="lazy">'
- f'<div class="plain">{b["plain"]}</div><p>{b["desc"]}</p>'
+ f'<div class="plain">{b["plain"]}</div><p>{nb_segs(BOARD_DESC_SEGS[b["n"]])}</p>'
  f'<p>本部共 {len(es)} 篇：有视频版的排在前面，其余按时间从新到旧，点开就是完整原文。</p></section>'+ORN_DIV+
  f'<main class="board-main"><div class="alist">{alist_rows(es)}</div>'
  '<p style="margin-top:26px"><a class="more" href="index.html">← 回到首页</a> <a class="more" href="all.html">完整资料库 →</a></p></main>')
@@ -487,10 +498,11 @@ def topics_page():
  secs=''
  for p in PROBLEMS:
   es=problem_entries(p)
-  secs+=(f'<section class="topic"><h2>{p["name"]}</h2><p class="tdesc">{p["desc"]}这一类共选出 {len(es)} 篇，先读靠前的几篇。</p>'
+  _a,_b=p['desc'].split('，',1)
+  secs+=(f'<section class="topic"><h2>{p["name"]}</h2><p class="tdesc"><span class="nb">{_a}，</span><span class="nb">{_b}</span><span class="nb">这一类共选出 {len(es)} 篇，先读靠前的几篇。</span></p>'
   f'<div class="alist">{alist_rows(es)}</div></section>')
  body=('<section class="board-hero"><span class="tag">资料库</span><h1 class="topics-h1">按问题找</h1>'
- '<p>不用先弄懂四部是什么。带着你现在最头疼的问题来，从下面挑一篇开始读，就是入口。</p></section>'
+ '<p><span class="nb">不用先弄懂四部是什么。</span><span class="nb">带着你现在最头疼的问题来，</span><span class="nb">从下面挑一篇开始读，就是入口。</span></p></section>'
  f'<main class="board-main">{secs}'
  '<p style="margin-top:26px"><a class="more" href="index.html">← 回到首页</a> <a class="more" href="all.html">完整资料库 →</a></p></main>')
  return shell('归海录 · 按问题找',body)
@@ -531,7 +543,7 @@ for b in BOARDS:
  (out/f'board{b["n"]}.html').write_text(board_page(b),encoding='utf-8')
 (out/'topics.html').write_text(topics_page(),encoding='utf-8')
 (out/'domestic.html').write_text('<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=all.html"><title>归海录 · 完整资料库</title><p>正在进入<a href="all.html">完整资料库</a>…</p>',encoding='utf-8')
-related=('<section class="board-hero"><span class="tag">知识大赏</span><h1>换个角度看人生</h1><p>小动画对应的完整原文都在这里，点开就是全文。</p></section>'
+related=('<section class="board-hero"><span class="tag">知识大赏</span><h1>换个角度看人生</h1><p><span class="nb">小动画对应的完整原文都在这里，</span><span class="nb">点开就是全文。</span></p></section>'
  '<main class="board-main"><div class="alist">'
  +''.join(f'<a href="{article_href(c["article_id"])}"><span>{esc(c["title"])}</span></a>' for c in vibes)
  +'</div><p style="margin-top:26px"><a class="more" href="index.html#part4">← 回到道法自然</a></p></main>')
