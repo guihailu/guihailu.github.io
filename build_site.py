@@ -342,6 +342,413 @@ def _first_para_text(html):
 # p17 失效兜底：外站海报（i.ytimg.com）加载失败时换成本地归海印章，不留破图；data-fb 防兜底图自身失败时死循环。
 _POSTER_FB = ' onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\'assets/boards/seal.png?v=20261108p4\'}"'
 
+# ---- Heading typography system (2026-11-13, user-approved combined version) ----
+# Deterministic semantic segmentation for entry titles (h2) and section headings
+# (h3/h4/h5): breaks only at punctuation breath points; bracketed units, names,
+# quotes, numbers+units and trailing punctuation stay unbroken (<span class="nb">);
+# break candidates are <wbr> between segments. v4 adds an unbreakable-run cap
+# (13 chars): emergency cuts keep every line inside the narrowest content box
+# (360px) so nothing is clipped by .entry{overflow:hidden}. Provenance:
+# evidence/splitter_v4.py + evidence/heading_segment_v4.py (sandbox-measured
+# over all 122 titles and 1435 headings at 360/390/768/1440).
+# _ghl_esc uses quote=False to match pandoc text escaping (only & < >).
+_ghl_esc = lambda s: _html.escape(s, quote=False)
+_HEAD_RE = re.compile(r'<h([345])\b([^>]*)>(.*?)</h\1>', re.S)
+
+STRONG_AFTER = set('\uff1f\uff01\u3002\uff1b\uff1a')
+SECOND_AFTER = set('\uff0c\u3001\u00b7\u2026')
+DASH = '\u2014'
+OPENERS = {'\uff08': '\uff09', '(': ')', '\u300a': '\u300b', '\u300c': '\u300d', '\u201c': '\u201d', '\u2018': '\u2019'}
+CLOSERS = set(OPENERS.values())
+LONG_BRACKET_CUTS = set('\u00b7\uff1a\u3001\uff0c')
+
+def _bracket_spans(s):
+    spans = []
+    stack = []
+    for idx, ch in enumerate(s):
+        if ch in OPENERS:
+            stack.append((ch, idx))
+        elif ch in CLOSERS:
+            for j in range(len(stack) - 1, -1, -1):
+                if OPENERS[stack[j][0]] == ch:
+                    _, oi = stack.pop(j)
+                    spans.append((oi, idx + 1))
+                    break
+    return spans
+
+def _inside_sets(s):
+    spans = _bracket_spans(s)
+    short_in, long_in = set(), set()
+    for a, b in spans:
+        tgt = long_in if (b - a) > 14 else short_in
+        for k in range(a, b):
+            tgt.add(k)
+    return short_in, long_in
+
+def split_segments(text):
+    n = len(text)
+    short_in, long_in = _inside_sets(text)
+    cuts = set()
+    for i, ch in enumerate(text):
+        if ch in OPENERS and i > 0 and (i - 1) not in short_in and (i - 1) not in long_in:
+            cuts.add(i - 1)
+        if i in short_in:
+            continue
+        if i in long_in:
+            if ch in LONG_BRACKET_CUTS:
+                cuts.add(i)
+            continue
+        if ch in STRONG_AFTER or ch in SECOND_AFTER:
+            cuts.add(i)
+        elif ch == DASH:
+            if i + 1 >= n or text[i + 1] != DASH:
+                cuts.add(i)
+        elif ch == '>':
+            cuts.add(i)
+    segs, start = [], 0
+    for i in range(n):
+        if i in cuts and i + 1 < n:
+            segs.append(text[start:i + 1])
+            start = i + 1
+    segs.append(text[start:])
+    merged = []
+    for s in segs:
+        if merged and len(s.strip()) <= 2 and not (s and s[0] in OPENERS):
+            merged[-1] += s
+        else:
+            merged.append(s)
+    return [s for s in merged if s]
+
+_SUB_AFTER = set('\u4e0e\u548c\u53ca\u7684\u4e4b\u5728\u662f\u4e3a\u5bf9\u4ece\u5411\u628a\u88ab\u8ba9\u7ed9')
+_SUB_PUNCT = set('\u00b7\uff1a\u3001\uff0c')
+
+def _is_bracket_unit(seg):
+    t = seg.strip()
+    return len(t) >= 2 and t[0] in OPENERS and OPENERS[t[0]] == t[-1]
+
+def _sub_split(seg):
+    """Split one overlong segment into 2 at the best internal point. Returns [seg] if no good point."""
+    n = len(seg)
+    if n <= 4:
+        return [seg]
+    bracket_unit = _is_bracket_unit(seg)
+    cands = []
+    for i in range(3, n - 4):
+        ch = seg[i]
+        nxt = seg[i + 1]
+        if nxt in STRONG_AFTER or nxt in SECOND_AFTER or nxt in CLOSERS:
+            continue
+        ok = False
+        if ch in (' ', '\n', '\t'):
+            ok = True
+        elif ch in _SUB_PUNCT:
+            ok = True
+        elif not bracket_unit and ch in _SUB_AFTER:
+            ok = True
+        elif not bracket_unit and ch in '\u5e74\u6708\u65e5' and i > 0 and seg[i - 1].isdigit():
+            ok = True
+        if ok:
+            cands.append(i)
+    if cands:
+        mid = n / 2.0
+        best = min(cands, key=lambda i: (abs((i + 1) - mid), -(i + 1)))
+        return [seg[:best + 1], seg[best + 1:]]
+    # fallback: exact middle, nudged off punctuation
+    i = n // 2 - 1
+    for _ in range(3):
+        if seg[i + 1] in STRONG_AFTER or seg[i + 1] in SECOND_AFTER or seg[i + 1] in CLOSERS:
+            i += 1
+        else:
+            break
+    return [seg[:i + 1], seg[i + 1:]]
+
+def split_part(text):
+    segs = split_segments(text)
+    sole = len(segs) == 1
+    out = []
+    for s in segs:
+        if len(s) > 16 or (sole and len(s) > 14):
+            parts = _sub_split(s)
+            # one more pass if a part is still overlong
+            refined = []
+            for p in parts:
+                if len(p) > 16:
+                    refined.extend(_sub_split(p))
+                else:
+                    refined.append(p)
+            out.extend(refined)
+        else:
+            out.append(s)
+    return _cap_segments(out)
+
+def _protection_spans(seg):
+    spans = []
+    stack = []
+    for idx, ch in enumerate(seg):
+        if ch in OPENERS:
+            stack.append((ch, idx))
+        elif ch in CLOSERS:
+            for j in range(len(stack) - 1, -1, -1):
+                if OPENERS[stack[j][0]] == ch:
+                    _, oi = stack.pop(j)
+                    spans.append((oi, idx + 1))
+                    break
+    for q in ('"', "'"):
+        idxs = [k for k, c in enumerate(seg) if c == q]
+        if len(idxs) >= 2 and len(idxs) % 2 == 0:
+            for a, b in zip(idxs[::2], idxs[1::2]):
+                content = seg[a + 1:b]
+                if 0 < len(content) <= 8 and not any(c in STRONG_AFTER | SECOND_AFTER for c in content):
+                    spans.append((a, b + 1))
+    if '\u201c' not in seg:
+        idxs = [k for k, c in enumerate(seg) if c == '\u201d']
+        if len(idxs) >= 2 and len(idxs) % 2 == 0:
+            for a, b in zip(idxs[::2], idxs[1::2]):
+                content = seg[a + 1:b]
+                if 0 < len(content) <= 8 and not any(c in STRONG_AFTER | SECOND_AFTER for c in content):
+                    spans.append((a, b + 1))
+    for m in re.finditer(r'\d+%?\s+[\u4e00-\u9fff]{1,3}', seg):
+        spans.append((m.start(), m.end()))
+    for m in re.finditer(r'(?<![A-Za-z0-9])[A-Za-z]\s+[\u4e00-\u9fff]{1,2}', seg):
+        spans.append((m.start(), m.end()))
+    for m in re.finditer(r'[A-Za-z]{2,}\s+[A-Za-z]{2,}', seg):
+        if m.end() - m.start() <= 12:
+            spans.append((m.start(), m.end()))
+    # F1: / &-name runs
+    for m in re.finditer(r'[\u4e00-\u9fffA-Za-z0-9]+(?:[/&\uff0b+][\u4e00-\u9fffA-Za-z0-9]+)+', seg):
+        if m.end() - m.start() <= 14:
+            spans.append((m.start(), m.end()))
+    # F2: trailing separator stays with previous word
+    m = re.search(r'([A-Za-z0-9]{1,8}|[\u4e00-\u9fff]{1,2})\s*([\u00b7>])\s*$', seg)
+    if m and (m.end() - m.start()) <= 10:
+        spans.append((m.start(), m.end()))
+    m = re.search(r'([A-Za-z0-9]{1,8}|[\u4e00-\u9fff]{1,2})(\u2014+)\s*$', seg)
+    if m and (m.end() - m.start()) <= 10:
+        spans.append((m.start(), m.end()))
+    m = re.search(r'([A-Za-z0-9]{1,8}|[\u4e00-\u9fff]{1,2}|[\)\uff09\u300b\u300d\u201d\u2019])\s*([\uff1f\uff01\u3002\uff1b\uff1a\uff0c\u3001\u2026])\s*$', seg)
+    if m and (m.end() - m.start()) <= 10:
+        spans.append((m.start(), m.end()))
+    spans = sorted(set(spans))
+    merged_spans = []
+    for a, b in spans:
+        if b - a > 14:
+            continue
+        if merged_spans and a < merged_spans[-1][1]:
+            merged_spans[-1] = (merged_spans[-1][0], max(merged_spans[-1][1], b))
+        else:
+            merged_spans.append((a, b))
+    return merged_spans
+
+
+def _protect_units(seg):
+    merged_spans = _protection_spans(seg)
+    out, pos, n = [], 0, len(seg)
+    for a, b in merged_spans:
+        if a > pos:
+            out.append(_ghl_esc(seg[pos:a]))
+        out.append('<span class="nb">' + _ghl_esc(seg[a:b]) + '</span>')
+        pos = b
+    if pos < n:
+        out.append(_ghl_esc(seg[pos:]))
+    return ''.join(out) if out else _ghl_esc(seg)
+
+
+# ---- v4 run cap ----
+_CAP = 13
+_OPP_AFTER = STRONG_AFTER | SECOND_AFTER | set('\u2014> \n\t')
+_UNITS = set('\u5e74\u6708\u65e5\u65f6\u5206\u79d2\uff05%\u4e2a\u5c81\u500d\u5143\u70b9')
+_CONNECTORS = set('/&+')
+# Prefer emergency cuts right after a function word / particle: the break
+# then lands between phrases instead of inside a word. Worth 2 chars of
+# middle-distance when choosing among candidates.
+_SOFT_AFTER = _SUB_AFTER | set('\u4e5f\u90fd\u5c31\u8fd8\u4e0d\u53c8\u518d\u66f4\u6700\u5f88\u4f1a\u80fd\u53ef\u8981\u7740\u4e86\u8fc7\u5f97\u5730\u5417\u5462\u554a\u5427\u5440\u4e48\u6709\u6ca1\u6216\u4f46\u800c\u6bd4\u8ddf\u540c\u5f53\u7528\u4ee5\u82e5\u5982\u5219\u624d\u771f\u597d\u4e0a\u4e0b\u91cc\u5916\u4e2d\u95f4\u524d\u540e')
+
+def _same_quote_spans(s):
+    spans = []
+    for q, opener in (('"', None), ("'", None), ('\u201d', '\u201c'), ('\u2019', '\u2018')):
+        if opener is not None and opener in s:
+            continue
+        idxs = [k for k, c in enumerate(s) if c == q]
+        if len(idxs) >= 2 and len(idxs) % 2 == 0:
+            for a, b in zip(idxs[::2], idxs[1::2]):
+                spans.append((a, b + 1))
+    return spans
+
+def _cap_one(seg):
+    if len(seg) <= _CAP:
+        return [seg]
+    intervals = _protection_spans(seg) + _bracket_spans(seg) + _same_quote_spans(seg)
+    bad = set()
+    for a, b in intervals:
+        for p in range(a + 1, b):
+            bad.add(p)
+    n = len(seg)
+
+    def safe(p):
+        if p <= 0 or p >= n or p in bad:
+            return False
+        a, b = seg[p - 1], seg[p]
+        if a in OPENERS or b in CLOSERS:
+            return False
+        if a in _CONNECTORS or b in _CONNECTORS:
+            return False
+        if a.isdigit() and (b.isdigit() or b in _UNITS):
+            return False
+        if (a in '.,' and b.isdigit()) or (a.isdigit() and b in '.,'):
+            return False
+        if a.isascii() and a.isalnum() and b.isascii() and b.isalnum():
+            return False
+        return True
+
+    opp = [p for p in range(1, n) if seg[p - 1] in _OPP_AFTER and safe(p)]
+    bounds = [0] + opp + [n]
+    runs = [(bounds[i], bounds[i + 1]) for i in range(len(bounds) - 1)]
+    if all(e - s <= _CAP for s, e in runs):
+        return [seg]
+    cuts = set()
+
+    def split_run(s, e):
+        if e - s <= _CAP:
+            return
+        cands = [p for p in range(s + 4, e - 3) if safe(p)]
+        if not cands:
+            return
+        mid = (s + e) / 2
+        p = min(cands, key=lambda x: (abs(x - mid) - (2.0 if seg[x - 1] in _SOFT_AFTER else 0.0), x))
+        cuts.add(p)
+        split_run(s, p)
+        split_run(p, e)
+
+    for s, e in runs:
+        split_run(s, e)
+    if not cuts:
+        return [seg]
+    out = []
+    prev = 0
+    for p in sorted(cuts):
+        out.append(seg[prev:p])
+        prev = p
+    out.append(seg[prev:])
+    return [x for x in out if x]
+
+def _cap_segments(segs):
+    out = []
+    for s in segs:
+        out.extend(_cap_one(s))
+    return out
+
+def segment_html(text):
+    segs = split_part(text)
+    parts = [_protect_units(s) for s in segs]
+    return '<wbr>'.join(parts), segs
+
+_TAG_RE = re.compile(r'<[^>]+>')
+
+def _tokenize(inner):
+    tokens = []
+    pos = 0
+    for m in _TAG_RE.finditer(inner):
+        if m.start() > pos:
+            tokens.append(('text', _html.unescape(inner[pos:m.start()])))
+        tokens.append(('tag', m.group(0)))
+        pos = m.end()
+    if pos < len(inner):
+        tokens.append(('text', _html.unescape(inner[pos:])))
+    return tokens
+
+def _is_label(seg):
+    t = seg.strip()
+    if len(t) > 9 or not t.endswith('\uff1a'):
+        return False
+    head = t[:-1]
+    head = re.sub(r'^[^\u4e00-\u9fffA-Za-z0-9]+', '', head)
+    head = re.sub(r'^[\u4e00-\u9fff0-9]{1,3}[\u3001\uff0e.]', '', head)
+    return 1 <= len(head) <= 5 and all('\u4e00' <= c <= '\u9fff' for c in head)
+
+
+def _merge_labels(segs):
+    out = []
+    i = 0
+    while i < len(segs):
+        if (i + 1 < len(segs) and _is_label(segs[i])
+                and len(segs[i]) + len(segs[i + 1]) <= 16):
+            out.append(segs[i] + segs[i + 1])
+            i += 2
+        else:
+            out.append(segs[i])
+            i += 1
+    return out
+
+
+def _whole_text_quote_spans(plain):
+    spans = []
+    for q, opener in (('"', None), ("'", None), ('\u201d', '\u201c'), ('\u2019', '\u2018')):
+        if opener is not None and opener in plain:
+            continue
+        idxs = [k for k, c in enumerate(plain) if c == q]
+        if len(idxs) >= 2 and len(idxs) % 2 == 0:
+            for a, b in zip(idxs[::2], idxs[1::2]):
+                content = plain[a + 1:b]
+                if 0 < len(content) <= 8 and not any(c in STRONG_AFTER | SECOND_AFTER for c in content):
+                    spans.append((a, b + 1))
+    return spans
+
+
+def segment_heading_html(inner):
+    """Segment a heading's inner HTML (may contain <strong>) into wbr/.nb markup.
+
+    Returns (new_inner_html, segments). Plain text is preserved exactly.
+    """
+    tokens = _tokenize(inner)
+    plain = ''.join(t for k, t in tokens if k == 'text')
+    if not plain.strip():
+        return inner, [plain]
+    segs = _merge_labels(split_part(plain))
+    bounds = []
+    acc = 0
+    for s in segs:
+        acc += len(s)
+        bounds.append(acc)
+    bound_set = set(bounds[:-1])
+    prot = []
+    off = 0
+    for s in segs:
+        for a, b in _protection_spans(s):
+            prot.append((off + a, off + b))
+        off += len(s)
+    for a, b in _whole_text_quote_spans(plain):
+        prot.append((a, b))
+        bound_set = {x for x in bound_set if not (a < x < b)}
+    out = []
+    gi = 0
+    for kind, val in tokens:
+        if kind == 'tag':
+            out.append(val)
+            continue
+        edges = {0, len(val)}
+        for b in bound_set:
+            if gi < b < gi + len(val):
+                edges.add(b - gi)
+        for a, b in prot:
+            if gi < a < gi + len(val):
+                edges.add(a - gi)
+            if gi < b < gi + len(val):
+                edges.add(b - gi)
+        pts = sorted(edges)
+        for x, y in zip(pts, pts[1:]):
+            piece = val[x:y]
+            g0, g1 = gi + x, gi + y
+            is_prot = any(a <= g0 and g1 <= b for a, b in prot)
+            esc = _ghl_esc(piece)
+            if is_prot:
+                out.append('<span class="nb">' + esc + '</span>')
+            else:
+                out.append(esc)
+            if g1 in bound_set:
+                out.append('<wbr>')
+        gi += len(val)
+    return ''.join(out), segs
+
 def wrap_entries(b):
     pat = re.compile(r'<h([23])\s+id="(ghl-\d+)">(.*?)</h\1>\n', re.S)
     matches = list(pat.finditer(b))
@@ -375,11 +782,19 @@ def wrap_entries(b):
             chunk = (f'<div class="evideo" id="{sid}-video"><button type="button" class="evideo-play" data-ev="{_vid}" aria-label="播放本篇视频">'
                      f'<img src="https://i.ytimg.com/vi/{_vid}/hqdefault.jpg" alt="" loading="lazy"{_POSTER_FB}><span class="evideo-btn">▶ 播放本篇视频</span></button>'
                      f'<p class="evideo-alt">看不了内嵌播放？<a href="https://www.youtube.com/watch?v={_vid}" target="_blank" rel="noopener">在 YouTube 打开 ↗</a></p></div>') + chunk
-        if '｜' in title:
-            _t_main, _t_meta = title.split('｜', 1)
-            title_html = f'<span class="t-main">{_t_main.strip()}</span><span class="t-meta">{_t_meta.strip()}</span>'
+        chunk = _HEAD_RE.sub(lambda m: '<h%s%s>%s</h%s>' % (m.group(1), m.group(2), segment_heading_html(m.group(3))[0], m.group(1)), chunk)
+        if re.search(r'<[a-zA-Z/]', title):
+            print(f"WARN title contains tags, left unsegmented: {sid}")
+            if '｜' in title:
+                _t_main, _t_meta = title.split('｜', 1)
+                title_html = f'<span class="t-main">{_t_main.strip()}</span><span class="t-meta">{_t_meta.strip()}</span>'
+            else:
+                title_html = title
+        elif '｜' in _title_text:
+            _t_main, _t_meta = _title_text.split('｜', 1)
+            title_html = f'<span class="t-main">{segment_html(_t_main.strip())[0]}</span><span class="t-meta">{segment_html(_t_meta.strip())[0]}</span>'
         else:
-            title_html = title
+            title_html = segment_html(_title_text)[0]
         out.append(
             f'<details class="entry" id="{sid}">'
             f'<summary><h2>{title_html}</h2>{date_html}{ex_html}</summary>'
@@ -1208,8 +1623,9 @@ html:not(.dark) .sitebar .bimg1,html:not(.dark) .sitebar .bimg2,html:not(.dark) 
 #qres.on{display:block}
 #qres mark{background:rgba(201,165,95,.35);color:inherit;border-radius:2px;padding:0 1px}
 .search-hint{margin:10px 0 0;text-align:center;color:var(--sub);font-size:12.5px}
-.qchip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:3px 12px;font-size:13px;cursor:pointer;margin:2px;transition:opacity .45s ease}
-.qchip:hover{border-color:var(--gold);color:var(--gold2)}
+.qchip,.cat-sug{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:3px 12px;font-size:13px;cursor:pointer;margin:2px;transition:opacity .45s ease}
+.qchip:hover,.cat-sug:hover{border-color:var(--gold);color:var(--gold2)}
+.cat-sug-lab{font-weight:600;color:var(--ink)}
 .qitem{display:block;padding:12px 16px;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}
 .qitem:last-child{border-bottom:0}
 .qitem:hover,.qitem.active{background:var(--card2)}
@@ -1223,6 +1639,13 @@ html:not(.dark) .sitebar .bimg1,html:not(.dark) .sitebar .bimg2,html:not(.dark) 
 .qcount{padding:8px 16px;color:var(--sub);font-size:12px;border-bottom:1px solid var(--line)}
 .qfeedback{padding:12px 16px;font-size:13px;color:var(--sub)}
 .qfeedback a{color:var(--gold2)}
+/* 搜索无结果时的出路（p9）：相近词＋热词＋按问题找， chips 点即重搜 */
+.qsugg{padding:2px 16px 14px;font-size:13px;line-height:1.8;color:var(--sub)}
+.qsugg-lab{display:block;font-weight:600;color:var(--ink);margin:8px 0 4px}
+.qsugg .qchip{margin:2px 4px 2px 0}
+.qsugg-link{display:block;margin-top:10px}
+.qsugg-link a{color:var(--gold2)}
+.cat-empty .cat-sug{margin:2px 4px 2px 0}
 .qguide{padding:6px 0}
 /* ---- 页头（年份页/反馈页等） ---- */
 .yearhead{max-width:820px;margin:0 auto;padding:44px 24px 8px;text-align:center}
@@ -1255,9 +1678,10 @@ main.content{min-width:0;max-width:760px;width:100%;justify-self:center}
 .entry>summary{display:grid;grid-template-columns:20px minmax(0,1fr);column-gap:13px;align-items:start;padding:20px 22px;list-style:none;cursor:pointer}
 .entry>summary::before{content:"+";grid-column:1;grid-row:1;color:var(--gold);font-size:21px;font-weight:300;line-height:1.5}
 .entry[open]>summary::before{content:"−"}
-.entry>summary h2{margin:0;font-family:"Songti SC",SimSun,serif;font-size:20.5px;line-height:1.5;font-weight:700;letter-spacing:.01em;text-align:center}
-.entry>summary h2 .t-main{display:block}
-.entry>summary h2 .t-meta{display:block}
+.entry>summary h2{margin:0;font-family:"Songti SC",SimSun,serif;font-size:20.5px;line-height:1.5;font-weight:700;letter-spacing:.01em;text-align:center;text-wrap:balance;line-break:strict;word-break:keep-all}
+.entry>summary h2 .t-main{display:block;text-wrap:balance;line-break:strict;word-break:keep-all}
+.entry>summary h2 .t-meta{display:block;text-wrap:balance;line-break:strict;word-break:keep-all}
+.entry>summary h2 .nb,.entry-body h3 .nb,.entry-body h4 .nb,.entry-body h5 .nb{white-space:nowrap}
 .entry>summary:hover h2{color:var(--gold2)}
 .entry>summary .date{grid-column:2;grid-row:2;justify-self:start;max-width:100%;margin-top:9px;padding:2px 10px;border-radius:999px;background:var(--card2);color:var(--sub);font-size:12px;font-weight:500;letter-spacing:.02em;line-height:1.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .entry>summary .date p{display:inline;margin:0}
@@ -1275,8 +1699,9 @@ html.fs-xl .entry-body{font-size:19.5px}
 .evideo-alt{font-size:13px;color:var(--sub);margin-top:8px}
 .entry-body a{color:var(--link);text-underline-offset:4px}
 .entry-body a:hover{color:var(--gold2)}
-.entry-body h3{font-family:"Songti SC",SimSun,serif;font-size:20px;line-height:1.5;margin:1.5em 0 .6em;color:var(--ink)}
-.entry-body h4{font-family:"Songti SC",SimSun,serif;font-size:17.5px;margin:1.3em 0 .5em;color:var(--gold2)}
+.entry-body h3{font-family:"Songti SC",SimSun,serif;font-size:20px;line-height:1.5;margin:1.5em 0 .6em;color:var(--ink);text-align:center;text-wrap:balance;line-break:strict;word-break:keep-all}
+.entry-body h4{font-family:"Songti SC",SimSun,serif;font-size:17.5px;margin:1.3em 0 .5em;color:var(--gold2);text-align:center;text-wrap:balance;line-break:strict;word-break:keep-all}
+.entry-body h5{text-align:center;text-wrap:balance;line-break:strict;word-break:keep-all}
 .entry-body blockquote{margin:1.2em 0;padding:14px 20px;border-left:3px solid var(--gold);background:var(--card2);border-radius:0 12px 12px 0;color:var(--quote);font-family:"Songti SC",SimSun,serif}
 .entry-body blockquote p{margin:0 0 .6em}
 .entry-body blockquote p:last-child{margin-bottom:0}
@@ -1292,7 +1717,7 @@ html.fs-xl .entry-body{font-size:19.5px}
 .entry-feedback a{color:var(--gold2)}
 /* ---- 接着读（p18 清单①）：条目末尾同板块＋同系列后续篇目 ---- */
 .next-read{margin:22px 0 4px;padding:18px 20px 16px;border-top:1px solid var(--line);background:var(--card2);border-radius:14px}
-.entry-body .next-read h3{margin:0 0 4px;font-size:17px}
+.entry-body .next-read h3{margin:0 0 4px;font-size:17px;text-align:left;text-wrap-style:auto}
 .entry-body .next-read p{margin:0}
 .next-read-note{color:var(--sub);font-size:12.5px;line-height:1.7}
 .next-read ul{margin:10px 0 12px;padding:0;list-style:none}
@@ -1728,7 +2153,22 @@ function renderNow(q,pending){
  }
  if(!out.length){
   if(pending){res.innerHTML='<div class="qnone">正在加载全部年份…</div>';res.classList.add('on');box.setAttribute('aria-expanded','true');return;}
-  var gg='';
+  var gg=(function(){
+   var HOTW=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];
+   function hit(w){for(var i=0;i<es.length;i++){var e=es[i];if(e._tl.indexOf(w)>-1)return true;if(cnt(e._xl,w)>0)return true;}return false;}
+   var sim=[],i,j,n;
+   for(i=0;i<HOTW.length;i++){var w=HOTW[i];if(w===qs)continue;n=0;for(j=0;j<w.length;j++){if(qs.indexOf(w[j])>-1)n++;}if(n>0&&hit(w))sim.push([n,w]);}
+   sim.sort(function(a,b){return b[0]-a[0];});
+   var simW=sim.slice(0,4).map(function(x){return x[1];});
+   var hot=[];for(i=0;i<HOTW.length&&hot.length<6;i++){if(simW.indexOf(HOTW[i])<0&&HOTW[i]!==qs&&hit(HOTW[i]))hot.push(HOTW[i]);}
+   for(i=0;i<HOTW.length&&hot.length<6;i++){if(simW.indexOf(HOTW[i])<0&&HOTW[i]!==qs&&hot.indexOf(HOTW[i])<0)hot.push(HOTW[i]);}
+   function chips(ws){return ws.map(function(w){return '<button type="button" class="qchip" data-q="'+w+'">'+w+'</button>';}).join('');}
+   var h='';
+   if(simW.length)h+='<span class="qsugg-lab">相近的词，点一下就搜：</span>'+chips(simW);
+   if(hot.length)h+='<span class="qsugg-lab">大家常搜：</span>'+chips(hot);
+   h+='<span class="qsugg-link">不知道搜什么？<a href="topics.html">按问题找 →</a></span>';
+   return '<div class="qsugg">'+h+'</div>';
+  })();
   var fb='<div class="qfeedback"><a href="feedback.html?type=search&q='+encodeURIComponent(q)+'">没找到？告诉我们你想找什么</a></div>';
   window.ghlTrack('search_zero',{q:q});
   res.innerHTML='<div class="qnone">没有找到与「'+esc(q)+'」相关的内容</div>'+gg+fb;res.classList.add('on');box.setAttribute('aria-expanded','true');return;
@@ -1800,7 +2240,9 @@ def _norm_extra(s):
     return out
 
 def _plain(s):
-    s = re.sub(r'<[^>]+>', ' ', s or '')
+    s = re.sub(r'<wbr\s*/?>', '', s or '')
+    s = re.sub(r'<span class="nb">(.*?)</span>', r'\1', s, flags=re.S)
+    s = re.sub(r'<[^>]+>', ' ', s)
     s = (s.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
            .replace('&quot;', '"').replace('&#39;', "'"))
     return re.sub(r'\s+', ' ', s).strip()
@@ -1945,8 +2387,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p7">'
-        js_tag = '<script src="main.v5.js?v=20261113p7" defer></script>'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p9">'
+        js_tag = '<script src="main.v5.js?v=20261113p9" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
                        ';window.__GHL_IDPAGE__=' + _idpage_json +
@@ -2051,7 +2493,7 @@ js += "\n(()=>{\nconst area=document.querySelector('.story-carousel');if(!area)r
 js += "\ndocument.querySelectorAll('.intro-toggle').forEach(button=>{\n const intro=button.previousElementSibling;\n function measure(){button.hidden=!intro.classList.contains('is-expanded')&&intro.scrollHeight<=intro.clientHeight+1;}\n button.addEventListener('click',()=>{const expanded=intro.classList.toggle('is-expanded');button.setAttribute('aria-expanded',String(expanded));button.textContent=expanded?'收起':'展开全文';measure();});\n new ResizeObserver(measure).observe(intro);measure();\n});\n"
 js += "\n(function(){var b=document.getElementById('fsbtn');if(!b)return;var order=['','l','xl'];function cur(){var c=document.documentElement.classList;return c.contains('fs-xl')?'xl':(c.contains('fs-l')?'l':'');}b.addEventListener('click',function(){var n=order[(order.indexOf(cur())+1)%order.length];document.documentElement.classList.remove('fs-l','fs-xl');if(n)document.documentElement.classList.add('fs-'+n);try{localStorage.setItem('ghl_fs',n)}catch(e){}});})();\n"
 js += "\n(function(){document.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-ev]'):null;if(b){var f=document.createElement('iframe');f.src='https://www.youtube.com/embed/'+b.getAttribute('data-ev')+'?autoplay=1&playsinline=1';f.title='视频';f.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';b.replaceWith(f);return}var c=e.target.closest?e.target.closest('.qchip'):null;if(c){var q=document.getElementById('q');if(q){q.value=c.getAttribute('data-q');q.dispatchEvent(new Event('input',{bubbles:true}));q.focus()}}});})();\n"
-js += "\n(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var chips=[].slice.call(document.querySelectorAll('.qchip'));if(!chips.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p}function apply(){var w=pick();chips.forEach(function(c,i){var v=w[i%w.length];c.textContent=v;c.setAttribute('data-q',v);c.style.opacity=''})}apply();setInterval(function(){var q=document.getElementById('q');if(q&&q.value.trim())return;chips.forEach(function(c){c.style.opacity='0'});setTimeout(apply,480)},12000)})();\n"
+js += "\n(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var chips=[].slice.call(document.querySelectorAll('.search-hint .qchip'));if(!chips.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p}function apply(){var w=pick();chips.forEach(function(c,i){var v=w[i%w.length];c.textContent=v;c.setAttribute('data-q',v);c.style.opacity=''})}apply();setInterval(function(){var q=document.getElementById('q');if(q&&q.value.trim())return;chips.forEach(function(c){c.style.opacity='0'});setTimeout(apply,480)},12000)})();\n"
 (HERE / "main.v5.js").write_text(js, encoding="utf-8", newline="\n")
 
 # 7.5) 全部条目页（10-23 P1）：目录 + 年份/系列/标题筛选 + 阅读时长 + 复制链接
@@ -2092,7 +2534,7 @@ _catalog_tpl = '''<div class="yearhead"><a class="back" href="index.html">← �
 </div>
 <p class="cat-note">时长为按字数估算的阅读时长（约 400 字 / 分钟），不是视频时长。</p>
 <div class="cat-list" id="cat-list">__ROWS__</div>
-<div class="cat-empty" id="cat-empty" hidden>没有匹配的条目，换个关键词试试。</div>
+<div class="cat-empty" id="cat-empty" hidden>没有匹配的条目，换个关键词试试。<br><span class="cat-sug-lab">大家常搜：</span>__HOT__</div>
 </div>
 <script>
 (function(){
@@ -2116,6 +2558,13 @@ _catalog_tpl = '''<div class="yearhead"><a class="back" href="index.html">← �
    apply();
   });
  });
+ [].slice.call(document.querySelectorAll('#cat-empty .cat-sug')).forEach(function(b){
+  b.addEventListener('click',function(){
+   q.value=b.getAttribute('data-q');sel.value='';curYear='';
+   [].slice.call(document.querySelectorAll('.cat-year-btn')).forEach(function(x){x.classList.toggle('on',x.getAttribute('data-year')==='');});
+   apply();q.focus();
+  });
+ });
  var sp=new URLSearchParams(location.search), qq=sp.get('q'), ss=sp.get('series'), yy=sp.get('year');
  if(qq)q.value=qq; if(ss)sel.value=ss;
  if(yy){curYear=yy;[].slice.call(document.querySelectorAll('.cat-year-btn')).forEach(function(x){x.classList.toggle('on',x.getAttribute('data-year')===yy);});}
@@ -2130,9 +2579,14 @@ _catalog_tpl = '''<div class="yearhead"><a class="back" href="index.html">← �
  });
 })();
 </script>'''
+# p9：目录筛选无结果时的出路——热词取标题/系列里真实有命中的前 6 个（构建期算好，点即填词并清空系列/年份筛选）
+_HOTW = ['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦']
+_cat_hot = [w for w in _HOTW if any(w in (_e['title'] + ' ' + _e['series']) for _e in _catalog_items)][:6]
+_cat_hot_html = ''.join(f'<button type="button" class="cat-sug" data-q="{_html.escape(w, quote=True)}">{_html.escape(w)}</button>' for w in _cat_hot)
 _catalog_body = (_catalog_tpl.replace('__TOTAL__', str(len(_entries)))
                  .replace('__SERIES__', _series_opts)
                  .replace('__YEARS__', _year_btns)
+                 .replace('__HOT__', _cat_hot_html)
                  .replace('__ROWS__', "".join(_cat_rows)))
 
 _HOME_DESC = ("归海录：志远行空的日常分享与 YouTube 视频讲法合集——每一段语音，一个故事，"

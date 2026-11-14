@@ -67,7 +67,22 @@ function doSearch(){
   const q=(sInput.value||'').trim().toLowerCase();sBox.replaceChildren();
   if(!q)return;
   const hits=SEARCH.filter(e=>(e.t+' '+e.x).toLowerCase().includes(q)).slice(0,8);
-  if(!hits.length){const d=document.createElement('div');d.className='none';d.textContent='没找到，去资料库里用全文搜索试试。';sBox.appendChild(d);return}
+  if(!hits.length){
+    const d=document.createElement('div');d.className='none';d.textContent='没找到「'+q+'」';sBox.appendChild(d);
+    const POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];
+    const hit=w=>SEARCH.some(e=>(e.t+' '+e.x).toLowerCase().includes(w));
+    const sim=[];for(const w of POOL){if(w===q)continue;let n=0;for(const ch of w){if(q.includes(ch))n++;}if(n>0&&hit(w))sim.push([n,w]);}
+    sim.sort((a,b)=>b[0]-a[0]);
+    const simW=sim.slice(0,4).map(x=>x[1]);
+    const hot=[];for(const w of POOL){if(hot.length>=6)break;if(simW.indexOf(w)<0&&w!==q&&hit(w))hot.push(w);}
+    for(const w of POOL){if(hot.length>=6)break;if(simW.indexOf(w)<0&&w!==q&&hot.indexOf(w)<0)hot.push(w);}
+    const sg=document.createElement('div');sg.className='qsugg';
+    const mk=(lab,ws)=>{if(!ws.length)return;const s=document.createElement('span');s.className='qsugg-lab';s.textContent=lab;sg.appendChild(s);ws.forEach(w=>{const b=document.createElement('button');b.type='button';b.textContent=w;b.onclick=()=>{sInput.value=w;doSearch();sInput.focus();};sg.appendChild(b);});};
+    mk('相近的词，点一下就搜：',simW);
+    mk('大家常搜：',hot);
+    const lk=document.createElement('span');lk.className='qsugg-link';const a=document.createElement('a');a.href='all.html';a.textContent='去资料库用全文搜索 →';lk.appendChild(a);sg.appendChild(lk);
+    sBox.appendChild(sg);return;
+  }
   hits.forEach(e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');b.textContent=e.t;const s=document.createElement('span');s.textContent=(e.d?e.d+' · ':'')+e.x;a.append(b,s);sBox.appendChild(a)});
 }
 if(sForm){sForm.addEventListener('submit',ev=>{ev.preventDefault();doSearch()});sInput.addEventListener('input',doSearch)}

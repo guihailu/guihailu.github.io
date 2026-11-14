@@ -197,7 +197,22 @@ function renderNow(q,pending){
  }
  if(!out.length){
   if(pending){res.innerHTML='<div class="qnone">正在加载全部年份…</div>';res.classList.add('on');box.setAttribute('aria-expanded','true');return;}
-  var gg='';
+  var gg=(function(){
+   var HOTW=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];
+   function hit(w){for(var i=0;i<es.length;i++){var e=es[i];if(e._tl.indexOf(w)>-1)return true;if(cnt(e._xl,w)>0)return true;}return false;}
+   var sim=[],i,j,n;
+   for(i=0;i<HOTW.length;i++){var w=HOTW[i];if(w===qs)continue;n=0;for(j=0;j<w.length;j++){if(qs.indexOf(w[j])>-1)n++;}if(n>0&&hit(w))sim.push([n,w]);}
+   sim.sort(function(a,b){return b[0]-a[0];});
+   var simW=sim.slice(0,4).map(function(x){return x[1];});
+   var hot=[];for(i=0;i<HOTW.length&&hot.length<6;i++){if(simW.indexOf(HOTW[i])<0&&HOTW[i]!==qs&&hit(HOTW[i]))hot.push(HOTW[i]);}
+   for(i=0;i<HOTW.length&&hot.length<6;i++){if(simW.indexOf(HOTW[i])<0&&HOTW[i]!==qs&&hot.indexOf(HOTW[i])<0)hot.push(HOTW[i]);}
+   function chips(ws){return ws.map(function(w){return '<button type="button" class="qchip" data-q="'+w+'">'+w+'</button>';}).join('');}
+   var h='';
+   if(simW.length)h+='<span class="qsugg-lab">相近的词，点一下就搜：</span>'+chips(simW);
+   if(hot.length)h+='<span class="qsugg-lab">大家常搜：</span>'+chips(hot);
+   h+='<span class="qsugg-link">不知道搜什么？<a href="topics.html">按问题找 →</a></span>';
+   return '<div class="qsugg">'+h+'</div>';
+  })();
   var fb='<div class="qfeedback"><a href="feedback.html?type=search&q='+encodeURIComponent(q)+'">没找到？告诉我们你想找什么</a></div>';
   window.ghlTrack('search_zero',{q:q});
   res.innerHTML='<div class="qnone">没有找到与「'+esc(q)+'」相关的内容</div>'+gg+fb;res.classList.add('on');box.setAttribute('aria-expanded','true');return;
@@ -273,4 +288,4 @@ document.querySelectorAll('.intro-toggle').forEach(button=>{
 
 (function(){document.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-ev]'):null;if(b){var f=document.createElement('iframe');f.src='https://www.youtube.com/embed/'+b.getAttribute('data-ev')+'?autoplay=1&playsinline=1';f.title='视频';f.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';b.replaceWith(f);return}var c=e.target.closest?e.target.closest('.qchip'):null;if(c){var q=document.getElementById('q');if(q){q.value=c.getAttribute('data-q');q.dispatchEvent(new Event('input',{bubbles:true}));q.focus()}}});})();
 
-(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var chips=[].slice.call(document.querySelectorAll('.qchip'));if(!chips.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p}function apply(){var w=pick();chips.forEach(function(c,i){var v=w[i%w.length];c.textContent=v;c.setAttribute('data-q',v);c.style.opacity=''})}apply();setInterval(function(){var q=document.getElementById('q');if(q&&q.value.trim())return;chips.forEach(function(c){c.style.opacity='0'});setTimeout(apply,480)},12000)})();
+(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var chips=[].slice.call(document.querySelectorAll('.search-hint .qchip'));if(!chips.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p}function apply(){var w=pick();chips.forEach(function(c,i){var v=w[i%w.length];c.textContent=v;c.setAttribute('data-q',v);c.style.opacity=''})}apply();setInterval(function(){var q=document.getElementById('q');if(q&&q.value.trim())return;chips.forEach(function(c){c.style.opacity='0'});setTimeout(apply,480)},12000)})();
