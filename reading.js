@@ -62,7 +62,7 @@ document.querySelectorAll('[data-vibe]').forEach(ch=>{
   };
 });
 const sForm=document.getElementById('search-form'),sInput=document.getElementById('search-input'),sBox=document.getElementById('search-results');
-function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p2').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
+function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p4').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
 function doSearch(rec){
   if(!sBox)return;
   const raw=(sInput.value||'').trim();
@@ -97,6 +97,7 @@ function saveHist(term){term=(term||'').trim();if(!term||term.length>24)return;t
 function clearHist(){try{localStorage.removeItem(HIST_KEY)}catch(e){}}
 const sPanel=document.getElementById('search-sugg');
 let sgHi=-1;
+let suggOpenedAt=0;
 function suggList(){
   const q=(sInput.value||'').trim().toLowerCase();
   const hist=loadHist();
@@ -130,6 +131,7 @@ function renderSugg(){
     sPanel.appendChild(c);
   }
   sPanel.hidden=false;
+  suggOpenedAt=Date.now();
   sInput.setAttribute('aria-expanded','true');
 }
 function hideSugg(){if(!sPanel)return;sPanel.hidden=true;sgHi=-1;if(sInput)sInput.setAttribute('aria-expanded','false');}
@@ -148,6 +150,7 @@ if(sForm){
   sForm.addEventListener('focusout',ev=>{if(!sForm.contains(ev.relatedTarget))hideSugg();});
   if(sPanel)sPanel.addEventListener('mousedown',ev=>ev.preventDefault());
   document.addEventListener('click',ev=>{if(!ev.target.closest('#search-form'))hideSugg();});
+  window.addEventListener('scroll',()=>{if(sPanel&&!sPanel.hidden&&Date.now()-suggOpenedAt>400)hideSugg();},{passive:true});
 }
 document.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>{if(sInput){sInput.value=b.getAttribute('data-q');doSearch(true);sInput.focus();hideSugg()}}));
 document.addEventListener('click',e=>{const c=e.target.closest?e.target.closest('.vchip[data-v]'):null;if(c){e.preventDefault();e.stopPropagation();location.href=c.getAttribute('data-v')}},true);
