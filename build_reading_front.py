@@ -381,7 +381,7 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261114p1"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261115p1"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><span class="theme-slot" aria-hidden="true"></span></nav></header><button id="theme-toggle" type="button" aria-label="切换晚上模式"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>'
@@ -389,7 +389,7 @@ def shell(title,body,home=False):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261114p1"></script></body></html>')
+ '<script src="reading.js?v=20261115p1"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -549,7 +549,7 @@ related=('<section class="board-hero"><span class="tag">知识大赏</span><h1>�
  +'</div><p style="margin-top:26px"><a class="more" href="index.html#part4">← 回到道法自然</a></p></main>')
 (out/'vibe.html').write_text(shell('归海录 · 人生观察相关阅读',related),encoding='utf-8')
 js='const cases='+json.dumps(cases,ensure_ascii=False)+';\n'
-js+='const SEARCH='+json.dumps(search_entries,ensure_ascii=False)+';\n'
+js+='let SEARCH=null;let searchPromise=null;\n'
 js+=r'''
 const hdr=document.querySelector('header');
 const heroEl=document.querySelector('.hero');
@@ -612,10 +612,13 @@ document.querySelectorAll('[data-vibe]').forEach(ch=>{
   };
 });
 const sForm=document.getElementById('search-form'),sInput=document.getElementById('search-input'),sBox=document.getElementById('search-results');
+function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p1').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
 function doSearch(){
   if(!sBox)return;
-  const q=(sInput.value||'').trim().toLowerCase();sBox.replaceChildren();
-  if(!q)return;
+  const q=(sInput.value||'').trim().toLowerCase();
+  if(!q){sBox.replaceChildren();return;}
+  if(!SEARCH){ensureSearch().then(()=>{doSearch()});return;}
+  sBox.replaceChildren();
   const hits=SEARCH.filter(e=>(e.t+' '+e.x).toLowerCase().includes(q)).slice(0,8);
   if(!hits.length){
     const d=document.createElement('div');d.className='none';d.textContent='没找到「'+q+'」';sBox.appendChild(d);
@@ -635,7 +638,7 @@ function doSearch(){
   }
   hits.forEach(e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');b.textContent=e.t;const s=document.createElement('span');s.textContent=(e.d?e.d+' · ':'')+e.x;a.append(b,s);sBox.appendChild(a)});
 }
-if(sForm){sForm.addEventListener('submit',ev=>{ev.preventDefault();doSearch()});sInput.addEventListener('input',doSearch)}
+if(sForm){sForm.addEventListener('submit',ev=>{ev.preventDefault();doSearch()});sInput.addEventListener('input',doSearch);sInput.addEventListener('focus',()=>{ensureSearch()})}
 document.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>{if(sInput){sInput.value=b.getAttribute('data-q');doSearch();sInput.focus()}}));
 document.addEventListener('click',e=>{const c=e.target.closest?e.target.closest('.vchip[data-v]'):null;if(c){e.preventDefault();e.stopPropagation();location.href=c.getAttribute('data-v')}},true);
 const pageSearch=document.querySelector('#search');
@@ -643,6 +646,7 @@ if(pageSearch&&!sInput){const rows=[...document.querySelectorAll('details.entry'
 ;(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var wrap=document.querySelector('.qchips');if(!wrap)return;var btns=[].slice.call(wrap.querySelectorAll('button[data-q]'));if(!btns.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p.slice(0,btns.length)}function apply(w){btns.forEach(function(b,i){b.textContent=w[i];b.setAttribute('data-q',w[i])})}apply(pick());setInterval(function(){var inp=document.getElementById('search-input');if(inp&&inp.value.trim())return;wrap.classList.add('fading');setTimeout(function(){apply(pick());wrap.classList.remove('fading')},480)},12000)})();
 '''
 (out/'reading.js').write_text(js,encoding='utf-8')
+(out/'reading_search.json').write_text(json.dumps(search_entries,ensure_ascii=False),encoding='utf-8')
 print('Preview created:',len(entries),'full original articles;',len(cases),'anonymous samples')
 assert len(entries)>=100
 assert sum(1 for e in entries.values() if e['board'])==len(entries)
