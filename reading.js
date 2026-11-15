@@ -62,12 +62,13 @@ document.querySelectorAll('[data-vibe]').forEach(ch=>{
   };
 });
 const sForm=document.getElementById('search-form'),sInput=document.getElementById('search-input'),sBox=document.getElementById('search-results');
-function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p1').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
-function doSearch(){
+function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p2').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
+function doSearch(rec){
   if(!sBox)return;
-  const q=(sInput.value||'').trim().toLowerCase();
+  const raw=(sInput.value||'').trim();
+  const q=raw.toLowerCase();
   if(!q){sBox.replaceChildren();return;}
-  if(!SEARCH){ensureSearch().then(()=>{doSearch()});return;}
+  if(!SEARCH){ensureSearch().then(()=>{doSearch(rec)});return;}
   sBox.replaceChildren();
   const hits=SEARCH.filter(e=>(e.t+' '+e.x).toLowerCase().includes(q)).slice(0,8);
   if(!hits.length){
@@ -80,16 +81,75 @@ function doSearch(){
     const hot=[];for(const w of POOL){if(hot.length>=6)break;if(simW.indexOf(w)<0&&w!==q&&hit(w))hot.push(w);}
     for(const w of POOL){if(hot.length>=6)break;if(simW.indexOf(w)<0&&w!==q&&hot.indexOf(w)<0)hot.push(w);}
     const sg=document.createElement('div');sg.className='qsugg';
-    const mk=(lab,ws)=>{if(!ws.length)return;const s=document.createElement('span');s.className='qsugg-lab';s.textContent=lab;sg.appendChild(s);ws.forEach(w=>{const b=document.createElement('button');b.type='button';b.textContent=w;b.onclick=()=>{sInput.value=w;doSearch();sInput.focus();};sg.appendChild(b);});};
+    const mk=(lab,ws)=>{if(!ws.length)return;const s=document.createElement('span');s.className='qsugg-lab';s.textContent=lab;sg.appendChild(s);ws.forEach(w=>{const b=document.createElement('button');b.type='button';b.textContent=w;b.onclick=()=>{sInput.value=w;doSearch(true);sInput.focus();hideSugg();};sg.appendChild(b);});};
     mk('相近的词，点一下就搜：',simW);
     mk('大家常搜：',hot);
     const lk=document.createElement('span');lk.className='qsugg-link';const a=document.createElement('a');a.href='all.html';a.textContent='去资料库用全文搜索 →';lk.appendChild(a);sg.appendChild(lk);
     sBox.appendChild(sg);return;
   }
+  if(rec&&hits.length)saveHist(raw);
   hits.forEach(e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');b.textContent=e.t;const s=document.createElement('span');s.textContent=(e.d?e.d+' · ':'')+e.x;a.append(b,s);sBox.appendChild(a)});
 }
-if(sForm){sForm.addEventListener('submit',ev=>{ev.preventDefault();doSearch()});sInput.addEventListener('input',doSearch);sInput.addEventListener('focus',()=>{ensureSearch()})}
-document.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>{if(sInput){sInput.value=b.getAttribute('data-q');doSearch();sInput.focus()}}));
+const HOTWORDS=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命'];
+const HIST_KEY='ghl_search_hist';
+function loadHist(){try{const v=JSON.parse(localStorage.getItem(HIST_KEY)||'[]');return Array.isArray(v)?v.filter(x=>typeof x==='string'):[]}catch(e){return[]}}
+function saveHist(term){term=(term||'').trim();if(!term||term.length>24)return;try{const h=loadHist().filter(x=>x!==term);h.unshift(term);localStorage.setItem(HIST_KEY,JSON.stringify(h.slice(0,8)))}catch(e){}}
+function clearHist(){try{localStorage.removeItem(HIST_KEY)}catch(e){}}
+const sPanel=document.getElementById('search-sugg');
+let sgHi=-1;
+function suggList(){
+  const q=(sInput.value||'').trim().toLowerCase();
+  const hist=loadHist();
+  const out=[];
+  const push=w=>{if(w&&out.length<5&&out.indexOf(w)<0)out.push(w)};
+  const hitW=w=>!SEARCH||!SEARCH.length||SEARCH.some(e=>(e.t+' '+e.x).toLowerCase().includes(w.toLowerCase()));
+  if(!q){hist.forEach(push);for(const w of HOTWORDS){if(out.length>=5)break;if(hitW(w))push(w);}return out;}
+  hist.filter(h=>h.toLowerCase().includes(q)).slice(0,2).forEach(push);
+  for(const w of HOTWORDS){if(out.length>=5)break;if(w.toLowerCase().includes(q)&&hitW(w))push(w);}
+  if(SEARCH){for(const e of SEARCH){if(out.length>=5)break;if(e.t.toLowerCase().includes(q))push(e.t);}}
+  return out;
+}
+function renderSugg(){
+  if(!sPanel||!sForm)return;
+  const q=(sInput.value||'').trim();
+  const list=suggList();
+  sPanel.replaceChildren();
+  sgHi=-1;
+  if(!list.length){hideSugg();return;}
+  const hist=loadHist();
+  list.forEach(w=>{
+    const b=document.createElement('button');b.type='button';b.className='sg-row';b.setAttribute('role','option');
+    const t=document.createElement('span');t.className='sg-t';t.textContent=w;b.appendChild(t);
+    if(hist.indexOf(w)>=0){const tag=document.createElement('span');tag.className='sg-tag';tag.textContent='历史';b.appendChild(tag);}
+    b.addEventListener('click',()=>{sInput.value=w;hideSugg();doSearch(true);sInput.focus();});
+    sPanel.appendChild(b);
+  });
+  if(!q&&hist.length){
+    const c=document.createElement('button');c.type='button';c.className='sg-clear';c.textContent='清除搜索记录';
+    c.addEventListener('click',()=>{clearHist();renderSugg();sInput.focus();});
+    sPanel.appendChild(c);
+  }
+  sPanel.hidden=false;
+  sInput.setAttribute('aria-expanded','true');
+}
+function hideSugg(){if(!sPanel)return;sPanel.hidden=true;sgHi=-1;if(sInput)sInput.setAttribute('aria-expanded','false');}
+function refreshSugg(){if(document.activeElement===sInput)renderSugg();}
+if(sForm){
+  sForm.addEventListener('submit',ev=>{ev.preventDefault();hideSugg();doSearch(true)});
+  sInput.addEventListener('input',()=>{doSearch(false);refreshSugg()});
+  sInput.addEventListener('focus',()=>{renderSugg();ensureSearch().then(()=>refreshSugg())});
+  sInput.addEventListener('keydown',ev=>{
+    if(!sPanel||sPanel.hidden)return;
+    const rows=[...sPanel.querySelectorAll('.sg-row')];
+    if(ev.key==='Escape'){ev.preventDefault();hideSugg();return;}
+    if(ev.key==='ArrowDown'||ev.key==='ArrowUp'){ev.preventDefault();if(!rows.length)return;sgHi=ev.key==='ArrowDown'?(sgHi+1)%rows.length:(sgHi-1+rows.length)%rows.length;rows.forEach((r,i)=>r.classList.toggle('on',i===sgHi));return;}
+    if(ev.key==='Enter'&&sgHi>=0&&rows[sgHi]){ev.preventDefault();rows[sgHi].click();}
+  });
+  sForm.addEventListener('focusout',ev=>{if(!sForm.contains(ev.relatedTarget))hideSugg();});
+  if(sPanel)sPanel.addEventListener('mousedown',ev=>ev.preventDefault());
+  document.addEventListener('click',ev=>{if(!ev.target.closest('#search-form'))hideSugg();});
+}
+document.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>{if(sInput){sInput.value=b.getAttribute('data-q');doSearch(true);sInput.focus();hideSugg()}}));
 document.addEventListener('click',e=>{const c=e.target.closest?e.target.closest('.vchip[data-v]'):null;if(c){e.preventDefault();e.stopPropagation();location.href=c.getAttribute('data-v')}},true);
 const pageSearch=document.querySelector('#search');
 if(pageSearch&&!sInput){const rows=[...document.querySelectorAll('details.entry')];function filter(){let n=0;for(const r of rows){r.hidden=!r.textContent.toLowerCase().includes(pageSearch.value.trim().toLowerCase());if(!r.hidden)n++}const c=document.querySelector('#count');if(c)c.textContent=n+' 篇';const em=document.querySelector('#empty');if(em)em.hidden=n!==0}pageSearch.oninput=filter;filter()}

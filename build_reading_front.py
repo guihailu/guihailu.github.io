@@ -223,12 +223,12 @@ html:not(.dark) .board-hero h1 .title-img{filter:invert(1) brightness(.82)}
 .scrollcue .arr{animation:bob 1.8s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
 main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
-.intro{max-width:760px;margin:56px auto 0;text-align:center}
+.intro{max-width:760px;margin:56px auto 0;text-align:center;position:relative;z-index:2}
 .intro p{font-size:17.5px;line-height:2.1;color:var(--sub);font-family:"Songti SC","STSong",SimSun,serif}
 .intro p.lede{position:relative;font-size:clamp(17px,2.3vw,20.5px);line-height:1.95;color:var(--ink);padding-top:30px}
 .intro p.lede::after{content:'';position:absolute;top:7px;left:50%;transform:translateX(-50%);width:min(360px,72%);height:1px;background:linear-gradient(90deg,transparent,var(--line) 20%,var(--line) 80%,transparent)}
 .intro p.lede::before{content:'◆';position:absolute;top:0;left:50%;transform:translateX(-50%);color:var(--gold);font-size:11px;background:var(--bg);padding:0 12px;z-index:1;line-height:1.4}
-.searchbar{display:flex;gap:10px;max-width:560px;margin:26px auto 0}
+.searchbar{display:flex;gap:10px;max-width:560px;margin:26px auto 0;position:relative}
 .searchbar input{flex:1;padding:14px 18px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);font-size:15px}
 .searchbar button{border:1px solid #c9a55f;background:#c9a55f;color:#101f2c;border-radius:999px;padding:0 22px;font-weight:600}
 .qchips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:14px}
@@ -247,6 +247,13 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .sresults .qsugg button:hover{border-color:var(--gold);color:var(--gold2)}
 .sresults .qsugg-link{display:block;margin-top:10px}
 .sresults .qsugg-link a{color:var(--gold2)}
+.sugg{position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:30;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 44px var(--shadow);padding:6px;text-align:left}
+.sugg[hidden]{display:none}
+.sugg .sg-row{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:0;color:var(--ink);font-size:14.5px;font-weight:400;padding:10px 12px;border-radius:9px;cursor:pointer;white-space:nowrap;overflow:hidden}
+.sugg .sg-row .sg-t{overflow:hidden;text-overflow:ellipsis}
+.sugg .sg-row:hover,.sugg .sg-row.on{background:var(--card2);color:var(--gold2)}
+.sugg .sg-tag{margin-left:auto;font-size:12px;color:var(--sub);flex:none}
+.sugg .sg-clear{display:block;width:100%;text-align:center;background:none;border:0;border-top:1px solid var(--line);color:var(--sub);font-size:12.5px;font-weight:400;padding:8px 12px 6px;margin-top:4px;cursor:pointer;border-radius:0}
 .part{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(22px,4vw,54px);margin-top:110px;align-items:start;scroll-margin-top:84px;position:relative}
 .part.flip{grid-template-columns:1fr 1.15fr}
 .part ~ .part::after{content:'';position:absolute;top:-58px;left:50%;transform:translateX(-50%);width:min(430px,62%);height:1px;background:linear-gradient(90deg,transparent,rgba(201,165,95,.55),transparent)}
@@ -381,7 +388,7 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261115p1"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261115p2"></head><body>'
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><span class="theme-slot" aria-hidden="true"></span></nav></header><button id="theme-toggle" type="button" aria-label="切换晚上模式"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>'
@@ -389,7 +396,7 @@ def shell(title,body,home=False):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261115p1"></script></body></html>')
+ '<script src="reading.js?v=20261115p2"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -526,7 +533,7 @@ for e in entries.values():
  if e['date'][:4] in counts:counts[e['date'][:4]]+=1
 total=len(entries)
 intro=('<section class="intro reveal"><p class="lede">不用从头读起。先挑一部顺眼的，<br>读一则故事、听一段原声，觉得对味，再往深处走。</p>'
- '<form class="searchbar" id="search-form"><input id="search-input" type="search" placeholder="搜一搜：天眼、烧纸、轮回…" aria-label="搜索站内文章"><button type="submit">搜索</button></form><div class="qchips"><span class="qchips-lab">点一下就搜：</span><button type="button" data-q="天眼">天眼</button><button type="button" data-q="烧纸">烧纸</button><button type="button" data-q="福报">福报</button><button type="button" data-q="轮回">轮回</button><button type="button" data-q="改命">改命</button><button type="button" data-q="怎么看人">怎么看人</button></div>'
+ '<form class="searchbar" id="search-form"><input id="search-input" type="search" placeholder="搜一搜：天眼、烧纸、轮回…" aria-label="搜索站内文章" autocomplete="off" aria-expanded="false" aria-controls="search-sugg"><button type="submit">搜索</button><div class="sugg" id="search-sugg" role="listbox" aria-label="搜索建议" hidden></div></form><div class="qchips"><span class="qchips-lab">点一下就搜：</span><button type="button" data-q="天眼">天眼</button><button type="button" data-q="烧纸">烧纸</button><button type="button" data-q="福报">福报</button><button type="button" data-q="轮回">轮回</button><button type="button" data-q="改命">改命</button><button type="button" data-q="怎么看人">怎么看人</button></div>'
  '<div class="sresults" id="search-results"></div></section>')
 library=(f'<section class="library reveal" id="library"><div><h2>完整资料库</h2>'
  f'<p>四部之外的全部原文都在这里：{total} 篇讲课整理，按年份排好，带全文搜索。想查什么，直接去资料库里找。</p></div>'
@@ -612,12 +619,13 @@ document.querySelectorAll('[data-vibe]').forEach(ch=>{
   };
 });
 const sForm=document.getElementById('search-form'),sInput=document.getElementById('search-input'),sBox=document.getElementById('search-results');
-function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p1').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
-function doSearch(){
+function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p2').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
+function doSearch(rec){
   if(!sBox)return;
-  const q=(sInput.value||'').trim().toLowerCase();
+  const raw=(sInput.value||'').trim();
+  const q=raw.toLowerCase();
   if(!q){sBox.replaceChildren();return;}
-  if(!SEARCH){ensureSearch().then(()=>{doSearch()});return;}
+  if(!SEARCH){ensureSearch().then(()=>{doSearch(rec)});return;}
   sBox.replaceChildren();
   const hits=SEARCH.filter(e=>(e.t+' '+e.x).toLowerCase().includes(q)).slice(0,8);
   if(!hits.length){
@@ -630,16 +638,75 @@ function doSearch(){
     const hot=[];for(const w of POOL){if(hot.length>=6)break;if(simW.indexOf(w)<0&&w!==q&&hit(w))hot.push(w);}
     for(const w of POOL){if(hot.length>=6)break;if(simW.indexOf(w)<0&&w!==q&&hot.indexOf(w)<0)hot.push(w);}
     const sg=document.createElement('div');sg.className='qsugg';
-    const mk=(lab,ws)=>{if(!ws.length)return;const s=document.createElement('span');s.className='qsugg-lab';s.textContent=lab;sg.appendChild(s);ws.forEach(w=>{const b=document.createElement('button');b.type='button';b.textContent=w;b.onclick=()=>{sInput.value=w;doSearch();sInput.focus();};sg.appendChild(b);});};
+    const mk=(lab,ws)=>{if(!ws.length)return;const s=document.createElement('span');s.className='qsugg-lab';s.textContent=lab;sg.appendChild(s);ws.forEach(w=>{const b=document.createElement('button');b.type='button';b.textContent=w;b.onclick=()=>{sInput.value=w;doSearch(true);sInput.focus();hideSugg();};sg.appendChild(b);});};
     mk('相近的词，点一下就搜：',simW);
     mk('大家常搜：',hot);
     const lk=document.createElement('span');lk.className='qsugg-link';const a=document.createElement('a');a.href='all.html';a.textContent='去资料库用全文搜索 →';lk.appendChild(a);sg.appendChild(lk);
     sBox.appendChild(sg);return;
   }
+  if(rec&&hits.length)saveHist(raw);
   hits.forEach(e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');b.textContent=e.t;const s=document.createElement('span');s.textContent=(e.d?e.d+' · ':'')+e.x;a.append(b,s);sBox.appendChild(a)});
 }
-if(sForm){sForm.addEventListener('submit',ev=>{ev.preventDefault();doSearch()});sInput.addEventListener('input',doSearch);sInput.addEventListener('focus',()=>{ensureSearch()})}
-document.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>{if(sInput){sInput.value=b.getAttribute('data-q');doSearch();sInput.focus()}}));
+const HOTWORDS=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命'];
+const HIST_KEY='ghl_search_hist';
+function loadHist(){try{const v=JSON.parse(localStorage.getItem(HIST_KEY)||'[]');return Array.isArray(v)?v.filter(x=>typeof x==='string'):[]}catch(e){return[]}}
+function saveHist(term){term=(term||'').trim();if(!term||term.length>24)return;try{const h=loadHist().filter(x=>x!==term);h.unshift(term);localStorage.setItem(HIST_KEY,JSON.stringify(h.slice(0,8)))}catch(e){}}
+function clearHist(){try{localStorage.removeItem(HIST_KEY)}catch(e){}}
+const sPanel=document.getElementById('search-sugg');
+let sgHi=-1;
+function suggList(){
+  const q=(sInput.value||'').trim().toLowerCase();
+  const hist=loadHist();
+  const out=[];
+  const push=w=>{if(w&&out.length<5&&out.indexOf(w)<0)out.push(w)};
+  const hitW=w=>!SEARCH||!SEARCH.length||SEARCH.some(e=>(e.t+' '+e.x).toLowerCase().includes(w.toLowerCase()));
+  if(!q){hist.forEach(push);for(const w of HOTWORDS){if(out.length>=5)break;if(hitW(w))push(w);}return out;}
+  hist.filter(h=>h.toLowerCase().includes(q)).slice(0,2).forEach(push);
+  for(const w of HOTWORDS){if(out.length>=5)break;if(w.toLowerCase().includes(q)&&hitW(w))push(w);}
+  if(SEARCH){for(const e of SEARCH){if(out.length>=5)break;if(e.t.toLowerCase().includes(q))push(e.t);}}
+  return out;
+}
+function renderSugg(){
+  if(!sPanel||!sForm)return;
+  const q=(sInput.value||'').trim();
+  const list=suggList();
+  sPanel.replaceChildren();
+  sgHi=-1;
+  if(!list.length){hideSugg();return;}
+  const hist=loadHist();
+  list.forEach(w=>{
+    const b=document.createElement('button');b.type='button';b.className='sg-row';b.setAttribute('role','option');
+    const t=document.createElement('span');t.className='sg-t';t.textContent=w;b.appendChild(t);
+    if(hist.indexOf(w)>=0){const tag=document.createElement('span');tag.className='sg-tag';tag.textContent='历史';b.appendChild(tag);}
+    b.addEventListener('click',()=>{sInput.value=w;hideSugg();doSearch(true);sInput.focus();});
+    sPanel.appendChild(b);
+  });
+  if(!q&&hist.length){
+    const c=document.createElement('button');c.type='button';c.className='sg-clear';c.textContent='清除搜索记录';
+    c.addEventListener('click',()=>{clearHist();renderSugg();sInput.focus();});
+    sPanel.appendChild(c);
+  }
+  sPanel.hidden=false;
+  sInput.setAttribute('aria-expanded','true');
+}
+function hideSugg(){if(!sPanel)return;sPanel.hidden=true;sgHi=-1;if(sInput)sInput.setAttribute('aria-expanded','false');}
+function refreshSugg(){if(document.activeElement===sInput)renderSugg();}
+if(sForm){
+  sForm.addEventListener('submit',ev=>{ev.preventDefault();hideSugg();doSearch(true)});
+  sInput.addEventListener('input',()=>{doSearch(false);refreshSugg()});
+  sInput.addEventListener('focus',()=>{renderSugg();ensureSearch().then(()=>refreshSugg())});
+  sInput.addEventListener('keydown',ev=>{
+    if(!sPanel||sPanel.hidden)return;
+    const rows=[...sPanel.querySelectorAll('.sg-row')];
+    if(ev.key==='Escape'){ev.preventDefault();hideSugg();return;}
+    if(ev.key==='ArrowDown'||ev.key==='ArrowUp'){ev.preventDefault();if(!rows.length)return;sgHi=ev.key==='ArrowDown'?(sgHi+1)%rows.length:(sgHi-1+rows.length)%rows.length;rows.forEach((r,i)=>r.classList.toggle('on',i===sgHi));return;}
+    if(ev.key==='Enter'&&sgHi>=0&&rows[sgHi]){ev.preventDefault();rows[sgHi].click();}
+  });
+  sForm.addEventListener('focusout',ev=>{if(!sForm.contains(ev.relatedTarget))hideSugg();});
+  if(sPanel)sPanel.addEventListener('mousedown',ev=>ev.preventDefault());
+  document.addEventListener('click',ev=>{if(!ev.target.closest('#search-form'))hideSugg();});
+}
+document.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>{if(sInput){sInput.value=b.getAttribute('data-q');doSearch(true);sInput.focus();hideSugg()}}));
 document.addEventListener('click',e=>{const c=e.target.closest?e.target.closest('.vchip[data-v]'):null;if(c){e.preventDefault();e.stopPropagation();location.href=c.getAttribute('data-v')}},true);
 const pageSearch=document.querySelector('#search');
 if(pageSearch&&!sInput){const rows=[...document.querySelectorAll('details.entry')];function filter(){let n=0;for(const r of rows){r.hidden=!r.textContent.toLowerCase().includes(pageSearch.value.trim().toLowerCase());if(!r.hidden)n++}const c=document.querySelector('#count');if(c)c.textContent=n+' 篇';const em=document.querySelector('#empty');if(em)em.hidden=n!==0}pageSearch.oninput=filter;filter()}
