@@ -228,7 +228,7 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .intro p.lede{position:relative;font-size:clamp(17px,2.3vw,20.5px);line-height:1.95;color:var(--ink);padding-top:30px}
 .intro p.lede::after{content:'';position:absolute;top:7px;left:50%;transform:translateX(-50%);width:min(360px,72%);height:1px;background:linear-gradient(90deg,transparent,var(--line) 20%,var(--line) 80%,transparent)}
 .intro p.lede::before{content:'◆';position:absolute;top:0;left:50%;transform:translateX(-50%);color:var(--gold);font-size:11px;background:var(--bg);padding:0 12px;z-index:1;line-height:1.4}
-.searchbar{display:flex;gap:10px;max-width:560px;margin:26px auto 0;position:relative}
+.searchbar{display:flex;flex-wrap:wrap;gap:10px;max-width:560px;margin:26px auto 0;position:relative}
 .searchbar input{flex:1;padding:14px 18px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);font-size:15px}
 .searchbar button{border:1px solid #c9a55f;background:#c9a55f;color:#101f2c;border-radius:999px;padding:0 22px;font-weight:600}
 .qchips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:14px}
@@ -247,7 +247,7 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .sresults .qsugg button:hover{border-color:var(--gold);color:var(--gold2)}
 .sresults .qsugg-link{display:block;margin-top:10px}
 .sresults .qsugg-link a{color:var(--gold2)}
-.sugg{position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:30;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 44px var(--shadow);padding:6px;text-align:left}
+.sugg{flex:0 0 100%;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 44px var(--shadow);padding:6px;text-align:left}
 .sugg[hidden]{display:none}
 .sugg .sg-row{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:0;color:var(--ink);font-size:14.5px;font-weight:400;padding:10px 12px;border-radius:9px;cursor:pointer;white-space:nowrap;overflow:hidden}
 .sugg .sg-row .sg-t{overflow:hidden;text-overflow:ellipsis}
@@ -363,13 +363,22 @@ a:focus-visible,button:focus-visible{outline:3px solid #aa8036;outline-offset:3p
 @media(prefers-reduced-motion:reduce){.hero .rays{animation:none}.scrollcue .arr{animation:none}.hero .bg{animation:none}.hero .dust span{animation:none}.reveal{transition:none;opacity:1;transform:none}}
 @media(max-width:820px){.part,.part.flip{grid-template-columns:1fr}.part .art{position:static}.artwrap{position:static;order:-1}.part .wm,.part.flip .wm{display:block;position:absolute;top:-140px;bottom:auto;left:auto;right:10px;height:150px;transform:none;margin:0}.part .txt{text-align:center}.part .firstread{text-align:left}.part .doors{justify-content:center}.library{grid-template-columns:1fr;text-align:center}.brand{font-size:20px;width:134px}header{flex-wrap:wrap;row-gap:4px}nav{order:3;width:100%;flex-wrap:nowrap;justify-content:space-between;gap:6px;margin-top:2px}nav a{font-size:12.5px;letter-spacing:1px}nav a .navimg{height:19px;width:auto}.themebtn{margin-left:auto}header.over-hero{background:linear-gradient(180deg,rgba(8,12,18,.40),rgba(8,12,18,0))}.board-hero{padding-top:158px}.hero-seal{top:118px}.hero .sub{font-size:14.5px;padding:24px 18px 18px}}
 @media(max-width:820px){nav a .navimg{height:17.5px}nav a{padding:5px 4px}#theme-toggle{position:fixed;top:15px;right:16px;margin:0}.theme-slot{display:none}}
+.sutra-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;writing-mode:vertical-rl;font-family:"Songti SC","STSong",SimSun,serif;font-size:24px;line-height:2.4;letter-spacing:.4em;color:#1d1b16;opacity:.05}
+html.dark .sutra-bg{color:#d9a441;opacity:.06}
+.board-hero,.orn-div,main,footer{position:relative;z-index:1}
 '''
 (out/'reading.css').write_text(css,encoding='utf-8')
 def article_href(article_id):
  e=entries.get(article_id)
  return (e['page']+'#'+article_id) if e else ('all.html#'+article_id)
 LARK='https://u78zyhf3gaz.jp.larksuite.com/docx/QKYtdsvHzoH1aIxuGhrjD81EpWf'
-def shell(title,body,home=False):
+# --- sutra-bg V1 (user-approved 2026-11-15): faint full-viewport sutra texture on subpages ---
+import math as _sutra_math
+_SUTRA_SRC={'board1':'如是我聞：一時，佛在舍衛國祇樹給孤獨園，與大比丘眾千二百五十人俱。爾時，世尊食時，著衣持鉢，入舍衛大城乞食。於其城中，次第乞已，還至本處。飯食訖，收衣鉢，洗足已，敷座而坐。','board2':'時，長老須菩提在大眾中即從座起，偏袒右肩，右膝著地，合掌恭敬而白佛言：「希有世尊！如來善護念諸菩薩，善付囑諸菩薩。世尊！善男子、善女人，發阿耨多羅三藐三菩提心，應云何住？云何降伏其心？」佛言：「善哉，善哉！須菩提！如汝所說：『如來善護念諸菩薩，善付囑諸菩薩。』汝今諦聽，當為汝說。善男子、善女人，發阿耨多羅三藐三菩提心，應如是住，如是降伏其心。」「唯然。世尊！願樂欲聞。」','board3':'佛告須菩提：「諸菩薩摩訶薩應如是降伏其心：『所有一切眾生之類，若卵生、若胎生、若濕生、若化生，若有色、若無色，若有想、若無想、若非有想非無想，我皆令入無餘涅槃而滅度之。』如是滅度無量、無數、無邊眾生，實無眾生得滅度者。何以故？須菩提！若菩薩有我相、人相、眾生相、壽者相，即非菩薩。','board4':'「復次，須菩提！菩薩於法應無所住行於布施，所謂不住色布施，不住聲、香、味、觸、法布施。須菩提！菩薩應如是布施，不住於相。何以故？若菩薩不住相布施，其福德不可思量。「須菩提！於意云何？東方虛空可思量不？」「不也，世尊！」「須菩提！南、西、北方，四維、上、下虛空可思量不？」「不也，世尊！」「須菩提！菩薩無住相布施，福德亦復如是不可思量。須菩提！菩薩但應如所教住。','topics':'爾時，無盡意菩薩即從座起，偏袒右肩，合掌向佛而作是言：「世尊！觀世音菩薩以何因緣名觀世音？」佛告無盡意菩薩：「善男子！若有無量百千萬億眾生受諸苦惱，聞是觀世音菩薩，一心稱名，觀世音菩薩即時觀其音聲，皆得解脫。若有持是觀世音菩薩名者，設入大火，火不能燒，由是菩薩威神力故。若為大水所漂，稱其名號，即得淺處。若有百千萬億眾生，為求金、銀、琉璃、車璩、馬瑙、珊瑚、虎珀、真珠等寶，入於大海。假使黑風吹其船舫，飄墮羅剎鬼國，其中若有，乃至一人，稱觀世音菩薩名者，是諸人等皆得解脫羅剎之難。以是因緣，名觀世音。若復有人臨當被害，稱觀世音菩薩名者，彼所執刀杖尋段段壞，而得解脫。若三千大千國土滿中夜叉、羅剎欲來惱人，聞其稱觀世音菩薩名者，是諸惡鬼尚不能以惡眼視之，況復加害。設復有人，若有罪、若無罪，杻械、枷鎖檢繫其身，稱觀世音菩薩名者，皆悉斷壞，即得解脫。若三千大千國土滿中怨賊，有一商主將諸商人，齎持重寶經過嶮路。其中一人作是唱言：『諸善男子！勿得恐怖！汝等應當一心稱觀世音菩薩名號。是菩薩能以無畏施於眾生。汝等若稱名者，於此怨賊當得解脫。』眾商人聞，俱發聲言：『南無觀世音菩薩。』稱其名故，即得解脫。「無盡意！觀世音菩薩摩訶薩威神之力，巍巍如是。若有眾生多於婬欲，常念恭敬觀世音菩薩，便得離欲。若多瞋恚，常念恭敬觀世音菩薩，便得離瞋。若多愚癡，常念恭敬觀世音菩薩，便得離癡。「無盡意！觀世音菩薩有如是等大威神力，多所饒益。是故眾生常應心念。若有女人，設欲求男，禮拜供養觀世音菩薩，便生福德智慧之男；設欲求女，便生端正有相之女。宿殖德本，眾人愛敬。「無盡意！觀世音菩薩有如是力。若有眾生恭敬禮拜觀世音菩薩，福不唐捐。是故眾生皆應受持觀世音菩薩名號。「無盡意！若有人受持六十二億恒河沙菩薩名字，復盡形供養飲食、衣服、臥具、醫藥。於汝意云何？是善男子、善女人，功德多不？」無盡意言：「甚多，世尊！」佛言：「若復有人受持觀世音菩薩名號，乃至一時禮拜、供養。是二人福，正等無異，於百千萬億劫不可窮盡。無盡意！受持觀世音菩薩名號，得如是無量無邊福德之利。」無盡意菩薩白佛言：「世尊！觀世音菩薩云何遊此娑婆世界？云何而為眾生說法？方便之力，其事云何？」佛告無盡意菩薩：「善男子！若有國土眾生應以佛身得度者，觀世音菩薩即現佛身而為說法；應以辟支佛身得度者，即現辟支佛身而為說法；應以聲聞身得度者，即現聲聞身而為說法；應以梵王身得度者，即現梵王身而為說法；應以帝釋身得度者，即現帝釋身而為說法；應以自在天身得度者，即現自在天身而為說法；應以大自在天身得度者，即現大自在天身而為說法；應以天大將軍身得度者，即現天大將軍身而為說法；應以毘沙門身得度者，即現毘沙門身而為說法；應以小王身得度者，即現小王身而為說法；應以長者身得度者，即現長者身而為說法；應以居士身得度者，即現居士身而為說法；應以宰官身得度者，即現宰官身而為說法；應以婆羅門身得度者，即現婆羅門身而為說法；應以比丘、比丘尼、優婆塞、優婆夷身得度者，即現比丘、比丘尼、優婆塞、優婆夷身而為說法；應以長者、居士、宰官、婆羅門婦女身得度者，即現婦女身而為說法；應以童男、童女身得度者，即現童男、童女身而為說法；應以天、龍、夜叉、乾闥婆、阿修羅、迦樓羅、緊那羅、摩睺羅伽、人非人等身得度者，即皆現之而為說法；應以執金剛身得度者，即現執金剛身而為說法。「無盡意！是觀世音菩薩成就如是功德，以種種形，遊諸國土，度脫眾生。是故汝等應當一心供養觀世音菩薩。是觀世音菩薩摩訶薩於怖畏急難之中能施無畏，是故此娑婆世界皆號之為施無畏者。」無盡意菩薩白佛言：「世尊！我今當供養觀世音菩薩。」即解頸眾寶珠、瓔珞，價直百千兩金，而以與之，作是言：「仁者！受此法施珍寶瓔珞。」時觀世音菩薩不肯受之。無盡意復白觀世音菩薩言：「仁者！愍我等故，受此瓔珞。」爾時佛告觀世音菩薩：「當愍此無盡意菩薩及四眾，天、龍、夜叉、乾闥婆、阿修羅、迦樓羅、緊那羅、摩睺羅伽、人非人等故，受是瓔珞。」即時觀世音菩薩愍諸四眾，及於天、龍、人非人等，受其瓔珞，分作二分，一分奉釋迦牟尼佛，一分奉多寶佛塔。「無盡意！觀世音菩薩有如是自在神力，遊於娑婆世界。」爾時無盡意菩薩以偈問曰：「世尊妙相具， 我今重問彼，佛子何因緣， 名為觀世音？具足妙相尊， 偈答無盡意：『汝聽觀音行， 善應諸方所，弘誓深如海， 歷劫不思議，侍多千億佛， 發大清淨願。我為汝略說， 聞名及見身，心念不空過， 能滅諸有苦。假使興害意， 推落大火坑，念彼觀音力， 火坑變成池。或漂流巨海， 龍魚諸鬼難，念彼觀音力， 波浪不能沒。或在須彌峯， 為人所推墮，念彼觀音力， 如日虛空住。或被惡人逐， 墮落金剛山，念彼觀音力， 不能損一毛。或值怨賊繞， 各執刀加害，念彼觀音力， 咸即起慈心。或遭王難苦， 臨刑欲壽終，念彼觀音力， 刀尋段段壞。或囚禁枷鎖， 手足被杻械，念彼觀音力， 釋然得解脫。呪詛諸毒藥， 所欲害身者，念彼觀音力， 還著於本人。或遇惡羅剎、 毒龍諸鬼等，念彼觀音力， 時悉不敢害。若惡獸圍遶， 利牙爪可怖，念彼觀音力， 疾走無邊方。蚖蛇及蝮蠍， 氣毒煙火燃，念彼觀音力， 尋聲自迴去。雲雷鼓掣電， 降雹澍大雨，念彼觀音力， 應時得消散。眾生被困厄， 無量苦逼身，觀音妙智力， 能救世間苦。具足神通力， 廣修智方便，十方諸國土， 無剎不現身。種種諸惡趣， 地獄鬼畜生，生老病死苦， 以漸悉令滅。真觀清淨觀， 廣大智慧觀，悲觀及慈觀， 常願常瞻仰。無垢清淨光， 慧日破諸闇，能伏災風火， 普明照世間。悲體戒雷震， 慈意妙大雲，澍甘露法雨， 滅除煩惱焰。諍訟經官處， 怖畏軍陣中，念彼觀音力， 眾怨悉退散。妙音觀世音， 梵音海潮音，勝彼世間音， 是故須常念，念念勿生疑。 觀世音淨聖，於苦惱死厄， 能為作依怙，具一切功德， 慈眼視眾生，福聚海無量， 是故應頂禮。』」爾時持地菩薩即從座起，前白佛言：「世尊！若有眾生聞是觀世音菩薩品自在之業、普門示現神通力者，當知是人功德不少。」佛說是普門品時，眾中八萬四千眾生，皆發無等等阿耨多羅三藐三菩提心。','vibe':'爾時，無盡意菩薩即從座起，偏袒右肩，合掌向佛而作是言：「世尊！觀世音菩薩以何因緣名觀世音？」佛告無盡意菩薩：「善男子！若有無量百千萬億眾生受諸苦惱，聞是觀世音菩薩，一心稱名，觀世音菩薩即時觀其音聲，皆得解脫。若有持是觀世音菩薩名者，設入大火，火不能燒，由是菩薩威神力故。若為大水所漂，稱其名號，即得淺處。若有百千萬億眾生，為求金、銀、琉璃、車璩、馬瑙、珊瑚、虎珀、真珠等寶，入於大海。假使黑風吹其船舫，飄墮羅剎鬼國，其中若有，乃至一人，稱觀世音菩薩名者，是諸人等皆得解脫羅剎之難。以是因緣，名觀世音。若復有人臨當被害，稱觀世音菩薩名者，彼所執刀杖尋段段壞，而得解脫。若三千大千國土滿中夜叉、羅剎欲來惱人，聞其稱觀世音菩薩名者，是諸惡鬼尚不能以惡眼視之，況復加害。設復有人，若有罪、若無罪，杻械、枷鎖檢繫其身，稱觀世音菩薩名者，皆悉斷壞，即得解脫。若三千大千國土滿中怨賊，有一商主將諸商人，齎持重寶經過嶮路。其中一人作是唱言：『諸善男子！勿得恐怖！汝等應當一心稱觀世音菩薩名號。是菩薩能以無畏施於眾生。汝等若稱名者，於此怨賊當得解脫。』眾商人聞，俱發聲言：『南無觀世音菩薩。』稱其名故，即得解脫。「無盡意！觀世音菩薩摩訶薩威神之力，巍巍如是。若有眾生多於婬欲，常念恭敬觀世音菩薩，便得離欲。若多瞋恚，常念恭敬觀世音菩薩，便得離瞋。若多愚癡，常念恭敬觀世音菩薩，便得離癡。「無盡意！觀世音菩薩有如是等大威神力，多所饒益。是故眾生常應心念。若有女人，設欲求男，禮拜供養觀世音菩薩，便生福德智慧之男；設欲求女，便生端正有相之女。宿殖德本，眾人愛敬。「無盡意！觀世音菩薩有如是力。若有眾生恭敬禮拜觀世音菩薩，福不唐捐。是故眾生皆應受持觀世音菩薩名號。「無盡意！若有人受持六十二億恒河沙菩薩名字，復盡形供養飲食、衣服、臥具、醫藥。於汝意云何？是善男子、善女人，功德多不？」無盡意言：「甚多，世尊！」佛言：「若復有人受持觀世音菩薩名號，乃至一時禮拜、供養。是二人福，正等無異，於百千萬億劫不可窮盡。無盡意！受持觀世音菩薩名號，得如是無量無邊福德之利。」無盡意菩薩白佛言：「世尊！觀世音菩薩云何遊此娑婆世界？云何而為眾生說法？方便之力，其事云何？」佛告無盡意菩薩：「善男子！若有國土眾生應以佛身得度者，觀世音菩薩即現佛身而為說法；應以辟支佛身得度者，即現辟支佛身而為說法；應以聲聞身得度者，即現聲聞身而為說法；應以梵王身得度者，即現梵王身而為說法；應以帝釋身得度者，即現帝釋身而為說法；應以自在天身得度者，即現自在天身而為說法；應以大自在天身得度者，即現大自在天身而為說法；應以天大將軍身得度者，即現天大將軍身而為說法；應以毘沙門身得度者，即現毘沙門身而為說法；應以小王身得度者，即現小王身而為說法；應以長者身得度者，即現長者身而為說法；應以居士身得度者，即現居士身而為說法；應以宰官身得度者，即現宰官身而為說法；應以婆羅門身得度者，即現婆羅門身而為說法；應以比丘、比丘尼、優婆塞、優婆夷身得度者，即現比丘、比丘尼、優婆塞、優婆夷身而為說法；應以長者、居士、宰官、婆羅門婦女身得度者，即現婦女身而為說法；應以童男、童女身得度者，即現童男、童女身而為說法；應以天、龍、夜叉、乾闥婆、阿修羅、迦樓羅、緊那羅、摩睺羅伽、人非人等身得度者，即皆現之而為說法；應以執金剛身得度者，即現執金剛身而為說法。「無盡意！是觀世音菩薩成就如是功德，以種種形，遊諸國土，度脫眾生。是故汝等應當一心供養觀世音菩薩。是觀世音菩薩摩訶薩於怖畏急難之中能施無畏，是故此娑婆世界皆號之為施無畏者。」無盡意菩薩白佛言：「世尊！我今當供養觀世音菩薩。」即解頸眾寶珠、瓔珞，價直百千兩金，而以與之，作是言：「仁者！受此法施珍寶瓔珞。」時觀世音菩薩不肯受之。無盡意復白觀世音菩薩言：「仁者！愍我等故，受此瓔珞。」爾時佛告觀世音菩薩：「當愍此無盡意菩薩及四眾，天、龍、夜叉、乾闥婆、阿修羅、迦樓羅、緊那羅、摩睺羅伽、人非人等故，受是瓔珞。」即時觀世音菩薩愍諸四眾，及於天、龍、人非人等，受其瓔珞，分作二分，一分奉釋迦牟尼佛，一分奉多寶佛塔。「無盡意！觀世音菩薩有如是自在神力，遊於娑婆世界。」爾時無盡意菩薩以偈問曰：「世尊妙相具， 我今重問彼，佛子何因緣， 名為觀世音？具足妙相尊， 偈答無盡意：『汝聽觀音行， 善應諸方所，弘誓深如海， 歷劫不思議，侍多千億佛， 發大清淨願。我為汝略說， 聞名及見身，心念不空過， 能滅諸有苦。假使興害意， 推落大火坑，念彼觀音力， 火坑變成池。或漂流巨海， 龍魚諸鬼難，念彼觀音力， 波浪不能沒。或在須彌峯， 為人所推墮，念彼觀音力， 如日虛空住。或被惡人逐， 墮落金剛山，念彼觀音力， 不能損一毛。或值怨賊繞， 各執刀加害，念彼觀音力， 咸即起慈心。或遭王難苦， 臨刑欲壽終，念彼觀音力， 刀尋段段壞。或囚禁枷鎖， 手足被杻械，念彼觀音力， 釋然得解脫。呪詛諸毒藥， 所欲害身者，念彼觀音力， 還著於本人。或遇惡羅剎、 毒龍諸鬼等，念彼觀音力， 時悉不敢害。若惡獸圍遶， 利牙爪可怖，念彼觀音力， 疾走無邊方。蚖蛇及蝮蠍， 氣毒煙火燃，念彼觀音力， 尋聲自迴去。雲雷鼓掣電， 降雹澍大雨，念彼觀音力， 應時得消散。眾生被困厄， 無量苦逼身，觀音妙智力， 能救世間苦。具足神通力， 廣修智方便，十方諸國土， 無剎不現身。種種諸惡趣， 地獄鬼畜生，生老病死苦， 以漸悉令滅。真觀清淨觀， 廣大智慧觀，悲觀及慈觀， 常願常瞻仰。無垢清淨光， 慧日破諸闇，能伏災風火， 普明照世間。悲體戒雷震， 慈意妙大雲，澍甘露法雨， 滅除煩惱焰。諍訟經官處， 怖畏軍陣中，念彼觀音力， 眾怨悉退散。妙音觀世音， 梵音海潮音，勝彼世間音， 是故須常念，念念勿生疑。 觀世音淨聖，於苦惱死厄， 能為作依怙，具一切功德， 慈眼視眾生，福聚海無量， 是故應頂禮。』」爾時持地菩薩即從座起，前白佛言：「世尊！若有眾生聞是觀世音菩薩品自在之業、普門示現神通力者，當知是人功德不少。」佛說是普門品時，眾中八萬四千眾生，皆發無等等阿耨多羅三藐三菩提心。'}
+assert (len(_SUTRA_SRC['board1']),len(_SUTRA_SRC['board2']),len(_SUTRA_SRC['board3']),len(_SUTRA_SRC['board4']),len(_SUTRA_SRC['topics']))==(86,186,140,180,2498)
+_SUTRA_TEXT={k:v*_sutra_math.ceil(4000/len(v)) for k,v in _SUTRA_SRC.items()}
+def sutra_bg(key): return '<!-- sutra-bg V1 --><div class="sutra-bg" aria-hidden="true">'+_SUTRA_TEXT[key]+'</div>'
+def shell(title,body,home=False,sutra=None):
  seo=''
  if home:
   canonical='https://guihailu.github.io/'
@@ -388,7 +397,8 @@ def shell(title,body,home=False):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261115p2"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261115p4"></head><body>'
+ +(sutra_bg(sutra) if sutra else '')+
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><span class="theme-slot" aria-hidden="true"></span></nav></header><button id="theme-toggle" type="button" aria-label="切换晚上模式"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>'
@@ -396,7 +406,7 @@ def shell(title,body,home=False):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261115p2"></script></body></html>')
+ '<script src="reading.js?v=20261115p4"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -481,7 +491,7 @@ def board_page(b):
  f'<p>本部共 {len(es)} 篇：有视频版的排在前面，其余按时间从新到旧，点开就是完整原文。</p></section>'+ORN_DIV+
  f'<main class="board-main"><div class="alist">{alist_rows(es)}</div>'
  '<p style="margin-top:26px"><a class="more" href="index.html">← 回到首页</a> <a class="more" href="all.html">完整资料库 →</a></p></main>')
- return shell(f'归海录 · {b["name"]}',body)
+ return shell(f'归海录 · {b["name"]}',body,sutra='board%d'%b['n'])
 PROBLEMS=[
  {'name':'钱和生意','desc':'赚钱、花钱、做生意栽过跟头，先看看这笔账在讲什么。','kw':['钱','财','生意','经商','创业','投资','股票','赚钱','老板','财富']},
  {'name':'工作和前途','desc':'换工作、考学、走仕途，卡住的时候先看清局势再动。','kw':['工作','职业','事业','跳槽','职场','上班','考试','高考','体制','当官','行业','转行','辞职','中年危机','适合干什么']},
@@ -512,7 +522,7 @@ def topics_page():
  '<p><span class="nb">不用先弄懂四部是什么。</span><span class="nb">带着你现在最头疼的问题来，</span><span class="nb">从下面挑一篇开始读，就是入口。</span></p></section>'
  f'<main class="board-main">{secs}'
  '<p style="margin-top:26px"><a class="more" href="index.html">← 回到首页</a> <a class="more" href="all.html">完整资料库 →</a></p></main>')
- return shell('归海录 · 按问题找',body)
+ return shell('归海录 · 按问题找',body,sutra='topics')
 search_entries=[]
 for e in sorted(entries.values(),key=lambda x:x['id']):
  t=' '.join(meta.get(e['id'],{}).get('text','').split())[:240]
@@ -554,7 +564,7 @@ related=('<section class="board-hero"><span class="tag">知识大赏</span><h1>�
  '<main class="board-main"><div class="alist">'
  +''.join(f'<a href="{article_href(c["article_id"])}"><span>{esc(c["title"])}</span></a>' for c in vibes)
  +'</div><p style="margin-top:26px"><a class="more" href="index.html#part4">← 回到道法自然</a></p></main>')
-(out/'vibe.html').write_text(shell('归海录 · 人生观察相关阅读',related),encoding='utf-8')
+(out/'vibe.html').write_text(shell('归海录 · 人生观察相关阅读',related,sutra='vibe'),encoding='utf-8')
 js='const cases='+json.dumps(cases,ensure_ascii=False)+';\n'
 js+='let SEARCH=null;let searchPromise=null;\n'
 js+=r'''
@@ -619,7 +629,7 @@ document.querySelectorAll('[data-vibe]').forEach(ch=>{
   };
 });
 const sForm=document.getElementById('search-form'),sInput=document.getElementById('search-input'),sBox=document.getElementById('search-results');
-function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p2').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
+function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p4').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
 function doSearch(rec){
   if(!sBox)return;
   const raw=(sInput.value||'').trim();
@@ -654,6 +664,7 @@ function saveHist(term){term=(term||'').trim();if(!term||term.length>24)return;t
 function clearHist(){try{localStorage.removeItem(HIST_KEY)}catch(e){}}
 const sPanel=document.getElementById('search-sugg');
 let sgHi=-1;
+let suggOpenedAt=0;
 function suggList(){
   const q=(sInput.value||'').trim().toLowerCase();
   const hist=loadHist();
@@ -687,6 +698,7 @@ function renderSugg(){
     sPanel.appendChild(c);
   }
   sPanel.hidden=false;
+  suggOpenedAt=Date.now();
   sInput.setAttribute('aria-expanded','true');
 }
 function hideSugg(){if(!sPanel)return;sPanel.hidden=true;sgHi=-1;if(sInput)sInput.setAttribute('aria-expanded','false');}
@@ -705,6 +717,7 @@ if(sForm){
   sForm.addEventListener('focusout',ev=>{if(!sForm.contains(ev.relatedTarget))hideSugg();});
   if(sPanel)sPanel.addEventListener('mousedown',ev=>ev.preventDefault());
   document.addEventListener('click',ev=>{if(!ev.target.closest('#search-form'))hideSugg();});
+  window.addEventListener('scroll',()=>{if(sPanel&&!sPanel.hidden&&Date.now()-suggOpenedAt>400)hideSugg();},{passive:true});
 }
 document.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>{if(sInput){sInput.value=b.getAttribute('data-q');doSearch(true);sInput.focus();hideSugg()}}));
 document.addEventListener('click',e=>{const c=e.target.closest?e.target.closest('.vchip[data-v]'):null;if(c){e.preventDefault();e.stopPropagation();location.href=c.getAttribute('data-v')}},true);
