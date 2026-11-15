@@ -1,7 +1,7 @@
 {
  "source": "guihailu/muse-backup:handoff/codex/切片链接表.md",
- "source_blob_sha": "93bd7c576baaa571ca0177372119f467e8002cab",
- "checked_at": "2026-11-13",
+ "source_blob_sha": "15d8a4fac7f1ebb0a9fe1cae3146ee62c15be21e",
+ "checked_at": "2026-11-15",
  "cards": [
   {
    "id": "F09",
@@ -197,6 +197,21 @@
    "status": "published",
    "audio_language": "zh",
    "subtitle_language": "en"
-  }
+  },
+ {
+  "id": "F14",
+  "title": "采药女与戍边士兵：今生的猜疑，前世的约定",
+  "description": "讲采药女与戍边士兵的故事：今生的猜疑、前世的约定——她在山林里救了他，他痴傻回营后却再也没回来；她等了一生，出家做了尼姑。",
+  "intro": "本段讲述：讲采药女与戍边士兵的故事：今生的猜疑、前世的约定——她在山林里救了他，他痴傻回营后却再也没回来；她等了一生，出家做了尼姑。",
+  "duration_seconds": 128.84,
+  "youtube_url": "https://www.youtube.com/shorts/FbzoQ1pfGl4",
+  "poster": "https://i.ytimg.com/vi/FbzoQ1pfGl4/hqdefault.jpg",
+  "article_id": "ghl-000105",
+  "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
+  "published_at": "2026-11-15",
+  "status": "published",
+  "audio_language": "zh",
+  "subtitle_language": "en"
+ }
  ]
 }
