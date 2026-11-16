@@ -397,7 +397,7 @@ def shell(title,body,home=False,sutra=None):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261115p4"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261115p5"></head><body>'
  +(sutra_bg(sutra) if sutra else '')+
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
@@ -406,7 +406,7 @@ def shell(title,body,home=False,sutra=None):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261115p4"></script></body></html>')
+ '<script src="reading.js?v=20261115p5"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -629,7 +629,7 @@ document.querySelectorAll('[data-vibe]').forEach(ch=>{
   };
 });
 const sForm=document.getElementById('search-form'),sInput=document.getElementById('search-input'),sBox=document.getElementById('search-results');
-function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p4').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
+function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p5').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
 function doSearch(rec){
   if(!sBox)return;
   const raw=(sInput.value||'').trim();
@@ -665,6 +665,8 @@ function clearHist(){try{localStorage.removeItem(HIST_KEY)}catch(e){}}
 const sPanel=document.getElementById('search-sugg');
 let sgHi=-1;
 let suggOpenedAt=0;
+let userScrollAt=0;
+function markUserScroll(){userScrollAt=Date.now();}
 function suggList(){
   const q=(sInput.value||'').trim().toLowerCase();
   const hist=loadHist();
@@ -699,6 +701,7 @@ function renderSugg(){
   }
   sPanel.hidden=false;
   suggOpenedAt=Date.now();
+  userScrollAt=0;
   sInput.setAttribute('aria-expanded','true');
 }
 function hideSugg(){if(!sPanel)return;sPanel.hidden=true;sgHi=-1;if(sInput)sInput.setAttribute('aria-expanded','false');}
@@ -717,7 +720,10 @@ if(sForm){
   sForm.addEventListener('focusout',ev=>{if(!sForm.contains(ev.relatedTarget))hideSugg();});
   if(sPanel)sPanel.addEventListener('mousedown',ev=>ev.preventDefault());
   document.addEventListener('click',ev=>{if(!ev.target.closest('#search-form'))hideSugg();});
-  window.addEventListener('scroll',()=>{if(sPanel&&!sPanel.hidden&&Date.now()-suggOpenedAt>400)hideSugg();},{passive:true});
+  window.addEventListener('wheel',markUserScroll,{passive:true});
+  window.addEventListener('touchmove',markUserScroll,{passive:true});
+  window.addEventListener('keydown',ev=>{if(ev.target!==sInput&&['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' '].indexOf(ev.key)>=0)markUserScroll();});
+  window.addEventListener('scroll',()=>{if(sPanel&&!sPanel.hidden&&Date.now()-suggOpenedAt>400&&userScrollAt&&Date.now()-userScrollAt<1500)hideSugg();},{passive:true});
 }
 document.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>{if(sInput){sInput.value=b.getAttribute('data-q');doSearch(true);sInput.focus();hideSugg()}}));
 document.addEventListener('click',e=>{const c=e.target.closest?e.target.closest('.vchip[data-v]'):null;if(c){e.preventDefault();e.stopPropagation();location.href=c.getAttribute('data-v')}},true);
