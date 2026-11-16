@@ -1,7 +1,7 @@
 {
  "source": "guihailu/muse-backup:handoff/codex/切片链接表.md",
- "source_blob_sha": "15d8a4fac7f1ebb0a9fe1cae3146ee62c15be21e",
- "checked_at": "2026-11-15",
+ "source_blob_sha": "0312896f6c2b491c056965cf515af04a2502eb66",
+ "checked_at": "2026-11-16",
  "cards": [
   {
    "id": "F09",
@@ -209,6 +209,21 @@
   "article_id": "ghl-000105",
   "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
   "published_at": "2026-11-15",
+  "status": "published",
+  "audio_language": "zh",
+  "subtitle_language": "en"
+ },
+ {
+  "id": "F15",
+  "title": "不般配的关系：报恩与讨债",
+  "description": "讲不般配的关系：报恩还是讨债——今生的相遇有前世的因缘，看似报恩，也可能是来讨债的。",
+  "intro": "本段讲述：讲不般配的关系：报恩还是讨债——今生的相遇有前世的因缘，看似报恩，也可能是来讨债的。",
+  "duration_seconds": 21.6,
+  "youtube_url": "https://www.youtube.com/shorts/f3bt9AVgmhc",
+  "poster": "https://i.ytimg.com/vi/f3bt9AVgmhc/hqdefault.jpg",
+  "article_id": "ghl-000105",
+  "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
+  "published_at": "2026-11-16",
   "status": "published",
   "audio_language": "zh",
   "subtitle_language": "en"
