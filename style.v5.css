@@ -42,6 +42,11 @@ html:not(.dark) .sitebar .bimg1,html:not(.dark) .sitebar .bimg2,html:not(.dark) 
 .sitebar nav a{display:flex;align-items:center;padding:6px 10px;border:1px solid transparent;border-radius:999px;transition:border-color .25s,background .25s}
 .sitebar nav a:hover{border-color:rgba(201,165,95,.9);background:rgba(201,165,95,.22);box-shadow:0 0 0 1px rgba(201,165,95,.35),0 4px 14px rgba(0,0,0,.18)}
 .sitebar .navimg{height:22px;width:auto;display:block}
+.fsgrp{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-left:8px;flex:none}
+.fsgrp button{border:0;background:var(--chip);color:var(--gold2);padding:7px 10px;font-size:13px;font-weight:600;cursor:pointer;line-height:1.2}
+.fsgrp button+button{border-left:1px solid var(--line)}
+.fsgrp button[aria-pressed="true"]{background:rgba(201,165,95,.28)}
+/* 旧版字号钮兼容：2026/undated 两页未随本次构建更新，保留其样式与行为 */
 #fsbtn{border:1px solid var(--line);background:var(--chip);color:var(--gold2);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;cursor:pointer;margin-left:8px}
 #toggle{width:36px;height:36px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:var(--chip);color:var(--gold2);cursor:pointer;margin-left:2px}
 #toggle svg{display:block}
@@ -123,6 +128,7 @@ main.content{min-width:0;max-width:760px;width:100%;justify-self:center}
 .entry>summary .date strong{color:var(--gold2);font-weight:600}
 .entry>summary .excerpt{grid-column:2;grid-row:3;margin:9px 0 0;color:var(--sub);font-size:13.5px;line-height:1.75;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .entry-body{padding:4px 26px 26px;border-top:1px solid var(--line);font-size:16.5px;line-height:2.0;color:var(--ink)}
+html.fs-s .entry-body{font-size:15px}
 html.fs-l .entry-body{font-size:18px}
 html.fs-xl .entry-body{font-size:19.5px}
 .entry-body p{margin:0 0 1.1em}
@@ -370,6 +376,8 @@ html:not(.dark) .navbtn{background:rgba(255,250,240,.92);color:var(--gold2)}
   .sitebar .navimg{height:17px;max-width:100%}
   .entry{scroll-margin-top:128px}
   .lanchor{scroll-margin-top:128px}
+  .fsgrp{margin-left:4px}
+  .fsgrp button{padding:6px 8px;font-size:12px}
   #fsbtn{padding:6px 10px;font-size:12px;margin-left:4px}
   #toggle{width:32px;height:32px}
   .video-grid{grid-template-columns:1fr}

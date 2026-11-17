@@ -95,6 +95,7 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .sresults .hit{display:block;padding:11px 14px;border:1px solid var(--line);border-radius:10px;margin-top:8px;background:var(--card)}
 .sresults .hit b{font-weight:600}
 .sresults .hit span{display:block;font-size:12.5px;color:var(--sub);margin-top:3px;line-height:1.6}
+.sresults .hit mark{background:rgba(201,165,95,.35);color:inherit;border-radius:2px;padding:0 1px}
 .sresults .none{color:var(--sub);font-size:14px;text-align:center;padding:8px}
 .sresults .qsugg{padding:6px 4px 4px;font-size:13.5px;line-height:1.9;color:var(--sub);text-align:left}
 .sresults .qsugg-lab{display:block;font-weight:600;color:var(--ink);margin:8px 0 4px}

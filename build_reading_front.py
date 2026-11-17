@@ -240,6 +240,7 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .sresults .hit{display:block;padding:11px 14px;border:1px solid var(--line);border-radius:10px;margin-top:8px;background:var(--card)}
 .sresults .hit b{font-weight:600}
 .sresults .hit span{display:block;font-size:12.5px;color:var(--sub);margin-top:3px;line-height:1.6}
+.sresults .hit mark{background:rgba(201,165,95,.35);color:inherit;border-radius:2px;padding:0 1px}
 .sresults .none{color:var(--sub);font-size:14px;text-align:center;padding:8px}
 .sresults .qsugg{padding:6px 4px 4px;font-size:13.5px;line-height:1.9;color:var(--sub);text-align:left}
 .sresults .qsugg-lab{display:block;font-weight:600;color:var(--ink);margin:8px 0 4px}
@@ -397,7 +398,7 @@ def shell(title,body,home=False,sutra=None):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261115p5"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261115p6"></head><body>'
  +(sutra_bg(sutra) if sutra else '')+
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
@@ -406,7 +407,7 @@ def shell(title,body,home=False,sutra=None):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261115p5"></script></body></html>')
+ '<script src="reading.js?v=20261115p6"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -629,7 +630,13 @@ document.querySelectorAll('[data-vibe]').forEach(ch=>{
   };
 });
 const sForm=document.getElementById('search-form'),sInput=document.getElementById('search-input'),sBox=document.getElementById('search-results');
-function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p5').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
+function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p6').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
+function hlText(el,text,q){
+  if(!q){el.textContent=text;return;}
+  const low=text.toLowerCase();let i=0;
+  for(;;){const j=low.indexOf(q,i);if(j<0)break;if(j>i)el.appendChild(document.createTextNode(text.slice(i,j)));const m=document.createElement('mark');m.textContent=text.slice(j,j+q.length);el.appendChild(m);i=j+q.length;}
+  if(i<text.length)el.appendChild(document.createTextNode(text.slice(i)));
+}
 function doSearch(rec){
   if(!sBox)return;
   const raw=(sInput.value||'').trim();
@@ -655,7 +662,7 @@ function doSearch(rec){
     sBox.appendChild(sg);return;
   }
   if(rec&&hits.length)saveHist(raw);
-  hits.forEach(e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');b.textContent=e.t;const s=document.createElement('span');s.textContent=(e.d?e.d+' · ':'')+e.x;a.append(b,s);sBox.appendChild(a)});
+  hits.forEach(e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');hlText(b,e.t,q);const s=document.createElement('span');hlText(s,(e.d?e.d+' · ':'')+e.x,q);a.append(b,s);sBox.appendChild(a)});
 }
 const HOTWORDS=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命'];
 const HIST_KEY='ghl_search_hist';

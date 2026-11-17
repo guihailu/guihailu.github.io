@@ -1607,6 +1607,11 @@ html:not(.dark) .sitebar .bimg1,html:not(.dark) .sitebar .bimg2,html:not(.dark) 
 .sitebar nav a{display:flex;align-items:center;padding:6px 10px;border:1px solid transparent;border-radius:999px;transition:border-color .25s,background .25s}
 .sitebar nav a:hover{border-color:rgba(201,165,95,.9);background:rgba(201,165,95,.22);box-shadow:0 0 0 1px rgba(201,165,95,.35),0 4px 14px rgba(0,0,0,.18)}
 .sitebar .navimg{height:22px;width:auto;display:block}
+.fsgrp{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-left:8px;flex:none}
+.fsgrp button{border:0;background:var(--chip);color:var(--gold2);padding:7px 10px;font-size:13px;font-weight:600;cursor:pointer;line-height:1.2}
+.fsgrp button+button{border-left:1px solid var(--line)}
+.fsgrp button[aria-pressed="true"]{background:rgba(201,165,95,.28)}
+/* 旧版字号钮兼容：2026/undated 两页未随本次构建更新，保留其样式与行为 */
 #fsbtn{border:1px solid var(--line);background:var(--chip);color:var(--gold2);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;cursor:pointer;margin-left:8px}
 #toggle{width:36px;height:36px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:var(--chip);color:var(--gold2);cursor:pointer;margin-left:2px}
 #toggle svg{display:block}
@@ -1688,6 +1693,7 @@ main.content{min-width:0;max-width:760px;width:100%;justify-self:center}
 .entry>summary .date strong{color:var(--gold2);font-weight:600}
 .entry>summary .excerpt{grid-column:2;grid-row:3;margin:9px 0 0;color:var(--sub);font-size:13.5px;line-height:1.75;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .entry-body{padding:4px 26px 26px;border-top:1px solid var(--line);font-size:16.5px;line-height:2.0;color:var(--ink)}
+html.fs-s .entry-body{font-size:15px}
 html.fs-l .entry-body{font-size:18px}
 html.fs-xl .entry-body{font-size:19.5px}
 .entry-body p{margin:0 0 1.1em}
@@ -1935,6 +1941,8 @@ html:not(.dark) .navbtn{background:rgba(255,250,240,.92);color:var(--gold2)}
   .sitebar .navimg{height:17px;max-width:100%}
   .entry{scroll-margin-top:128px}
   .lanchor{scroll-margin-top:128px}
+  .fsgrp{margin-left:4px}
+  .fsgrp button{padding:6px 8px;font-size:12px}
   #fsbtn{padding:6px 10px;font-size:12px;margin-left:4px}
   #toggle{width:32px;height:32px}
   .video-grid{grid-template-columns:1fr}
@@ -2374,7 +2382,7 @@ def _sitebar():
       '<a href="board3.html" aria-label="法界天机"><img class="navimg" src="' + _IMG_NAV3 + '" alt="法界天机"></a>'
       '<a href="board4.html" aria-label="道法自然"><img class="navimg" src="' + _IMG_NAV4 + '" alt="道法自然"></a>'
       '<a href="all.html" aria-label="资料库"><img class="navimg" src="' + _IMG_LIB + '" alt="资料库"></a>'
-      '<button id="fsbtn" type="button" aria-label="切换字号">字号</button>'
+      '<span class="fsgrp" role="group" aria-label="字号"><button type="button" data-fs="s" aria-pressed="false" aria-label="小字号">A-</button><button type="button" data-fs="" aria-pressed="true" aria-label="标准字号">A</button><button type="button" data-fs="l" aria-pressed="false" aria-label="大字号">A+</button></span>'
       '<button id="toggle" type="button" aria-label="切换深浅色"></button>'
       '</nav></header>')
 
@@ -2387,8 +2395,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p9">'
-        js_tag = '<script src="main.v5.js?v=20261113p9" defer></script>'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p10">'
+        js_tag = '<script src="main.v5.js?v=20261113p10" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
                        ';window.__GHL_IDPAGE__=' + _idpage_json +
@@ -2456,7 +2464,7 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
 <link rel="alternate" type="application/atom+xml" title="归海录" href="feed.xml">
 {_ld_tag}
 {analytics_head()}
-<script>try{{if(localStorage.getItem('ghl_theme')==='dark')document.documentElement.classList.add('dark');var _f=localStorage.getItem('ghl_fs');if(_f)document.documentElement.classList.add('fs-'+_f)}}catch(e){{}}</script>
+<script>try{{if(localStorage.getItem('ghl_theme')==='dark')document.documentElement.classList.add('dark');var _f=localStorage.getItem('ghl_fs');if(_f==='xl')_f='l';if(_f)document.documentElement.classList.add('fs-'+_f)}}catch(e){{}}</script>
 <script>window.__GHL_LEGACY__={legacy_json};</script>
 {globals_tag}
 {css_tag}
@@ -2491,7 +2499,9 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
 (HERE / "style.v5.css").write_text(css, encoding="utf-8", newline="\n")
 js += "\n(()=>{\nconst area=document.querySelector('.story-carousel');if(!area)return;\nconst slides=Array.from(area.children),toggle=document.querySelector('#story-toggle'),next=document.querySelector('#story-next'),position=document.querySelector('#story-position');\nfor(let i=slides.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[slides[i],slides[j]]=[slides[j],slides[i]];}\nlet index=0,paused=matchMedia('(prefers-reduced-motion: reduce)').matches;\ntry{const previous=sessionStorage.getItem('ghl-last-story');if(slides.length>1&&slides[0].querySelector('h3 a').href===previous){slides.push(slides.shift());}}catch(e){}\nslides.forEach(s=>area.append(s));\nfunction show(){slides.forEach((s,i)=>{s.hidden=i!==index;});position.textContent=(index+1)+' / '+slides.length;try{sessionStorage.setItem('ghl-last-story',slides[index].querySelector('h3 a').href);}catch(e){}}\nfunction update(){toggle.textContent=paused?'自动轮换':'暂停轮换';toggle.setAttribute('aria-pressed',String(paused));}\nnext.addEventListener('click',()=>{index=(index+1)%slides.length;show();});toggle.addEventListener('click',()=>{paused=!paused;update();});\nsetInterval(()=>{if(!paused&&!document.hidden&&!area.matches(':hover')&&!area.contains(document.activeElement)){index=(index+1)%slides.length;show();}},9000);\nshow();update();\n})();\n"
 js += "\ndocument.querySelectorAll('.intro-toggle').forEach(button=>{\n const intro=button.previousElementSibling;\n function measure(){button.hidden=!intro.classList.contains('is-expanded')&&intro.scrollHeight<=intro.clientHeight+1;}\n button.addEventListener('click',()=>{const expanded=intro.classList.toggle('is-expanded');button.setAttribute('aria-expanded',String(expanded));button.textContent=expanded?'收起':'展开全文';measure();});\n new ResizeObserver(measure).observe(intro);measure();\n});\n"
+# 旧版 #fsbtn 循环切换兼容（2026/undated 两页未随本次构建更新，元素不存在时直接返回）
 js += "\n(function(){var b=document.getElementById('fsbtn');if(!b)return;var order=['','l','xl'];function cur(){var c=document.documentElement.classList;return c.contains('fs-xl')?'xl':(c.contains('fs-l')?'l':'');}b.addEventListener('click',function(){var n=order[(order.indexOf(cur())+1)%order.length];document.documentElement.classList.remove('fs-l','fs-xl');if(n)document.documentElement.classList.add('fs-'+n);try{localStorage.setItem('ghl_fs',n)}catch(e){}});})();\n"
+js += "\n(function(){var g=document.querySelector('.fsgrp');if(!g)return;var btns=[].slice.call(g.querySelectorAll('[data-fs]'));function apply(n,save){var c=document.documentElement.classList;c.remove('fs-s','fs-l','fs-xl');if(n)c.add('fs-'+n);btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-fs')===n))});if(save){try{localStorage.setItem('ghl_fs',n)}catch(e){}}}var cur='';var cl=document.documentElement.classList;if(cl.contains('fs-s'))cur='s';else if(cl.contains('fs-l')||cl.contains('fs-xl'))cur='l';apply(cur,false);btns.forEach(function(b){b.addEventListener('click',function(){apply(b.getAttribute('data-fs'),true)})});})();\n"
 js += "\n(function(){document.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-ev]'):null;if(b){var f=document.createElement('iframe');f.src='https://www.youtube.com/embed/'+b.getAttribute('data-ev')+'?autoplay=1&playsinline=1';f.title='视频';f.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';b.replaceWith(f);return}var c=e.target.closest?e.target.closest('.qchip'):null;if(c){var q=document.getElementById('q');if(q){q.value=c.getAttribute('data-q');q.dispatchEvent(new Event('input',{bubbles:true}));q.focus()}}});})();\n"
 js += "\n(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var chips=[].slice.call(document.querySelectorAll('.search-hint .qchip'));if(!chips.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p}function apply(){var w=pick();chips.forEach(function(c,i){var v=w[i%w.length];c.textContent=v;c.setAttribute('data-q',v);c.style.opacity=''})}apply();setInterval(function(){var q=document.getElementById('q');if(q&&q.value.trim())return;chips.forEach(function(c){c.style.opacity='0'});setTimeout(apply,480)},12000)})();\n"
 (HERE / "main.v5.js").write_text(js, encoding="utf-8", newline="\n")
