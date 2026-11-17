@@ -1,7 +1,7 @@
 {
  "source": "guihailu/muse-backup:handoff/codex/切片链接表.md",
- "source_blob_sha": "0312896f6c2b491c056965cf515af04a2502eb66",
- "checked_at": "2026-11-16",
+ "source_blob_sha": "f12a360207150a84a00bebdc3529454249ecf2d5",
+ "checked_at": "2026-11-17",
  "cards": [
   {
    "id": "F09",
@@ -224,6 +224,21 @@
   "article_id": "ghl-000105",
   "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
   "published_at": "2026-11-16",
+  "status": "published",
+  "audio_language": "zh",
+  "subtitle_language": "en"
+ },
+ {
+  "id": "F16",
+  "title": "天耳通：耳边吹气发麻不算开了",
+  "description": "讲天耳通：耳边吹气发麻不算开了——耳边发麻像静电，未必是天耳通，别误判。",
+  "intro": "本段讲述：讲天耳通：耳边吹气发麻不算开了——耳边发麻像静电，未必是天耳通，别误判。",
+  "duration_seconds": 39.77,
+  "youtube_url": "https://www.youtube.com/shorts/uIpbrNS-z-8",
+  "poster": "https://i.ytimg.com/vi/uIpbrNS-z-8/hqdefault.jpg",
+  "article_id": "ghl-000105",
+  "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
+  "published_at": "2026-11-17",
   "status": "published",
   "audio_language": "zh",
   "subtitle_language": "en"
