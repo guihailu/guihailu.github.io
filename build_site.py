@@ -1974,6 +1974,7 @@ html:not(.dark) .navbtn{background:rgba(255,250,240,.92);color:var(--gold2)}
 html,body{background:#fff!important;color:#111!important}
 body{background-image:none!important}
 .sitebar,#progress,.skip,.searchbar,.toc,.tocm,.month-nav,.next-read,footer,.fbtn,.yearhead .back,.intro-toggle,button{display:none!important}
+.layout{grid-template-columns:1fr!important}
 h1,h2,h3,.entry>summary{break-after:avoid;break-inside:avoid}
 p{orphans:3;widows:3}
 img,figure,blockquote,table{break-inside:avoid;max-width:100%}
@@ -2414,8 +2415,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p11">'
-        js_tag = '<script src="main.v5.js?v=20261113p11" defer></script>'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p12">'
+        js_tag = '<script src="main.v5.js?v=20261113p12" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
                        ';window.__GHL_IDPAGE__=' + _idpage_json +
