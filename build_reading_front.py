@@ -146,6 +146,7 @@ def board_entries(n):
 css='''*{box-sizing:border-box}
 :root{--bg:#f3ecd9;--ink:#1b2f3c;--sub:#44545f;--card:#fffaf0;--card2:#f7efdb;--line:#d8cba6;--gold:#8a6a24;--gold2:#7c5c13;--chip:#fffaf0;--shadow:rgba(90,70,20,.18)}
 html.dark{--bg:#0a141f;--ink:#ede4cd;--sub:#a7b5ba;--card:#101f2c;--card2:#0e1e2e;--line:#2c4353;--gold:#c9a55f;--gold2:#f0d48a;--chip:transparent;--shadow:rgba(0,0,0,.4)}
+html.sepia{--bg:#efe3c8;--ink:#43301b;--sub:#6b563a;--card:#f7ecd4;--card2:#f3e7cb;--line:#d3bf96;--gold:#8a6a24;--gold2:#7c5c13;--chip:#f7ecd4;--shadow:rgba(90,70,20,.18)}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden;transition:background .4s,color .4s}
 body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 52'%3E%3Cg fill='none' stroke='%23c9a55f' stroke-opacity='.032' stroke-width='2'%3E%3Cpath d='M32 6C39 17 39 27 32 37C25 27 25 17 32 6Z'/%3E%3Cpath d='M15 13C23 19 25 29 23 38C15 34 11 23 15 13Z'/%3E%3Cpath d='M49 13C41 19 39 29 41 38C49 34 53 23 49 13Z'/%3E%3Cpath d='M8 44C20 49 44 49 56 44'/%3E%3C/g%3E%3C/svg%3E");background-size:168px auto}
@@ -156,6 +157,7 @@ button{font:inherit;cursor:pointer}
 header{position:fixed;inset:0 0 auto 0;z-index:60;display:flex;justify-content:space-between;align-items:center;padding:16px max(4vw,20px);transition:transform .38s ease,opacity .38s ease,background .35s ease,box-shadow .35s ease}
 header.solid{background:rgba(243,236,217,.88);-webkit-backdrop-filter:blur(14px) saturate(1.25);backdrop-filter:blur(14px) saturate(1.25);box-shadow:0 10px 30px rgba(90,70,20,.10);border-bottom:1px solid rgba(216,203,166,.7)}
 html.dark header.solid{background:rgba(10,20,31,.86);border-bottom-color:rgba(44,67,83,.8);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+html.sepia header.solid{background:rgba(239,227,200,.88);border-bottom-color:rgba(211,191,150,.8);box-shadow:0 10px 30px rgba(90,70,20,.18)}
 header.hidden{transform:translateY(-115%);opacity:0;pointer-events:none}
 header .brand,header nav a{text-shadow:0 1px 12px rgba(4,10,16,.35),0 0 3px rgba(4,10,16,.18)}
 html.dark header .brand,html.dark header nav a{text-shadow:0 1px 12px rgba(4,10,16,.9),0 0 3px rgba(4,10,16,.65)}
@@ -366,7 +368,9 @@ a:focus-visible,button:focus-visible{outline:3px solid #aa8036;outline-offset:3p
 @media(max-width:820px){nav a .navimg{height:17.5px}nav a{padding:5px 4px}#theme-toggle{position:fixed;top:15px;right:16px;margin:0}.theme-slot{display:none}}
 .sutra-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;writing-mode:vertical-rl;font-family:"Songti SC","STSong",SimSun,serif;font-size:24px;line-height:2.4;letter-spacing:.4em;color:#1d1b16;opacity:.05}
 html.dark .sutra-bg{color:#d9a441;opacity:.06}
+html.sepia .sutra-bg{color:#6b4f2a;opacity:.05}
 .board-hero,.orn-div,main,footer{position:relative;z-index:1}
+@media print{:root,html.dark,html.sepia{--bg:#fff;--ink:#111;--sub:#333;--card:#fff;--card2:#fff;--line:#bbb;--gold:#555;--gold2:#333;--chip:#fff;--shadow:none}html,body{background:#fff!important;color:#111!important}body{background-image:none!important}header,#theme-toggle,#to-top,.sutra-bg,footer,dialog,.searchbar,.sugg,.scrollcue{display:none!important}h1,h2,h3{break-after:avoid;break-inside:avoid}p{orphans:3;widows:3}img,figure{break-inside:avoid;max-width:100%}}
 '''
 (out/'reading.css').write_text(css,encoding='utf-8')
 def article_href(article_id):
@@ -397,8 +401,8 @@ def shell(title,body,home=False,sutra=None):
  f'<meta name="description" content="{SITEDESC}">'
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
- '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261115p6"></head><body>'
+ '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\')document.documentElement.classList.add(\'dark\');else if(t===\'sepia\')document.documentElement.classList.add(\'sepia\');else if(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches)document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
+ '<link rel="stylesheet" href="reading.css?v=20261115p7"></head><body>'
  +(sutra_bg(sutra) if sutra else '')+
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
@@ -407,7 +411,7 @@ def shell(title,body,home=False,sutra=None):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261115p6"></script></body></html>')
+ '<script src="reading.js?v=20261115p7"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -583,8 +587,8 @@ function onScroll(){
 window.addEventListener('scroll',onScroll,{passive:true});onScroll();
 if(toTop)toTop.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
 const themeBtn=document.querySelector('#theme-toggle');
-const MOON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';const SUN='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.6M12 19.4V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.6M19.4 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';function paintTheme(){if(themeBtn){const dark=document.documentElement.classList.contains('dark');themeBtn.innerHTML=dark?SUN:MOON;themeBtn.setAttribute('aria-label',dark?'切换白天模式':'切换晚上模式')}}
-if(themeBtn){themeBtn.onclick=()=>{const dark=document.documentElement.classList.toggle('dark');try{localStorage.setItem('ghl_theme',dark?'dark':'light')}catch(e){}paintTheme()};paintTheme()}
+const MOON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';const SUN='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.6M12 19.4V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.6M19.4 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';const SEPIA='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="10" r="4.2"/><path d="M4 17h16M7 20.5h10"/></svg>';const THEME_ORDER=['light','dark','sepia'];function curTheme(){const c=document.documentElement.classList;return c.contains('dark')?'dark':(c.contains('sepia')?'sepia':'light')}function applyTheme(t){const c=document.documentElement.classList;c.remove('dark','sepia');if(t!=='light')c.add(t);try{localStorage.setItem('ghl_theme',t)}catch(e){}}function paintTheme(){if(themeBtn){const nx=THEME_ORDER[(THEME_ORDER.indexOf(curTheme())+1)%3];themeBtn.innerHTML=nx==='dark'?MOON:(nx==='sepia'?SEPIA:SUN);themeBtn.setAttribute('aria-label',nx==='dark'?'切换晚上模式':(nx==='sepia'?'切换米色模式':'切换白天模式'))}}
+if(themeBtn){try{const st=localStorage.getItem('ghl_theme');if(st==='dark'||st==='sepia')applyTheme(st)}catch(e){}themeBtn.onclick=()=>{applyTheme(THEME_ORDER[(THEME_ORDER.indexOf(curTheme())+1)%3]);paintTheme()};paintTheme()}
 const dustBox=document.getElementById('dust');
 if(dustBox){for(let i=0;i<16;i++){const s=document.createElement('span');const sz=3+Math.random()*6;s.style.width=sz+'px';s.style.height=sz+'px';s.style.left=(18+Math.random()*64)+'%';s.style.top=(12+Math.random()*62)+'%';s.style.animationDuration=(9+Math.random()*14)+'s';s.style.animationDelay=(-Math.random()*16)+'s';dustBox.appendChild(s)}}
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:0.12});
