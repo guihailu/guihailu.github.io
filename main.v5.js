@@ -72,6 +72,20 @@ document.querySelectorAll('.next-read a[href*="#ghl-"]').forEach(function(a){
     if(d){d.open=true;if(read.indexOf(id)<0){read.push(id);try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}}
   });
 });
+/* p32 入门先读：路线下一篇链点击即记目标已读（同键同格式；与接着读不同：跨页目标本页无 details 也照记，否则跨页步骤永不打勾）；同页目标同时展开；本篇已读则行内打勾 */
+document.querySelectorAll('.route-next a[href*="#ghl-"]').forEach(function(a){
+  a.addEventListener('click',function(){
+    var id=a.getAttribute('href').split('#')[1];
+    if(!id||!/^ghl-[0-9]+$/.test(id))return;
+    if(read.indexOf(id)<0){read.push(id);try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}
+    var d=document.getElementById(id);
+    if(d){d.open=true;}
+  });
+});
+document.querySelectorAll('.route-next').forEach(function(r){
+  var e=r.closest?r.closest('.entry'):null;
+  if(e&&e.id&&read.indexOf(e.id)>-1)r.classList.add('done');
+});
 /* p19 年份页月份定位：点月份跳到该月首篇并展开（与目录链接同行为；只定位，不记已读） */
 document.querySelectorAll('.month-nav a[href^="#ghl-"]').forEach(function(a){
   a.addEventListener('click',function(){

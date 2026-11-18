@@ -970,6 +970,42 @@ for _i, _e in enumerate(_entries):
     _e['next_reads'] = _recs
 print(f"OK: 接着读 {sum(1 for _e in _entries if _e['next_reads'])} / {len(_entries)} 篇有推荐（同板块＋同系列优先、按目录顺序取后续）")
 
+# 入门先读路线（p32，用户 2026-11-18 13:39 核准选篇）：每板块 10 篇，顺序即核准清单顺序，勿改。
+# 与 build_reading_front.py 的 ROUTE_MAP 须逐字一致；标题取条目原文并去 EP 系列前缀（同 clean_title 口径），与核准清单逐字一致。
+_ROUTE_MAP = {1: ['ghl-000018', 'ghl-000022', 'ghl-000020', 'ghl-000021', 'ghl-000005', 'ghl-000030', 'ghl-000028', 'ghl-000059', 'ghl-000060', 'ghl-000033'],
+              2: ['ghl-000031', 'ghl-000106', 'ghl-000070', 'ghl-000088', 'ghl-000091', 'ghl-000087', 'ghl-000071', 'ghl-000089', 'ghl-000072', 'ghl-000050'],
+              3: ['ghl-000003', 'ghl-000002', 'ghl-000123', 'ghl-000010', 'ghl-000012', 'ghl-000042', 'ghl-000051', 'ghl-000092', 'ghl-000037', 'ghl-000105'],
+              4: ['ghl-000024', 'ghl-000026', 'ghl-000014', 'ghl-000076', 'ghl-000077', 'ghl-000062', 'ghl-000104', 'ghl-000055', 'ghl-000078', 'ghl-000102']}
+_ROUTE_BY_ID = {e['id']: e for e in _entries}
+_ROUTE_POS = {}
+for _bn, _ids in _ROUTE_MAP.items():
+    assert len(_ids) == 10 and len(set(_ids)) == 10, 'route map board ' + str(_bn)
+    for _i, _rid in enumerate(_ids):
+        assert _rid in _ROUTE_BY_ID and _ROUTE_BY_ID[_rid]['board'] == _bn, 'route map drift: ' + _rid
+        _ROUTE_POS[_rid] = (_bn, _i + 1, _ids[_i + 1] if _i + 1 < 10 else None)
+assert len(_ROUTE_POS) == 40, 'route map must hold 40 distinct articles'
+
+def _route_title(t):
+    _m = re.match(r'^EP\s?\d+\s+(.{1,14}?)·\s*(.+)$', t)
+    if _m:
+        return _m.group(2)
+    return re.sub(r'^EP\s?\d+\s+', '', t)
+
+def _route_next_html(e, href_for):
+    _rp = _ROUTE_POS.get(e['id'])
+    if not _rp:
+        return ''
+    _bn, _pos, _nxt = _rp
+    _label = f'入门先读 · 第 {_pos}/10 篇'
+    if _nxt:
+        _nt = _ROUTE_BY_ID[_nxt]['title']
+        return ('<div class="route-next" data-route-pos="' + str(_pos) + '">'
+                '<span class="route-next-label">' + _label + '</span>'
+                '<a href="' + href_for(_nxt) + '">下一篇：' + _html.escape(_route_title(_nt)) + ' →</a></div>')
+    return ('<div class="route-next route-end" data-route-pos="10">'
+            '<span class="route-next-label">' + _label + '</span>'
+            '<span class="route-next-end">这一部的入门路线读完了。</span></div>')
+
 _id_page = {e['id']: e['page'] for e in _entries}
 
 _pages = {}
@@ -1028,13 +1064,14 @@ def _next_read_html(e, href_for):
 
 def _with_next_read(block, e, href_for):
     _nr = _next_read_html(e, href_for)
-    if not _nr:
+    _rt = _route_next_html(e, href_for)
+    if not _nr and not _rt:
         return block
     _head, _sep, _tail = block.rpartition('</div></details>')
     if not _sep:
         print(f"WARN 接着读注入点缺失: {e['id']}")
         return block
-    return _head + _nr + '</div></details>' + _tail
+    return _head + _rt + _nr + '</div></details>' + _tail
 
 def _layout_html(items, href_for=None):
     _hf = href_for or _online_href
@@ -1743,6 +1780,13 @@ html.fs-xl .entry-body{font-size:19.5px}
 .next-read li span{display:block;margin-top:2px;color:var(--sub);font-size:12.5px;line-height:1.7}
 .next-read-more{font-size:13.5px}
 .next-read-more a{color:var(--gold2);font-weight:600}
+/* ---- 入门先读路线行（p32）：条目末尾路线进度＋下一篇链，贴在接着读之上 ---- */
+.route-next{margin:22px 0 0;padding:13px 20px;border:1px solid var(--line);border-left:3px solid #c9a55f;border-radius:12px;background:var(--card);display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.route-next-label{color:var(--gold2);font-size:13px;letter-spacing:2px;font-weight:600;white-space:nowrap}
+.route-next.done .route-next-label::after{content:" ✓";color:var(--gold2)}
+.entry-body .route-next a{color:var(--ink);font-family:"Songti SC",SimSun,serif;font-size:16px;font-weight:600;line-height:1.55;text-decoration:none}
+.entry-body .route-next a:hover{color:var(--gold2)}
+.route-next-end{color:var(--sub);font-size:14px;line-height:1.7}
 .lanchor{display:block;width:0;height:0;overflow:hidden;scroll-margin-top:86px}
 /* ---- 全部条目（目录页） ---- */
 .catalog-wrap{max-width:900px;margin:0 auto;padding:10px 24px 100px}
@@ -1974,7 +2018,7 @@ html:not(.dark) .navbtn{background:rgba(255,250,240,.92);color:var(--gold2)}
 :root,html.dark,html.sepia{--bg:#fff;--ink:#111;--sub:#333;--card:#fff;--card2:#fff;--line:#bbb;--gold:#555;--gold2:#333;--chip:#fff;--shadow:none;--paper:#fff;--paper2:#fff;--muted:#333;--link:#111;--quote:#333;--cin:#111;--red:#111}
 html,body{background:#fff!important;color:#111!important}
 body{background-image:none!important}
-.sitebar,#progress,.skip,.searchbar,.toc,.tocm,.month-nav,.next-read,footer,.fbtn,.yearhead .back,.intro-toggle,button{display:none!important}
+.sitebar,#progress,.skip,.searchbar,.toc,.tocm,.month-nav,.next-read,.route-next,footer,.fbtn,.yearhead .back,.intro-toggle,button{display:none!important}
 .layout{grid-template-columns:1fr!important}
 h1,h2,h3,.entry>summary{break-after:avoid;break-inside:avoid}
 p{orphans:3;widows:3}
@@ -2055,6 +2099,20 @@ document.querySelectorAll('.next-read a[href*="#ghl-"]').forEach(function(a){
     var d=id&&document.getElementById(id);
     if(d){d.open=true;if(read.indexOf(id)<0){read.push(id);try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}}
   });
+});
+/* p32 入门先读：路线下一篇链点击即记目标已读（同键同格式；与接着读不同：跨页目标本页无 details 也照记，否则跨页步骤永不打勾）；同页目标同时展开；本篇已读则行内打勾 */
+document.querySelectorAll('.route-next a[href*="#ghl-"]').forEach(function(a){
+  a.addEventListener('click',function(){
+    var id=a.getAttribute('href').split('#')[1];
+    if(!id||!/^ghl-[0-9]+$/.test(id))return;
+    if(read.indexOf(id)<0){read.push(id);try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}
+    var d=document.getElementById(id);
+    if(d){d.open=true;}
+  });
+});
+document.querySelectorAll('.route-next').forEach(function(r){
+  var e=r.closest?r.closest('.entry'):null;
+  if(e&&e.id&&read.indexOf(e.id)>-1)r.classList.add('done');
 });
 /* p19 年份页月份定位：点月份跳到该月首篇并展开（与目录链接同行为；只定位，不记已读） */
 document.querySelectorAll('.month-nav a[href^=\"#ghl-\"]').forEach(function(a){
@@ -2416,8 +2474,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p13">'
-        js_tag = '<script src="main.v5.js?v=20261113p13" defer></script>'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p14">'
+        js_tag = '<script src="main.v5.js?v=20261113p14" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
                        ';window.__GHL_IDPAGE__=' + _idpage_json +
