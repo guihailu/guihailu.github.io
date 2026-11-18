@@ -1608,6 +1608,7 @@ html.sepia .sitebar{background:rgba(239,227,200,.9);border-bottom-color:rgba(211
 .sitebar .brand{display:flex;flex-direction:column;gap:3px;width:132px;flex:none;text-decoration:none}
 .sitebar .bimg1{width:100%;height:auto;display:block}
 .sitebar .bimg2{width:100%;height:auto;display:block;opacity:.92}
+.overseas-mark{display:table;align-self:center;margin:6px auto 0;padding:2px 10px 2px 13px;border:1px solid rgba(201,165,95,.85);border-radius:999px;background:rgba(10,20,31,.75);color:#f0d48a;font-size:11px;line-height:1.6;letter-spacing:.3em;font-family:"Songti SC","STSong",SimSun,serif;white-space:nowrap;text-shadow:0 1px 2px rgba(8,12,6,.9)}
 html:not(.dark) .sitebar .bimg1,html:not(.dark) .sitebar .bimg2,html:not(.dark) .sitebar .navimg{filter:invert(1) brightness(.82)}
 .sitebar nav{display:flex;gap:6px;align-items:center}
 .sitebar nav a{display:flex;align-items:center;padding:6px 10px;border:1px solid transparent;border-radius:999px;transition:border-color .25s,background .25s}
@@ -2394,7 +2395,7 @@ _IMG_LIB = _datauri('title-lib-sm.webp', 'image/webp')
 def _sitebar():
     return ('<header class="sitebar">'
       '<a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="' + _IMG_GUIHAI + '" alt="归海录">'
-      '<img class="bimg2" src="' + _IMG_SUB + '" alt="志远行空·讲课整理"></a>'
+      '<img class="bimg2" src="' + _IMG_SUB + '" alt="志远行空·讲课整理"><span class="overseas-mark">海外发布</span></a>'
       '<nav>'
       '<a href="board1.html" aria-label="逆修觉者"><img class="navimg" src="' + _IMG_NAV1 + '" alt="逆修觉者"></a>'
       '<a href="board2.html" aria-label="灵魂觉者"><img class="navimg" src="' + _IMG_NAV2 + '" alt="灵魂觉者"></a>'
@@ -2415,8 +2416,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p12">'
-        js_tag = '<script src="main.v5.js?v=20261113p12" defer></script>'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p13">'
+        js_tag = '<script src="main.v5.js?v=20261113p13" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
                        ';window.__GHL_IDPAGE__=' + _idpage_json +

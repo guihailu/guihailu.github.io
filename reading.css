@@ -24,6 +24,7 @@ header.over-hero + #theme-toggle{color:#f3ecd9;border-color:rgba(243,236,217,.55
 .brand img{display:block}
 .brand .bimg1{width:100%;height:auto;display:block}
 .brand .bimg2{width:100%;height:auto;display:block;margin-top:4px}
+.overseas-mark{display:table;align-self:center;margin:6px auto 0;padding:2px 10px 2px 13px;border:1px solid rgba(201,165,95,.85);border-radius:999px;background:rgba(10,20,31,.75);color:#f0d48a;font-size:11px;line-height:1.6;letter-spacing:.3em;font-family:"Songti SC","STSong",SimSun,serif;white-space:nowrap;text-shadow:0 1px 2px rgba(8,12,6,.9)}
 html:not(.dark) .brand img{filter:invert(1) brightness(.85)}
 nav{display:flex;gap:16px;align-items:center}
 nav a{opacity:.92;font-family:"Songti SC","STSong",SimSun,serif;font-size:16.5px;font-weight:700;letter-spacing:2.5px;position:relative;color:var(--ink);padding:7px 13px;border:1px solid transparent;border-radius:999px;transition:border-color .25s ease,background .25s ease}
@@ -72,6 +73,8 @@ html:not(.dark) .board-hero h1 .title-img{filter:invert(1) brightness(.82)}
 .hero .sub .hl:last-child{font-size:.94em;letter-spacing:.22em;color:#eadfc0}
 .hl{display:block}
 .cta{margin-top:30px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.overseas-note{display:inline-block;margin:22px 0 0;padding:8px 22px 8px 26px;border:0;border-radius:999px;background:rgba(10,20,31,.72);backdrop-filter:blur(6px) saturate(1.1);-webkit-backdrop-filter:blur(6px) saturate(1.1);color:#f0d48a;font-size:13.5px;line-height:1.6;letter-spacing:.35em;font-family:"Songti SC","STSong",SimSun,serif;white-space:nowrap;text-shadow:0 1px 2px rgba(8,12,6,.9)}
+@media(max-width:820px){.overseas-note{font-size:12.5px;padding:7px 18px 7px 22px;margin-top:18px}}
 .btn{display:inline-block;border:1px solid #c9a55f;padding:13px 26px;border-radius:999px;background:rgba(10,20,31,.42);color:#f0d48a;font-weight:700;font-family:"Songti SC","STSong",SimSun,serif;letter-spacing:.1em;transition:transform .25s ease,filter .25s ease,background .25s ease}
 .btn.ghost{background:rgba(10,20,31,.42);color:#f0d48a}
 .btn:hover{transform:translateY(-2px);filter:brightness(1.07);background:rgba(201,165,95,.18)}
@@ -190,6 +193,7 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .board-main{max-width:900px;margin:0 auto;padding:26px 22px 20px}
 .board-main .alist a{font-size:16.5px;padding:13px 4px}
 footer{text-align:center;color:var(--sub);font-size:12.5px;padding:44px 10px 50px;position:relative}
+.foot-echo{margin-top:8px;letter-spacing:.25em}
 ::selection{background:rgba(201,165,95,.32)}
 html{scrollbar-color:rgba(201,165,95,.55) transparent}
 ::-webkit-scrollbar{width:10px;height:10px}
