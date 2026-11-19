@@ -34,8 +34,8 @@ for p in sorted(src.glob('*.html')):
    title=_h2.get_text('',strip=False).strip()
    _h2.clear();_h2.append(title)
   for el in d.select('iframe,video,audio,img,script,button,style'):el.decompose()
-  # p18 接着读是条目末尾的导航层，不计入正文文本（阅读时长/钩子/按问题找评分须与改前一致）
-  for el in d.select('.next-read'):el.decompose()
+  # p18 接着读与 p32 路线行是条目末尾的导航层，不计入正文文本（阅读时长/钩子/按问题找评分须与改前一致）
+  for el in d.select('.next-read,.route-next'):el.decompose()
   for a in d.select('a[href]'):
    if any(x in a['href'] for x in ['youtu','douyin','tiktok']):a.decompose()
   for a in d.select('a[href]'):
@@ -92,6 +92,15 @@ missing=[eid for eid in entries if eid not in board_map]
 assert not missing,'board_map missing entries: '+str(missing)
 extra=[eid for eid in board_map if eid not in entries]
 assert not extra,'board_map has unknown entries: '+str(extra)
+# 入门先读路线（p32，用户 2026-11-18 13:39 核准选篇）：每板块 10 篇，顺序即核准清单顺序，勿改。
+ROUTE_MAP={1:['ghl-000018','ghl-000022','ghl-000020','ghl-000021','ghl-000005','ghl-000030','ghl-000028','ghl-000059','ghl-000060','ghl-000033'],
+2:['ghl-000031','ghl-000106','ghl-000070','ghl-000088','ghl-000091','ghl-000087','ghl-000071','ghl-000089','ghl-000072','ghl-000050'],
+3:['ghl-000003','ghl-000002','ghl-000123','ghl-000010','ghl-000012','ghl-000042','ghl-000051','ghl-000092','ghl-000037','ghl-000105'],
+4:['ghl-000024','ghl-000026','ghl-000014','ghl-000076','ghl-000077','ghl-000062','ghl-000104','ghl-000055','ghl-000078','ghl-000102']}
+for _bn,_ids in ROUTE_MAP.items():
+ assert len(_ids)==10 and len(set(_ids))==10,'route map board '+str(_bn)
+ for _rid in _ids:assert _rid in entries and entries[_rid]['board']==_bn,'route map drift: '+_rid
+assert len({i for v in ROUTE_MAP.values() for i in v})==40,'route map must hold 40 distinct articles'
 def datauri(fname,mime):
  # p15 首页瘦身（2026-11-09 公开前改造一）：图片改外链独立文件（assets/boards/ 下与 .b64 并存的解码原件），不再内嵌 data URI；回退＝恢复下方两行原实现。
  return 'assets/boards/'+fname+'?v=20261113p20'
@@ -146,6 +155,7 @@ def board_entries(n):
 css='''*{box-sizing:border-box}
 :root{--bg:#f3ecd9;--ink:#1b2f3c;--sub:#44545f;--card:#fffaf0;--card2:#f7efdb;--line:#d8cba6;--gold:#8a6a24;--gold2:#7c5c13;--chip:#fffaf0;--shadow:rgba(90,70,20,.18)}
 html.dark{--bg:#0a141f;--ink:#ede4cd;--sub:#a7b5ba;--card:#101f2c;--card2:#0e1e2e;--line:#2c4353;--gold:#c9a55f;--gold2:#f0d48a;--chip:transparent;--shadow:rgba(0,0,0,.4)}
+html.sepia{--bg:#efe3c8;--ink:#43301b;--sub:#6b563a;--card:#f7ecd4;--card2:#f3e7cb;--line:#d3bf96;--gold:#8a6a24;--gold2:#7c5c13;--chip:#f7ecd4;--shadow:rgba(90,70,20,.18)}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden;transition:background .4s,color .4s}
 body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 52'%3E%3Cg fill='none' stroke='%23c9a55f' stroke-opacity='.032' stroke-width='2'%3E%3Cpath d='M32 6C39 17 39 27 32 37C25 27 25 17 32 6Z'/%3E%3Cpath d='M15 13C23 19 25 29 23 38C15 34 11 23 15 13Z'/%3E%3Cpath d='M49 13C41 19 39 29 41 38C49 34 53 23 49 13Z'/%3E%3Cpath d='M8 44C20 49 44 49 56 44'/%3E%3C/g%3E%3C/svg%3E");background-size:168px auto}
@@ -156,6 +166,7 @@ button{font:inherit;cursor:pointer}
 header{position:fixed;inset:0 0 auto 0;z-index:60;display:flex;justify-content:space-between;align-items:center;padding:16px max(4vw,20px);transition:transform .38s ease,opacity .38s ease,background .35s ease,box-shadow .35s ease}
 header.solid{background:rgba(243,236,217,.88);-webkit-backdrop-filter:blur(14px) saturate(1.25);backdrop-filter:blur(14px) saturate(1.25);box-shadow:0 10px 30px rgba(90,70,20,.10);border-bottom:1px solid rgba(216,203,166,.7)}
 html.dark header.solid{background:rgba(10,20,31,.86);border-bottom-color:rgba(44,67,83,.8);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+html.sepia header.solid{background:rgba(239,227,200,.88);border-bottom-color:rgba(211,191,150,.8);box-shadow:0 10px 30px rgba(90,70,20,.18)}
 header.hidden{transform:translateY(-115%);opacity:0;pointer-events:none}
 header .brand,header nav a{text-shadow:0 1px 12px rgba(4,10,16,.35),0 0 3px rgba(4,10,16,.18)}
 html.dark header .brand,html.dark header nav a{text-shadow:0 1px 12px rgba(4,10,16,.9),0 0 3px rgba(4,10,16,.65)}
@@ -167,6 +178,7 @@ header.over-hero + #theme-toggle{color:#f3ecd9;border-color:rgba(243,236,217,.55
 .brand img{display:block}
 .brand .bimg1{width:100%;height:auto;display:block}
 .brand .bimg2{width:100%;height:auto;display:block;margin-top:4px}
+.overseas-mark{display:table;align-self:center;margin:6px auto 0;padding:2px 10px 2px 13px;border:1px solid rgba(201,165,95,.85);border-radius:999px;background:rgba(10,20,31,.75);color:#f0d48a;font-size:11px;line-height:1.6;letter-spacing:.3em;font-family:"Songti SC","STSong",SimSun,serif;white-space:nowrap;text-shadow:0 1px 2px rgba(8,12,6,.9)}
 html:not(.dark) .brand img{filter:invert(1) brightness(.85)}
 nav{display:flex;gap:16px;align-items:center}
 nav a{opacity:.92;font-family:"Songti SC","STSong",SimSun,serif;font-size:16.5px;font-weight:700;letter-spacing:2.5px;position:relative;color:var(--ink);padding:7px 13px;border:1px solid transparent;border-radius:999px;transition:border-color .25s ease,background .25s ease}
@@ -215,6 +227,8 @@ html:not(.dark) .board-hero h1 .title-img{filter:invert(1) brightness(.82)}
 .hero .sub .hl:last-child{font-size:.94em;letter-spacing:.22em;color:#eadfc0}
 .hl{display:block}
 .cta{margin-top:30px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.overseas-note{display:inline-block;margin:22px 0 0;padding:8px 22px 8px 26px;border:0;border-radius:999px;background:rgba(10,20,31,.72);backdrop-filter:blur(6px) saturate(1.1);-webkit-backdrop-filter:blur(6px) saturate(1.1);color:#f0d48a;font-size:13.5px;line-height:1.6;letter-spacing:.35em;font-family:"Songti SC","STSong",SimSun,serif;white-space:nowrap;text-shadow:0 1px 2px rgba(8,12,6,.9)}
+@media(max-width:820px){.overseas-note{font-size:12.5px;padding:7px 18px 7px 22px;margin-top:18px}}
 .btn{display:inline-block;border:1px solid #c9a55f;padding:13px 26px;border-radius:999px;background:rgba(10,20,31,.42);color:#f0d48a;font-weight:700;font-family:"Songti SC","STSong",SimSun,serif;letter-spacing:.1em;transition:transform .25s ease,filter .25s ease,background .25s ease}
 .btn.ghost{background:rgba(10,20,31,.42);color:#f0d48a}
 .btn:hover{transform:translateY(-2px);filter:brightness(1.07);background:rgba(201,165,95,.18)}
@@ -312,6 +326,16 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .alist .hook{color:var(--sub);font-size:13px;line-height:1.55}
 .alist .vchip{cursor:pointer;display:inline-block;background:#a52a21;color:#fff;font-size:11px;line-height:1;padding:3px 8px;border-radius:999px;margin-left:8px;vertical-align:2px;white-space:nowrap;letter-spacing:1px}
 .alist .d{color:var(--sub);font-size:12.5px;white-space:nowrap;padding-top:3px;text-align:right}
+.route{margin-top:34px;border:1px solid var(--line);border-radius:18px;background:var(--card);padding:26px 28px 12px;box-shadow:0 18px 44px var(--shadow)}
+.route h2{margin:0;font-family:"Songti SC","STSong",SimSun,serif;font-size:22px;text-align:center}
+.route-intro{margin:8px 0 0;color:var(--sub);font-size:14px;line-height:1.8;text-align:center}
+.route-list{margin:14px 0 0;padding:0;list-style:none}
+.route-list a{display:flex;gap:12px;align-items:flex-start;padding:11px 4px;border-top:1px solid var(--line);font-size:16px;line-height:1.6}
+.route-list a:hover{color:var(--gold2)}
+.route-num{flex:none;width:26px;height:26px;margin-top:1px;border:1px solid var(--gold);border-radius:999px;color:var(--gold2);font-size:13px;line-height:24px;text-align:center}
+.route-t{font-family:"Songti SC","STSong",SimSun,serif;font-weight:600}
+.route-list a.done .route-t::after{content:" ✓";color:var(--gold2);font-size:13px}
+@media(max-width:820px){.route{padding:22px 18px 8px}.route-list a{font-size:15px}}
 .more{display:inline-block;margin-top:16px;border:1px solid #c9a55f;color:var(--gold2);border-radius:999px;padding:10px 20px;font-size:14px;background:var(--chip)}
 .library{scroll-margin-top:84px;margin:120px auto 0;max-width:1180px;border:1px solid var(--line);border-radius:18px;padding:clamp(26px,4vw,44px);background:linear-gradient(135deg,var(--card2),var(--card));display:grid;grid-template-columns:1.25fr 1fr;gap:26px;align-items:center}
 .library h2{font-family:"Songti SC",SimSun,serif;font-size:clamp(24px,3.4vw,34px);margin:0 0 10px}
@@ -333,6 +357,7 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .board-main{max-width:900px;margin:0 auto;padding:26px 22px 20px}
 .board-main .alist a{font-size:16.5px;padding:13px 4px}
 footer{text-align:center;color:var(--sub);font-size:12.5px;padding:44px 10px 50px;position:relative}
+.foot-echo{margin-top:8px;letter-spacing:.25em}
 ::selection{background:rgba(201,165,95,.32)}
 html{scrollbar-color:rgba(201,165,95,.55) transparent}
 ::-webkit-scrollbar{width:10px;height:10px}
@@ -366,7 +391,9 @@ a:focus-visible,button:focus-visible{outline:3px solid #aa8036;outline-offset:3p
 @media(max-width:820px){nav a .navimg{height:17.5px}nav a{padding:5px 4px}#theme-toggle{position:fixed;top:15px;right:16px;margin:0}.theme-slot{display:none}}
 .sutra-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;writing-mode:vertical-rl;font-family:"Songti SC","STSong",SimSun,serif;font-size:24px;line-height:2.4;letter-spacing:.4em;color:#1d1b16;opacity:.05}
 html.dark .sutra-bg{color:#d9a441;opacity:.06}
+html.sepia .sutra-bg{color:#6b4f2a;opacity:.05}
 .board-hero,.orn-div,main,footer{position:relative;z-index:1}
+@media print{:root,html.dark,html.sepia{--bg:#fff;--ink:#111;--sub:#333;--card:#fff;--card2:#fff;--line:#bbb;--gold:#555;--gold2:#333;--chip:#fff;--shadow:none}html,body{background:#fff!important;color:#111!important}body{background-image:none!important}header,#theme-toggle,#to-top,.sutra-bg,footer,dialog,.searchbar,.sugg,.scrollcue{display:none!important}h1,h2,h3{break-after:avoid;break-inside:avoid}p{orphans:3;widows:3}img,figure{break-inside:avoid;max-width:100%}}
 '''
 (out/'reading.css').write_text(css,encoding='utf-8')
 def article_href(article_id):
@@ -397,17 +424,17 @@ def shell(title,body,home=False,sutra=None):
  f'<meta name="description" content="{SITEDESC}">'
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
- '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\'||(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches))document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261115p6"></head><body>'
+ '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\')document.documentElement.classList.add(\'dark\');else if(t===\'sepia\')document.documentElement.classList.add(\'sepia\');else if(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches)document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
+ '<link rel="stylesheet" href="reading.css?v=20261115p9"></head><body>'
  +(sutra_bg(sutra) if sutra else '')+
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
- f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理"></a>'
+ f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理">'+('' if home else '<span class="overseas-mark">海外发布</span>')+'</a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><span class="theme-slot" aria-hidden="true"></span></nav></header><button id="theme-toggle" type="button" aria-label="切换晚上模式"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>'
  +body+
- f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理</footer>'
+ f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理'+('' if not home else '<div class="foot-echo">本站在海外发布。</div>')+'</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261115p6"></script></body></html>')
+ '<script src="reading.js?v=20261115p9"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -483,6 +510,14 @@ ORN_DIV='<div class="orn-div" aria-hidden="true"><i></i>'+_LOTUS_CC+'<i></i></di
 _PD_PLATE='<svg viewBox="0 0 560 120" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="0" y1="57" x2="118" y2="57" stroke-width="1.4" opacity=".55"/><line x1="0" y1="64" x2="118" y2="64" stroke-width=".8" opacity=".35"/><path d="M138 51 l9 9 -9 9 -9 -9 Z" fill="currentColor" stroke="none" opacity=".85"/><circle cx="222" cy="60" r="31" stroke-width="2.2"/><path d="M222 29 V91 M191 60 H253 M200 38 L244 82 M244 38 L200 82" stroke-width="1.6"/><circle cx="222" cy="60" r="7" stroke-width="2"/><g transform="translate(322,33)" stroke-width="3"><path d="M32 6 C39 17 39 27 32 37 C25 27 25 17 32 6 Z"/><path d="M15 13 C23 19 25 29 23 38 C15 34 11 23 15 13 Z"/><path d="M49 13 C41 19 39 29 41 38 C49 34 53 23 49 13 Z"/><path d="M3 25 C11 27 15 33 16 40 C9 40 4 34 3 25 Z"/><path d="M61 25 C53 27 49 33 48 40 C55 40 60 34 61 25 Z"/><path d="M8 44 C20 49 44 49 56 44"/></g><g transform="translate(428,26) scale(1.55)" stroke-width="1.8"><path d="M18.5 18.5 q6.5 0 6.5 6.5 q0 5.5 -5.5 5.5 q-4.5 0 -4.5 -4.5 q0 -3.5 3.5 -3.5"/></g><path d="M492 51 l9 9 -9 9 -9 -9 Z" fill="currentColor" stroke="none" opacity=".85"/><line x1="512" y1="57" x2="560" y2="57" stroke-width="1.4" opacity=".55"/><line x1="512" y1="64" x2="560" y2="64" stroke-width=".8" opacity=".35"/></svg>'
 def part_divider(b):
     return f'<div class="partdiv" aria-hidden="true"><span class="pd-plate">{_PD_PLATE}</span><img class="pd-wm" src="{WMIMG[b["n"]]}" alt="" loading="lazy"><span class="pd-plate flip">{_PD_PLATE}</span></div>'
+def route_section(b):
+ lis=''
+ for i,rid in enumerate(ROUTE_MAP[b['n']],1):
+  e=entries[rid]
+  lis+=f'<li><a href="{article_href(rid)}" data-route-id="{rid}"><span class="route-num">{i}</span><span class="route-t">{esc(e["title"])}</span></a></li>'
+ return ('<section class="route" aria-label="入门先读"><h2>入门先读</h2>'
+ '<p class="route-intro">第一次来这一部，按这个顺序读，从入门到进阶。</p>'
+ f'<ol class="route-list">{lis}</ol></section>')
 def board_page(b):
  assert ''.join(BOARD_DESC_SEGS[b['n']])==b['desc'], 'desc segs drifted'
  es=board_entries(b['n'])
@@ -490,7 +525,7 @@ def board_page(b):
  f'<img class="board-art" src="{b["img"]}" alt="" loading="lazy">'
  f'<div class="plain">{b["plain"]}</div><p>{nb_segs(BOARD_DESC_SEGS[b["n"]])}</p>'
  f'<p>本部共 {len(es)} 篇：有视频版的排在前面，其余按时间从新到旧，点开就是完整原文。</p></section>'+ORN_DIV+
- f'<main class="board-main"><div class="alist">{alist_rows(es)}</div>'
+ f'<main class="board-main"><div class="alist">{alist_rows(es)}</div>'+route_section(b)+
  '<p style="margin-top:26px"><a class="more" href="index.html">← 回到首页</a> <a class="more" href="all.html">完整资料库 →</a></p></main>')
  return shell(f'归海录 · {b["name"]}',body,sutra='board%d'%b['n'])
 PROBLEMS=[
@@ -537,6 +572,7 @@ hero=('<section class="hero">'
  '<span class="hl">全部内容分成四部&ensp;<span style="white-space:nowrap">逆修觉者</span>&ensp;<span style="white-space:nowrap">灵魂觉者</span>&ensp;<span style="white-space:nowrap">法界天机</span>&ensp;<span style="white-space:nowrap">道法自然</span></span>'
  '<span class="hl">每一部里都有故事案例、讲课原声和小动画，点开就能看</span>'
  '<span class="hl">第一次来，从第一部开始往下看</span></p>'
+ '<p class="overseas-note">本站在海外发布。</p>'
  '<div class="cta"><a class="btn" href="#part1">从第一部开始</a><a class="btn ghost" href="#library">直接查资料库</a></div>'
  '<a class="scrollcue" href="#part1"><span class="arr">↓</span> 向 下 逛 <span class="arr">↓</span></a></div></section>')
 counts={y:0 for y in ['2026','2025','2024']}
@@ -583,8 +619,8 @@ function onScroll(){
 window.addEventListener('scroll',onScroll,{passive:true});onScroll();
 if(toTop)toTop.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
 const themeBtn=document.querySelector('#theme-toggle');
-const MOON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';const SUN='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.6M12 19.4V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.6M19.4 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';function paintTheme(){if(themeBtn){const dark=document.documentElement.classList.contains('dark');themeBtn.innerHTML=dark?SUN:MOON;themeBtn.setAttribute('aria-label',dark?'切换白天模式':'切换晚上模式')}}
-if(themeBtn){themeBtn.onclick=()=>{const dark=document.documentElement.classList.toggle('dark');try{localStorage.setItem('ghl_theme',dark?'dark':'light')}catch(e){}paintTheme()};paintTheme()}
+const MOON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';const SUN='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.6M12 19.4V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.6M19.4 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';const SEPIA='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="10" r="4.2"/><path d="M4 17h16M7 20.5h10"/></svg>';const THEME_ORDER=['light','dark','sepia'];function curTheme(){const c=document.documentElement.classList;return c.contains('dark')?'dark':(c.contains('sepia')?'sepia':'light')}function applyTheme(t){const c=document.documentElement.classList;c.remove('dark','sepia');if(t!=='light')c.add(t);try{localStorage.setItem('ghl_theme',t)}catch(e){}}function paintTheme(){if(themeBtn){const nx=THEME_ORDER[(THEME_ORDER.indexOf(curTheme())+1)%3];themeBtn.innerHTML=nx==='dark'?MOON:(nx==='sepia'?SEPIA:SUN);themeBtn.setAttribute('aria-label',nx==='dark'?'切换晚上模式':(nx==='sepia'?'切换米色模式':'切换白天模式'))}}
+if(themeBtn){try{const st=localStorage.getItem('ghl_theme');if(st==='dark'||st==='sepia')applyTheme(st)}catch(e){}themeBtn.onclick=()=>{applyTheme(THEME_ORDER[(THEME_ORDER.indexOf(curTheme())+1)%3]);paintTheme()};paintTheme()}
 const dustBox=document.getElementById('dust');
 if(dustBox){for(let i=0;i<16;i++){const s=document.createElement('span');const sz=3+Math.random()*6;s.style.width=sz+'px';s.style.height=sz+'px';s.style.left=(18+Math.random()*64)+'%';s.style.top=(12+Math.random()*62)+'%';s.style.animationDuration=(9+Math.random()*14)+'s';s.style.animationDelay=(-Math.random()*16)+'s';dustBox.appendChild(s)}}
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:0.12});
@@ -737,6 +773,18 @@ document.addEventListener('click',e=>{const c=e.target.closest?e.target.closest(
 const pageSearch=document.querySelector('#search');
 if(pageSearch&&!sInput){const rows=[...document.querySelectorAll('details.entry')];function filter(){let n=0;for(const r of rows){r.hidden=!r.textContent.toLowerCase().includes(pageSearch.value.trim().toLowerCase());if(!r.hidden)n++}const c=document.querySelector('#count');if(c)c.textContent=n+' 篇';const em=document.querySelector('#empty');if(em)em.hidden=n!==0}pageSearch.oninput=filter;filter()}
 ;(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var wrap=document.querySelector('.qchips');if(!wrap)return;var btns=[].slice.call(wrap.querySelectorAll('button[data-q]'));if(!btns.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p.slice(0,btns.length)}function apply(w){btns.forEach(function(b,i){b.textContent=w[i];b.setAttribute('data-q',w[i])})}apply(pick());setInterval(function(){var inp=document.getElementById('search-input');if(inp&&inp.value.trim())return;wrap.classList.add('fading');setTimeout(function(){apply(pick());wrap.classList.remove('fading')},480)},12000)})();
+'''
+js+=r'''
+/* p32 入门先读：路线打勾复用 ghl_read（与内容线目录同键同格式：JSON 数组，存 ghl 编号）；点路线链接即记已读，跨页导航前同步写入 */
+(function(){var read=[];try{read=JSON.parse(localStorage.getItem('ghl_read')||'[]')}catch(e){}
+document.querySelectorAll('.route-list a[data-route-id]').forEach(function(a){
+  var id=a.getAttribute('data-route-id');
+  if(read.indexOf(id)>-1)a.classList.add('done');
+  a.addEventListener('click',function(){
+    if(read.indexOf(id)<0){read.push(id);try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}
+    a.classList.add('done');
+  });
+});})();
 '''
 (out/'reading.js').write_text(js,encoding='utf-8')
 (out/'reading_search.json').write_text(json.dumps(search_entries,ensure_ascii=False),encoding='utf-8')
