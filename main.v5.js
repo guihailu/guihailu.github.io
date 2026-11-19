@@ -304,6 +304,52 @@ document.querySelectorAll('.intro-toggle').forEach(button=>{
 
 (function(){var b=document.getElementById('printbtn');if(b)b.addEventListener('click',function(){window.print()});})();
 
+window.__GHL_GLOSSARY__={"修行": "日常过日子里改自己、面对真实，不是躲起来空谈。站内说，修行不能脱离对真实世界的了解；连最起码的品德都没有，再谈修行都是空谈。", "天道": "天上运行的那套道理和法则，跟人间的道理不一样。人常把自己揣测的人间道理当成天道法则，一代一代传下去，就会越传越歪。", "因果": "以前做的事，会在后面结出对应的结果，像一张网一样连着，谁也绕不开。站内说，生死不是两端而是闭环，因果就是那张网。", "轮回": "人去世后，灵魂不是就没了，而是要再走一轮：过一道有时限的门，重新投胎做人。同一类日子过久了，还会在里面打转，站内叫它轮回惯性。", "福报": "人以前攒下的福分，体现在日子顺不顺、条件好不好上；福报厚的人顺顺利利、波折少。但认知配不上福报，错误也会拖得更久。", "前世": "这一世之前的某一世。比如一篇里说，一个孩子的病，牵出一段前世的事；前世做过的事，会连到今生来。", "法界": "看不见的那一界；那一边也有自己的规矩和账本。不过站内也提醒，不是所有的头疼、失眠、情绪低落，都是法界攻击。", "功德": "日常行善、帮人一点点攒下的好，会记下来。站内还讨论过，它能不能转送给别人。", "投胎": "人去世后，灵魂重新进一个新身体、再做一世人。站内说，这要过一道门，还要付成本；走错了，会投错地方。", "仙家": "另一界的同行者，常被问到怎么跟它沟通、怎么感恩。站内说，仙家是同行者，不是工具。"};
+
+(function(){
+var G=window.__GHL_GLOSSARY__||{};
+if(!Object.keys(G).length)return;
+var card=null,cur=null,openedAt=0;
+function close(){if(card)card.hidden=true;if(cur){cur.setAttribute('aria-expanded','false');cur=null;}}
+function open(btn){
+var t=btn.getAttribute('data-term');
+if(!t||!G[t])return;
+if(!card){
+card=document.createElement('div');
+card.id='gcard';card.className='gcard';card.setAttribute('role','dialog');card.hidden=true;
+card.innerHTML='<div class="gcard-t"><span class="gcard-term"></span><button type="button" class="gcard-x" aria-label="关闭释义">×</button></div><p class="gcard-d"></p>';
+document.body.appendChild(card);
+card.querySelector('.gcard-x').addEventListener('click',function(e){e.stopPropagation();close();});
+card.addEventListener('click',function(e){e.stopPropagation();});
+}
+if(cur===btn&&!card.hidden){close();return;}
+if(cur)cur.setAttribute('aria-expanded','false');
+cur=btn;btn.setAttribute('aria-expanded','true');
+card.querySelector('.gcard-term').textContent=t;
+card.querySelector('.gcard-d').textContent=G[t];
+card.hidden=false;
+openedAt=Date.now();
+var r=btn.getBoundingClientRect();
+var cw=card.offsetWidth,ch=card.offsetHeight;
+var vw=window.innerWidth,vh=window.innerHeight;
+var left=Math.max(8,Math.min(r.left,vw-cw-8));
+var top=(r.bottom+8+ch<=vh)?r.bottom+8:Math.max(8,r.top-ch-8);
+card.style.left=left+'px';card.style.top=top+'px';
+}
+document.addEventListener('click',function(e){
+var b=e.target&&e.target.closest?e.target.closest('.gterm'):null;
+if(b){open(b);return;}
+if(card&&!card.hidden)close();
+});
+document.addEventListener('keydown',function(e){
+if(e.key==='Escape'){close();return;}
+var b=e.target&&e.target.closest?e.target.closest('.gterm'):null;
+if(b&&(e.key==='Enter'||e.key===' ')){e.preventDefault();open(b);}
+});
+window.addEventListener('scroll',function(){if(card&&!card.hidden&&Date.now()-openedAt>500)close();},true);
+window.addEventListener('resize',function(){if(card&&!card.hidden)close();});
+})();
+
 (function(){document.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-ev]'):null;if(b){var f=document.createElement('iframe');f.src='https://www.youtube.com/embed/'+b.getAttribute('data-ev')+'?autoplay=1&playsinline=1';f.title='视频';f.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';b.replaceWith(f);return}var c=e.target.closest?e.target.closest('.qchip'):null;if(c){var q=document.getElementById('q');if(q){q.value=c.getAttribute('data-q');q.dispatchEvent(new Event('input',{bubbles:true}));q.focus()}}});})();
 
 (function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var chips=[].slice.call(document.querySelectorAll('.search-hint .qchip'));if(!chips.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p}function apply(){var w=pick();chips.forEach(function(c,i){var v=w[i%w.length];c.textContent=v;c.setAttribute('data-q',v);c.style.opacity=''})}apply();setInterval(function(){var q=document.getElementById('q');if(q&&q.value.trim())return;chips.forEach(function(c){c.style.opacity='0'});setTimeout(apply,480)},12000)})();
