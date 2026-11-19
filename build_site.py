@@ -2805,7 +2805,7 @@ _sitemap.append("</urlset>")
 _404_body = ('<div class="yearhead"><a class="back" href="index.html">← 返回首页</a>'
              '<h1>404</h1><p>这个页面不存在，或链接已失效。</p></div>'
              '<div class="intro"><p class="intro-copy">可以试试：<a href="index.html">首页</a>'
-             ' · <a href="index.html#firsttime">从问题入口出发</a> · 用上方搜索找一篇。</p></div>')
+             ' · <a href="topics.html">从问题入口出发</a> · 用上方搜索找一篇。</p></div>')
 (HERE / "404.html").write_text(
     _render_page("404.html", "页面不存在 · 归海录", "这个页面不存在，或链接已失效。",
                  _404_body, compact=True, noindex=True),

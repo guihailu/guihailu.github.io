@@ -1,0 +1,20 @@
+name: 归海录内容与元数据回归（云端只读）
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "37 2 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  content-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Python syntax
+        run: python3 -m py_compile build_site.py build_reading_front.py
+      - name: Verify counts and published metadata
+        run: python3 tools/site_content_qa.py
