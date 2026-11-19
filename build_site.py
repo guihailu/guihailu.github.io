@@ -863,6 +863,146 @@ for _dspan in re.finditer(r'<span class="date">(.*?)</span>', body_html, re.S):
 _footer_date = f" ｜ 内容更新至 {_latest_date}" if _latest_date else ""
 print(f"页脚日期: {_latest_date or '(未取到，省略)'}")
 
+# 4.85) 术语点开小卡（p35，用户 2026-11-19 11:11 核准《术语点开小卡_词表提案_待核.md》）：
+# 词表与释义逐字照核准表，不许改词、不许改释义、不许增减词；备选神通／天眼本次不做。
+# 包词规则：只包 <div class="entry-body"> 内的 <p> 段落（不包标题、目录、链接文字、
+# 「接着读」与路线行——两者在 _with_next_read 才注入，包词时尚未进入 block——、
+# 合集钩子、页眉页脚、条目反馈行）；链接 <a> 内的文字不包；每篇文章每个词只包首次出现。
+# 边界 guard（从语料实际出现定，见 /tmp/scan_terms.py 实查）：后一字／前一字落入下表即不包，
+# 因该词已是更长复合词／专名／成词的一部分（如「修行者／修行人」里不包「修行」、
+# 「法界天机／法界攻击／法界生物／法界师傅」里不包「法界」、「前世今生／前世因果」、
+# 「因果轮回／前世因果／功德福报」成词时两边都不包）；其余如「天道法则／天道智慧／
+# 因果层面／轮回体系／修行方法」属「术语＋另起一词」，照常包。跨标签断开的出现（如
+# 修<strong>行</strong>）本次跳过不包，由后续出现补位；统计见构建日志。
+_GLOSSARY = {
+    '修行': '日常过日子里改自己、面对真实，不是躲起来空谈。站内说，修行不能脱离对真实世界的了解；连最起码的品德都没有，再谈修行都是空谈。',
+    '天道': '天上运行的那套道理和法则，跟人间的道理不一样。人常把自己揣测的人间道理当成天道法则，一代一代传下去，就会越传越歪。',
+    '因果': '以前做的事，会在后面结出对应的结果，像一张网一样连着，谁也绕不开。站内说，生死不是两端而是闭环，因果就是那张网。',
+    '轮回': '人去世后，灵魂不是就没了，而是要再走一轮：过一道有时限的门，重新投胎做人。同一类日子过久了，还会在里面打转，站内叫它轮回惯性。',
+    '福报': '人以前攒下的福分，体现在日子顺不顺、条件好不好上；福报厚的人顺顺利利、波折少。但认知配不上福报，错误也会拖得更久。',
+    '前世': '这一世之前的某一世。比如一篇里说，一个孩子的病，牵出一段前世的事；前世做过的事，会连到今生来。',
+    '法界': '看不见的那一界；那一边也有自己的规矩和账本。不过站内也提醒，不是所有的头疼、失眠、情绪低落，都是法界攻击。',
+    '功德': '日常行善、帮人一点点攒下的好，会记下来。站内还讨论过，它能不能转送给别人。',
+    '投胎': '人去世后，灵魂重新进一个新身体、再做一世人。站内说，这要过一道门，还要付成本；走错了，会投错地方。',
+    '仙家': '另一界的同行者，常被问到怎么跟它沟通、怎么感恩。站内说，仙家是同行者，不是工具。',
+}
+_GLOSS_NEXT_GUARD = {
+    '修行': {'者', '人'}, '天道': set(), '因果': {'故', '业', '轮'},
+    '轮回': {'门', '惯', '优'}, '福报': set(), '前世': {'今', '因'},
+    '法界': {'天', '攻', '生', '师'}, '功德': {'福', '寿', '光'},
+    '投胎': {'序'}, '仙家': set(),
+}
+_GLOSS_PREV_GUARD = {
+    '修行': set(), '天道': set(), '因果': {'世'}, '轮回': {'果'},
+    '福报': {'德'}, '前世': set(), '法界': set(), '功德': set(),
+    '投胎': set(), '仙家': set(),
+}
+_GLOSS_SKIP_P_CLASS = ('entry-feedback', 'evideo-alt', 'next-read-note', 'next-read-more')
+_GLOSS_STATS = {'wrapped': {}, 'guarded': {}, 'split': 0, 'entries_with': {}}
+
+def _wrap_glossary_para(inner, seen):
+    """包一个 <p> 段落内的术语（首次出现／每词每篇一次）。inner 为段落 inner HTML。"""
+    _toks = list(re.finditer(r'<[^>]+>|[^<]+', inner))
+    _segs = []  # (tok_idx, text, wrappable)
+    _plain = []
+    _a_depth = 0
+    for _ti, _tk in enumerate(_toks):
+        _s = _tk.group(0)
+        if _s.startswith('<'):
+            _m = re.match(r'</?\s*([A-Za-z][A-Za-z0-9]*)', _s)
+            _tag = _m.group(1).lower() if _m else ''
+            if _tag == 'a':
+                _a_depth += 0 if _s.startswith('</') else 1
+                if _s.startswith('</'):
+                    _a_depth = max(0, _a_depth - 1)
+            _segs.append((_ti, '', False))
+        else:
+            _segs.append((_ti, _s, _a_depth == 0))
+            _plain.append(_s)
+    _text = ''.join(_plain)
+    if not _text:
+        return inner
+    # plain offset -> (seg list idx, offset in seg)
+    _bounds = []
+    _pos = 0
+    for _si, (_ti, _s, _w) in enumerate(_segs):
+        if _s:
+            _bounds.append((_pos, _pos + len(_s), _si))
+            _pos += len(_s)
+    _chosen = []  # (start, end, term, seg_idx)
+    for _term in _GLOSSARY:
+        if _term in seen:
+            continue
+        _at = 0
+        while True:
+            _j = _text.find(_term, _at)
+            if _j < 0:
+                break
+            _k = _j + len(_term)
+            _pc = _text[_j - 1] if _j > 0 else None
+            _nc = _text[_k] if _k < len(_text) else None
+            if _pc in _GLOSS_PREV_GUARD[_term] or _nc in _GLOSS_NEXT_GUARD[_term]:
+                _GLOSS_STATS['guarded'][_term] = _GLOSS_STATS['guarded'].get(_term, 0) + 1
+                _at = _k
+                continue
+            _seg = None
+            for (_a, _b, _si) in _bounds:
+                if _a <= _j and _k <= _b:
+                    _seg = _si
+                    break
+            if _seg is None:
+                _GLOSS_STATS['split'] += 1
+                _at = _k
+                continue
+            if not _segs[_seg][2]:
+                _at = _k
+                continue
+            _chosen.append((_j, _k, _term, _seg))
+            seen.add(_term)
+            break
+    if not _chosen:
+        return inner
+    _chosen.sort()
+    _out = []
+    for _si, (_ti, _s, _w) in enumerate(_segs):
+        if not _s:
+            _out.append(_toks[_ti].group(0))
+            continue
+        _rel = [c for c in _chosen if c[3] == _si]
+        if not _rel:
+            _out.append(_s)
+            continue
+        _start = _bounds[[x[2] for x in _bounds].index(_si)][0]
+        _buf = []
+        _cur = 0
+        for (_j, _k, _term, _sg) in sorted(_rel):
+            _rs, _re = _j - _start, _k - _start
+            _buf.append(_s[_cur:_rs])
+            _buf.append('<span class="gterm" role="button" tabindex="0" data-term="'
+                        + _term + '" aria-expanded="false">' + _term + '</span>')
+            _GLOSS_STATS['wrapped'][_term] = _GLOSS_STATS['wrapped'].get(_term, 0) + 1
+            _cur = _re
+        _buf.append(_s[_cur:])
+        _out.append(''.join(_buf))
+    return ''.join(_out)
+
+def _wrap_glossary_block(block):
+    """包一个条目 block 的 entry-body 内各 <p> 段落；每词每篇只包首次出现。"""
+    _m = re.search(r'(<div class="entry-body">)(.*)(</div></details>\s*)$', block, re.S)
+    if not _m:
+        return block
+    _inner = _m.group(2)
+    _seen = set()
+    def _prep(_pm):
+        _tag, _body = _pm.group(1), _pm.group(2)
+        if any(_c in _tag for _c in _GLOSS_SKIP_P_CLASS):
+            return _pm.group(0)
+        return '<p' + _tag + '>' + _wrap_glossary_para(_body, _seen) + '</p>'
+    _new = re.sub(r'<p([^>]*)>(.*?)</p>', _prep, _inner, flags=re.S)
+    for _t in _seen:
+        _GLOSS_STATS['entries_with'][_t] = _GLOSS_STATS['entries_with'].get(_t, 0) + 1
+    return block[:_m.start()] + _m.group(1) + _new + _m.group(3) + block[_m.end():]
+
 # 4.9) 分页构建（2026-10-19 施工）：抽取条目 → 按年份分页；首页/年份页/离线版分别组装。
 # 旧单页 layout 脚手架在此丢弃；离线版仍用全集单页（不受 500KB 网页传输线约束）。
 _ENTRY_RE = re.compile(
@@ -872,6 +1012,9 @@ _entry_blocks = [(m.group(2), m.group(0)) for m in _ENTRY_RE.finditer(body_html)
 if not _entry_blocks:
     print("WARN 未抽取到条目，分页构建将为空")
 print(f"OK: 抽取条目 {len(_entry_blocks)} 条")
+_entry_blocks = [(sid, _wrap_glossary_block(block)) for sid, block in _entry_blocks]
+print(f"OK: 术语小卡包词 {_GLOSS_STATS['wrapped']} | 有包词篇数 {_GLOSS_STATS['entries_with']} | guard 跳过 {_GLOSS_STATS['guarded']} | 跨标签跳过 {_GLOSS_STATS['split']} 处")
+assert len(_GLOSS_STATS['entries_with']) == 10, 'glossary must wrap in at least one entry per term'
 
 def _entry_fields(block):
     tm = re.search(r'<h2>(.*?)</h2>', block, re.S)
@@ -1788,6 +1931,17 @@ html.fs-xl .entry-body{font-size:19.5px}
 .entry-body .route-next a:hover{color:var(--gold2)}
 .route-next-end{color:var(--sub);font-size:14px;line-height:1.7}
 .lanchor{display:block;width:0;height:0;overflow:hidden;scroll-margin-top:86px}
+/* ---- 术语点开小卡（p35）：正文术语点开释义，复用站内金色卡片语言 ---- */
+.gterm{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;border-bottom:1px dotted var(--gold2);border-radius:2px}
+.gterm:hover{color:var(--gold2)}
+.gterm:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.gcard{position:fixed;z-index:60;max-width:320px;max-width:min(320px,calc(100vw - 16px));background:var(--card);border:1px solid var(--line);border-left:3px solid #c9a55f;border-radius:12px;box-shadow:0 8px 28px var(--shadow);padding:12px 14px 13px;color:var(--ink)}
+.gcard-t{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px}
+.gcard-term{font-family:"Songti SC",SimSun,serif;font-size:17px;font-weight:700;color:var(--gold2)}
+.gcard-x{background:none;border:0;color:var(--sub);font-size:18px;line-height:1;cursor:pointer;padding:2px 4px}
+.gcard-x:hover{color:var(--ink)}
+.gcard-d{margin:0;font-size:14.5px;line-height:1.75;color:var(--ink)}
+@media (max-width:640px){.gcard{padding:11px 13px 12px}.gcard-d{font-size:14px}}
 /* ---- 全部条目（目录页） ---- */
 .catalog-wrap{max-width:900px;margin:0 auto;padding:10px 24px 100px}
 .catalog-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 6px}
@@ -2018,7 +2172,8 @@ html:not(.dark) .navbtn{background:rgba(255,250,240,.92);color:var(--gold2)}
 :root,html.dark,html.sepia{--bg:#fff;--ink:#111;--sub:#333;--card:#fff;--card2:#fff;--line:#bbb;--gold:#555;--gold2:#333;--chip:#fff;--shadow:none;--paper:#fff;--paper2:#fff;--muted:#333;--link:#111;--quote:#333;--cin:#111;--red:#111}
 html,body{background:#fff!important;color:#111!important}
 body{background-image:none!important}
-.sitebar,#progress,.skip,.searchbar,.toc,.tocm,.month-nav,.next-read,.route-next,footer,.fbtn,.yearhead .back,.intro-toggle,button{display:none!important}
+.sitebar,#progress,.skip,.searchbar,.toc,.tocm,.month-nav,.next-read,.route-next,footer,.fbtn,.yearhead .back,.intro-toggle,.gcard,button{display:none!important}
+.gterm{border-bottom:0!important}
 .layout{grid-template-columns:1fr!important}
 h1,h2,h3,.entry>summary{break-after:avoid;break-inside:avoid}
 p{orphans:3;widows:3}
@@ -2328,6 +2483,9 @@ def _norm_extra(s):
 def _plain(s):
     s = re.sub(r'<wbr\s*/?>', '', s or '')
     s = re.sub(r'<span class="nb">(.*?)</span>', r'\1', s, flags=re.S)
+    # p35 术语小卡：.gterm 只是一层点开标记，剥标记时须无缝拼回（同 .nb 口径），
+    # 否则通用「标签换空格」会在词两侧各插一个空格，改写检索摘要／feed 摘要。
+    s = re.sub(r'<span class="gterm"[^>]*>(.*?)</span>', r'\1', s, flags=re.S)
     s = re.sub(r'<[^>]+>', ' ', s)
     s = (s.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
            .replace('&quot;', '"').replace('&#39;', "'"))
@@ -2474,8 +2632,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p14">'
-        js_tag = '<script src="main.v5.js?v=20261113p14" defer></script>'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p15">'
+        js_tag = '<script src="main.v5.js?v=20261113p15" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
                        ';window.__GHL_IDPAGE__=' + _idpage_json +
@@ -2582,6 +2740,54 @@ js += "\ndocument.querySelectorAll('.intro-toggle').forEach(button=>{\n const in
 js += "\n(function(){var b=document.getElementById('fsbtn');if(!b)return;var order=['','l','xl'];function cur(){var c=document.documentElement.classList;return c.contains('fs-xl')?'xl':(c.contains('fs-l')?'l':'');}b.addEventListener('click',function(){var n=order[(order.indexOf(cur())+1)%order.length];document.documentElement.classList.remove('fs-l','fs-xl');if(n)document.documentElement.classList.add('fs-'+n);try{localStorage.setItem('ghl_fs',n)}catch(e){}});})();\n"
 js += "\n(function(){var g=document.querySelector('.fsgrp');if(!g)return;var btns=[].slice.call(g.querySelectorAll('[data-fs]'));function apply(n,save){var c=document.documentElement.classList;c.remove('fs-s','fs-l','fs-xl');if(n)c.add('fs-'+n);btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-fs')===n))});if(save){try{localStorage.setItem('ghl_fs',n)}catch(e){}}}var cur='';var cl=document.documentElement.classList;if(cl.contains('fs-s'))cur='s';else if(cl.contains('fs-l')||cl.contains('fs-xl'))cur='l';apply(cur,false);btns.forEach(function(b){b.addEventListener('click',function(){apply(b.getAttribute('data-fs'),true)})});})();\n"
 js += "\n(function(){var b=document.getElementById('printbtn');if(b)b.addEventListener('click',function(){window.print()});})();\n"
+# 术语点开小卡（p35）：释义以 _GLOSSARY 为唯一来源，JS 内不手写第二份；span.gterm 点开定位小卡，
+# 点别处／Esc／滚动／窗口变化即关闭；卡片 fixed 定位、视口内夹取，不溢出。
+_GLOSSARY_JS = "window.__GHL_GLOSSARY__=" + json.dumps(_GLOSSARY, ensure_ascii=False) + ";\n" + r'''
+(function(){
+var G=window.__GHL_GLOSSARY__||{};
+if(!Object.keys(G).length)return;
+var card=null,cur=null,openedAt=0;
+function close(){if(card)card.hidden=true;if(cur){cur.setAttribute('aria-expanded','false');cur=null;}}
+function open(btn){
+var t=btn.getAttribute('data-term');
+if(!t||!G[t])return;
+if(!card){
+card=document.createElement('div');
+card.id='gcard';card.className='gcard';card.setAttribute('role','dialog');card.hidden=true;
+card.innerHTML='<div class="gcard-t"><span class="gcard-term"></span><button type="button" class="gcard-x" aria-label="关闭释义">×</button></div><p class="gcard-d"></p>';
+document.body.appendChild(card);
+card.querySelector('.gcard-x').addEventListener('click',function(e){e.stopPropagation();close();});
+card.addEventListener('click',function(e){e.stopPropagation();});
+}
+if(cur===btn&&!card.hidden){close();return;}
+if(cur)cur.setAttribute('aria-expanded','false');
+cur=btn;btn.setAttribute('aria-expanded','true');
+card.querySelector('.gcard-term').textContent=t;
+card.querySelector('.gcard-d').textContent=G[t];
+card.hidden=false;
+openedAt=Date.now();
+var r=btn.getBoundingClientRect();
+var cw=card.offsetWidth,ch=card.offsetHeight;
+var vw=window.innerWidth,vh=window.innerHeight;
+var left=Math.max(8,Math.min(r.left,vw-cw-8));
+var top=(r.bottom+8+ch<=vh)?r.bottom+8:Math.max(8,r.top-ch-8);
+card.style.left=left+'px';card.style.top=top+'px';
+}
+document.addEventListener('click',function(e){
+var b=e.target&&e.target.closest?e.target.closest('.gterm'):null;
+if(b){open(b);return;}
+if(card&&!card.hidden)close();
+});
+document.addEventListener('keydown',function(e){
+if(e.key==='Escape'){close();return;}
+var b=e.target&&e.target.closest?e.target.closest('.gterm'):null;
+if(b&&(e.key==='Enter'||e.key===' ')){e.preventDefault();open(b);}
+});
+window.addEventListener('scroll',function(){if(card&&!card.hidden&&Date.now()-openedAt>500)close();},true);
+window.addEventListener('resize',function(){if(card&&!card.hidden)close();});
+})();
+'''
+js += "\n" + _GLOSSARY_JS
 js += "\n(function(){document.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-ev]'):null;if(b){var f=document.createElement('iframe');f.src='https://www.youtube.com/embed/'+b.getAttribute('data-ev')+'?autoplay=1&playsinline=1';f.title='视频';f.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';b.replaceWith(f);return}var c=e.target.closest?e.target.closest('.qchip'):null;if(c){var q=document.getElementById('q');if(q){q.value=c.getAttribute('data-q');q.dispatchEvent(new Event('input',{bubbles:true}));q.focus()}}});})();\n"
 js += "\n(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var chips=[].slice.call(document.querySelectorAll('.search-hint .qchip'));if(!chips.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p}function apply(){var w=pick();chips.forEach(function(c,i){var v=w[i%w.length];c.textContent=v;c.setAttribute('data-q',v);c.style.opacity=''})}apply();setInterval(function(){var q=document.getElementById('q');if(q&&q.value.trim())return;chips.forEach(function(c){c.style.opacity='0'});setTimeout(apply,480)},12000)})();\n"
 (HERE / "main.v5.js").write_text(js, encoding="utf-8", newline="\n")

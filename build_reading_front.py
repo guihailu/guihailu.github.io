@@ -50,6 +50,19 @@ for p in sorted(src.glob('*.html')):
     if asset.resolve()!=target.resolve():shutil.copyfile(asset,target)
   for _w in d.select('wbr'):_w.decompose()
   for _sp in d.select('span.nb'):_sp.unwrap()
+  # p35 术语小卡：.gterm 只是一层点开标记，拆掉时须把词拼回相邻文本，否则
+  # get_text(' ') 会在词两侧各插一个空格，改写钩子／阅读时长／检索摘要。
+  # 只合并该词前后的相邻文本串，不动其它边界（与改前逐字一致）。
+  for _sp in d.select('span.gterm'):
+   _pr=_sp.previous_sibling;_nx=_sp.next_sibling;_tx=_sp.get_text()
+   if isinstance(_pr,NavigableString) and isinstance(_nx,NavigableString):
+    _pr.replace_with(NavigableString(str(_pr)+_tx+str(_nx)));_nx.extract();_sp.extract()
+   elif isinstance(_pr,NavigableString):
+    _pr.replace_with(NavigableString(str(_pr)+_tx));_sp.extract()
+   elif isinstance(_nx,NavigableString):
+    _nx.replace_with(NavigableString(_tx+str(_nx)));_sp.extract()
+   else:
+    _sp.replace_with(NavigableString(_tx))
   for _hd in d.select('h3,h4,h5'):_merge_strings(_hd)
   entries[d['id']]={'id':d['id'],'title':title,'raw':title,'body':str(d),'text':d.get_text(' ',strip=True),'page':p.name}
 meta={}
