@@ -62,13 +62,14 @@ document.querySelectorAll('[data-vibe]').forEach(ch=>{
   };
 });
 const sForm=document.getElementById('search-form'),sInput=document.getElementById('search-input'),sBox=document.getElementById('search-results');
-function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p6').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
+function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p7').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
 function hlText(el,text,q){
   if(!q){el.textContent=text;return;}
   const low=text.toLowerCase();let i=0;
   for(;;){const j=low.indexOf(q,i);if(j<0)break;if(j>i)el.appendChild(document.createTextNode(text.slice(i,j)));const m=document.createElement('mark');m.textContent=text.slice(j,j+q.length);el.appendChild(m);i=j+q.length;}
   if(i<text.length)el.appendChild(document.createTextNode(text.slice(i)));
 }
+const BOARD_NAMES={1:'逆修觉者',2:'灵魂觉者',3:'法界天机',4:'道法自然'};
 function doSearch(rec){
   if(!sBox)return;
   const raw=(sInput.value||'').trim();
@@ -94,7 +95,10 @@ function doSearch(rec){
     sBox.appendChild(sg);return;
   }
   if(rec&&hits.length)saveHist(raw);
-  hits.forEach(e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');hlText(b,e.t,q);const s=document.createElement('span');hlText(s,(e.d?e.d+' · ':'')+e.x,q);a.append(b,s);sBox.appendChild(a)});
+  const addHit=e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');hlText(b,e.t,q);const s=document.createElement('span');hlText(s,(e.d?e.d+' · ':'')+e.x,q);a.append(b,s);sBox.appendChild(a)};
+  if(!hits.some(e=>e.b)){hits.forEach(addHit);return;}
+  [1,2,3,4].forEach(bn=>{const g=hits.filter(e=>e.b===bn);if(!g.length)return;const h=document.createElement('div');h.className='hit-group-h';const nm=document.createElement('span');nm.textContent=BOARD_NAMES[bn];const ct=document.createElement('span');ct.className='hit-group-n';ct.textContent=g.length+' 篇';h.append(nm,ct);sBox.appendChild(h);g.forEach(addHit)});
+  hits.filter(e=>!e.b).forEach(addHit);
 }
 const HOTWORDS=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命'];
 const HIST_KEY='ghl_search_hist';

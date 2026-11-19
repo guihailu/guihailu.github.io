@@ -101,6 +101,48 @@ for _bn,_ids in ROUTE_MAP.items():
  assert len(_ids)==10 and len(set(_ids))==10,'route map board '+str(_bn)
  for _rid in _ids:assert _rid in entries and entries[_rid]['board']==_bn,'route map drift: '+_rid
 assert len({i for v in ROUTE_MAP.values() for i in v})==40,'route map must hold 40 distinct articles'
+# 人生问题合集（p34，用户 2026-11-19 10:42 核准提案《人生问题合集_提案_待核.md》）：
+# 3 个合集、23 篇；合集名／选篇／原话钩子逐字照提案，勿改。
+# 钩子为文章原文逐字引用（提案逐字核对 guihailu.md；原文粗体标记不计入显示文本）；
+# 标题显示取 entries 清洗后标题（与板块列表同口径；ghl-000004 换行处浏览器折为空格，与提案一致）。
+COLLECTIONS=[
+ {'name':'夜里睡不踏实','items':[
+  ('ghl-000104','反过来，不做梦很多时候是心静下来的一种表现。'),
+  ('ghl-000110','她说，那是一种“梦境照进现实”的感觉。'),
+  ('ghl-000037','如果家里没有结界，晚上阴气重，念经就像在黑暗森林点火把，会招引周围的精灵鬼怪来听经（它们也想闻正法）。'),
+  ('ghl-000051','又过了几个月，忽然有一天，他又给我托梦，大概意思就又来哭穷。'),
+  ('ghl-000101','孩子表达不出来，只剩下哭闹、拒奶、睡不安稳。'),
+  ('ghl-000105','网上很多人说，他们村里就有人在当活人阴差：白天就是个普通人，该上班上班，该种地种地；到了夜里，人一睡，他的魂就跟着真的阴差出去执行任务，去索别人的魂。'),
+  ('ghl-000116','不是所有的头疼、失眠、情绪低落，都是法界攻击。'),
+ ]},
+ {'name':'怕失去','items':[
+  ('ghl-000031','生死不是两端而是闭环，因果是一张网。'),
+  ('ghl-000106','那时候我二十多岁，最怕的一件事是死。'),
+  ('ghl-000070','今天我们来聊一个所有人都避之不及、却又不得不面对的终极话题：回光返照，和迎接死亡。'),
+  ('ghl-000071','这就是我所说的“规则”：投胎是需要成本的。'),
+  ('ghl-000089','我就要盯着我的仇人破产。'),
+  ('ghl-000032','认知停留在人间的斗争与抢夺，导致他冲得越高，精神容器承受的暗物质阻力（负能量）就越大，最终被压垮。'),
+  ('ghl-000013','包括弄出了这么大的烂摊子以后，他们失去的其实也不仅仅只是钱：朋友的钱要还，公众看他们的眼光也变了，夫妻之间原来的信任一定会受到影响。'),
+  ('ghl-000109','救助站里那个患脑癌的孩子，牵出一段修仙邪道的前世；去世的亲人为何大多还没投胎，超度为什么越来越难，双魂压体与“病结”又意味着什么，都在这一场里说到了。'),
+ ]},
+ {'name':'想转运','items':[
+  ('ghl-000004','不知道大家身边有没有这样一种人：年轻的时候比猴都精，干什么成什么，谁见了他都说脑子好使。'),
+  ('ghl-000028','命运的绳索不是一下子勒紧的，而是一点点收紧的。'),
+  ('ghl-000035','普通人唯一的破局之道，就是修出一点‘通透心’，在危机来临前，比别人跑得更快一点。'),
+  ('ghl-000085','在他看来，破局的第一步不是「再想明白一点」，而是先把散出去的力气收回来，找到一个值得长期投入的方向。'),
+  ('ghl-000042','这种光照耀得越强，你的气域扭曲得越厉害，那你受的影响就越大。'),
+  ('ghl-000036','时间长了，自己的贵人就会越来越少。'),
+  ('ghl-000019','一个人真正特别好的上升运，在一生当中基本也就十年左右。'),
+  ('ghl-000006','在国内被关了门的人，七八年后在另一片土地又做出成绩、被当成贵宾——这跟范冰冰是什么底色的人，关系很大。'),
+ ]},
+]
+for _c in COLLECTIONS:
+ assert 5<=len(_c['items'])<=8,'collection size: '+_c['name']
+ for _rid,_hook in _c['items']:
+  assert _rid in entries,'collection unknown article: '+_rid
+  assert _hook,'collection empty hook: '+_rid
+assert len(COLLECTIONS)==3
+assert len({_rid for _c in COLLECTIONS for _rid,_h in _c['items']})==23,'collections must hold 23 distinct articles'
 def datauri(fname,mime):
  # p15 首页瘦身（2026-11-09 公开前改造一）：图片改外链独立文件（assets/boards/ 下与 .b64 并存的解码原件），不再内嵌 data URI；回退＝恢复下方两行原实现。
  return 'assets/boards/'+fname+'?v=20261113p20'
@@ -255,6 +297,8 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .sresults .hit b{font-weight:600}
 .sresults .hit span{display:block;font-size:12.5px;color:var(--sub);margin-top:3px;line-height:1.6}
 .sresults .hit mark{background:rgba(201,165,95,.35);color:inherit;border-radius:2px;padding:0 1px}
+.sresults .hit-group-h{display:flex;justify-content:space-between;align-items:baseline;margin:14px 2px 0;padding-bottom:4px;border-bottom:1px solid var(--line);font-size:13px;font-weight:600;color:var(--gold2)}
+.sresults .hit-group-n{font-weight:400;font-size:12.5px;color:var(--sub)}
 .sresults .none{color:var(--sub);font-size:14px;text-align:center;padding:8px}
 .sresults .qsugg{padding:6px 4px 4px;font-size:13.5px;line-height:1.9;color:var(--sub);text-align:left}
 .sresults .qsugg-lab{display:block;font-weight:600;color:var(--ink);margin:8px 0 4px}
@@ -262,7 +306,7 @@ main{max-width:1180px;margin:0 auto;padding:10px 22px 30px}
 .sresults .qsugg button:hover{border-color:var(--gold);color:var(--gold2)}
 .sresults .qsugg-link{display:block;margin-top:10px}
 .sresults .qsugg-link a{color:var(--gold2)}
-.sugg{flex:0 0 100%;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 44px var(--shadow);padding:6px;text-align:left}
+.sugg{flex:0 0 100%;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 44px var(--shadow);padding:6px;text-align:left}
 .sugg[hidden]{display:none}
 .sugg .sg-row{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:0;color:var(--ink);font-size:14.5px;font-weight:400;padding:10px 12px;border-radius:9px;cursor:pointer;white-space:nowrap;overflow:hidden}
 .sugg .sg-row .sg-t{overflow:hidden;text-overflow:ellipsis}
@@ -336,6 +380,16 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .route-t{font-family:"Songti SC","STSong",SimSun,serif;font-weight:600}
 .route-list a.done .route-t::after{content:" ✓";color:var(--gold2);font-size:13px}
 @media(max-width:820px){.route{padding:22px 18px 8px}.route-list a{font-size:15px}}
+.colls{margin-top:110px;scroll-margin-top:84px}
+.colls>h2{font-family:"Songti SC","STSong",SimSun,serif;font-size:clamp(24px,3.4vw,32px);text-align:center;margin:0 0 6px}
+.coll{margin-top:22px;border:1px solid var(--line);border-radius:18px;background:var(--card);padding:26px 28px 12px;box-shadow:0 18px 44px var(--shadow)}
+.coll h3{margin:0;font-family:"Songti SC","STSong",SimSun,serif;font-size:22px;text-align:center}
+.coll-list{margin:14px 0 0;padding:0;list-style:none}
+.coll-list a{display:block;padding:11px 4px;border-top:1px solid var(--line);font-size:16px;line-height:1.6}
+.coll-list a:hover{color:var(--gold2)}
+.coll-list .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.coll-list .hook{color:var(--sub);font-size:13px;line-height:1.55}
+@media(max-width:820px){.coll{padding:22px 18px 8px}.coll-list a{font-size:15px}}
 .more{display:inline-block;margin-top:16px;border:1px solid #c9a55f;color:var(--gold2);border-radius:999px;padding:10px 20px;font-size:14px;background:var(--chip)}
 .library{scroll-margin-top:84px;margin:120px auto 0;max-width:1180px;border:1px solid var(--line);border-radius:18px;padding:clamp(26px,4vw,44px);background:linear-gradient(135deg,var(--card2),var(--card));display:grid;grid-template-columns:1.25fr 1fr;gap:26px;align-items:center}
 .library h2{font-family:"Songti SC",SimSun,serif;font-size:clamp(24px,3.4vw,34px);margin:0 0 10px}
@@ -425,7 +479,7 @@ def shell(title,body,home=False,sutra=None):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\')document.documentElement.classList.add(\'dark\');else if(t===\'sepia\')document.documentElement.classList.add(\'sepia\');else if(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches)document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261115p9"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261115p11"></head><body>'
  +(sutra_bg(sutra) if sutra else '')+
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理">'+('' if home else '<span class="overseas-mark">海外发布</span>')+'</a>'
@@ -434,7 +488,7 @@ def shell(title,body,home=False,sutra=None):
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理'+('' if not home else '<div class="foot-echo">本站在海外发布。</div>')+'</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261115p9"></script></body></html>')
+ '<script src="reading.js?v=20261115p11"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -518,6 +572,16 @@ def route_section(b):
  return ('<section class="route" aria-label="入门先读"><h2>入门先读</h2>'
  '<p class="route-intro">第一次来这一部，按这个顺序读，从入门到进阶。</p>'
  f'<ol class="route-list">{lis}</ol></section>')
+def collection_section():
+ secs=''
+ for c in COLLECTIONS:
+  lis=''
+  for rid,hook in c['items']:
+   e=entries[rid]
+   lis+=f'<li><a href="{article_href(rid)}"><span class="tx"><span>{esc(e["title"])}</span><span class="hook">{esc(hook)}</span></span></a></li>'
+  secs+=f'<section class="coll"><h3>{esc(c["name"])}</h3><ol class="coll-list">{lis}</ol></section>'
+ return ('<section class="colls" aria-label="人生问题合集"><h2>人生问题合集</h2>'
+ f'{secs}</section>')
 def board_page(b):
  assert ''.join(BOARD_DESC_SEGS[b['n']])==b['desc'], 'desc segs drifted'
  es=board_entries(b['n'])
@@ -562,7 +626,8 @@ def topics_page():
 search_entries=[]
 for e in sorted(entries.values(),key=lambda x:x['id']):
  t=' '.join(meta.get(e['id'],{}).get('text','').split())[:240]
- search_entries.append({'id':e['id'],'t':e['title'],'p':e['page'],'d':e['date'],'x':t})
+ search_entries.append({'id':e['id'],'t':e['title'],'p':e['page'],'d':e['date'],'x':t,'b':e['board']})
+assert all(e['b'] in (1,2,3,4) for e in search_entries),'search board field missing'
 _PLAQUE_ORN=('<span class="lotus-bg"><svg width="276" height="225" viewBox="0 0 64 52" fill="none" stroke="#e6c578" stroke-width="0.9" stroke-linejoin="round" stroke-linecap="round"><path d="M32 6 C39 17 39 27 32 37 C25 27 25 17 32 6 Z"/><path d="M15 13 C23 19 25 29 23 38 C15 34 11 23 15 13 Z"/><path d="M49 13 C41 19 39 29 41 38 C49 34 53 23 49 13 Z"/><path d="M3 25 C11 27 15 33 16 40 C9 40 4 34 3 25 Z"/><path d="M61 25 C53 27 49 33 48 40 C55 40 60 34 61 25 Z"/><path d="M8 44 C20 49 44 49 56 44"/></svg></span><span class="lotus-chip"><svg width="21" height="17" viewBox="0 0 64 52" fill="none" stroke="#e6c578" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><path d="M32 6 C39 17 39 27 32 37 C25 27 25 17 32 6 Z"/><path d="M15 13 C23 19 25 29 23 38 C15 34 11 23 15 13 Z"/><path d="M49 13 C41 19 39 29 41 38 C49 34 53 23 49 13 Z"/><path d="M3 25 C11 27 15 33 16 40 C9 40 4 34 3 25 Z"/><path d="M61 25 C53 27 49 33 48 40 C55 40 60 34 61 25 Z"/><path d="M8 44 C20 49 44 49 56 44"/></svg></span>'+'<span class="cnr tl"><svg width="36" height="36" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 43 V16 Q5 5 16 5 H43"/><path d="M11.5 43 V20 Q11.5 11.5 20 11.5 H43"/><path d="M18.5 18.5 q6.5 0 6.5 6.5 q0 5.5 -5.5 5.5 q-4.5 0 -4.5 -4.5 q0 -3.5 3.5 -3.5"/><path d="M43 2.6 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/><path d="M2.6 43 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/></svg></span><span class="cnr tr"><svg width="36" height="36" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 43 V16 Q5 5 16 5 H43"/><path d="M11.5 43 V20 Q11.5 11.5 20 11.5 H43"/><path d="M18.5 18.5 q6.5 0 6.5 6.5 q0 5.5 -5.5 5.5 q-4.5 0 -4.5 -4.5 q0 -3.5 3.5 -3.5"/><path d="M43 2.6 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/><path d="M2.6 43 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/></svg></span><span class="cnr bl"><svg width="36" height="36" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 43 V16 Q5 5 16 5 H43"/><path d="M11.5 43 V20 Q11.5 11.5 20 11.5 H43"/><path d="M18.5 18.5 q6.5 0 6.5 6.5 q0 5.5 -5.5 5.5 q-4.5 0 -4.5 -4.5 q0 -3.5 3.5 -3.5"/><path d="M43 2.6 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/><path d="M2.6 43 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/></svg></span><span class="cnr br"><svg width="36" height="36" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 43 V16 Q5 5 16 5 H43"/><path d="M11.5 43 V20 Q11.5 11.5 20 11.5 H43"/><path d="M18.5 18.5 q6.5 0 6.5 6.5 q0 5.5 -5.5 5.5 q-4.5 0 -4.5 -4.5 q0 -3.5 3.5 -3.5"/><path d="M43 2.6 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/><path d="M2.6 43 l2.4 2.4 -2.4 2.4 -2.4 -2.4 Z" fill="currentColor" stroke="none"/></svg></span>')
 hero=('<section class="hero">'
  f'<img class="bg" src="{HERO_IMG}" alt="" aria-hidden="true"><div class="rays" aria-hidden="true"></div><div class="dust" id="dust" aria-hidden="true"></div>'
@@ -591,7 +656,7 @@ library=(f'<section class="library reveal" id="library"><div><h2>完整资料库
  f'<a href="all.html"><b>全部文章</b><span>{total} 篇 · 全文搜索</span></a>'
  '<a href="topics.html" style="grid-column:1/-1"><b>按问题找</b><span>钱 · 工作 · 家人 · 身体 · 命运——按你带着来的问题选篇</span></a></div></section>')
 parts_html=''.join(part_section(b)+(part_divider(b) if i<3 else '') for i,b in enumerate(BOARDS))
-index_body=hero+'<main>'+intro+parts_html+ORN_DIV+library+'</main>'
+index_body=hero+'<main>'+intro+collection_section()+parts_html+ORN_DIV+library+'</main>'
 (out/'index.html').write_text(shell('归海录 · 志远行空讲课整理',index_body,home=True),encoding='utf-8')
 for b in BOARDS:
  (out/f'board{b["n"]}.html').write_text(board_page(b),encoding='utf-8')
@@ -666,13 +731,14 @@ document.querySelectorAll('[data-vibe]').forEach(ch=>{
   };
 });
 const sForm=document.getElementById('search-form'),sInput=document.getElementById('search-input'),sBox=document.getElementById('search-results');
-function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p6').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
+function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p7').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
 function hlText(el,text,q){
   if(!q){el.textContent=text;return;}
   const low=text.toLowerCase();let i=0;
   for(;;){const j=low.indexOf(q,i);if(j<0)break;if(j>i)el.appendChild(document.createTextNode(text.slice(i,j)));const m=document.createElement('mark');m.textContent=text.slice(j,j+q.length);el.appendChild(m);i=j+q.length;}
   if(i<text.length)el.appendChild(document.createTextNode(text.slice(i)));
 }
+const BOARD_NAMES={1:'逆修觉者',2:'灵魂觉者',3:'法界天机',4:'道法自然'};
 function doSearch(rec){
   if(!sBox)return;
   const raw=(sInput.value||'').trim();
@@ -698,7 +764,10 @@ function doSearch(rec){
     sBox.appendChild(sg);return;
   }
   if(rec&&hits.length)saveHist(raw);
-  hits.forEach(e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');hlText(b,e.t,q);const s=document.createElement('span');hlText(s,(e.d?e.d+' · ':'')+e.x,q);a.append(b,s);sBox.appendChild(a)});
+  const addHit=e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');hlText(b,e.t,q);const s=document.createElement('span');hlText(s,(e.d?e.d+' · ':'')+e.x,q);a.append(b,s);sBox.appendChild(a)};
+  if(!hits.some(e=>e.b)){hits.forEach(addHit);return;}
+  [1,2,3,4].forEach(bn=>{const g=hits.filter(e=>e.b===bn);if(!g.length)return;const h=document.createElement('div');h.className='hit-group-h';const nm=document.createElement('span');nm.textContent=BOARD_NAMES[bn];const ct=document.createElement('span');ct.className='hit-group-n';ct.textContent=g.length+' 篇';h.append(nm,ct);sBox.appendChild(h);g.forEach(addHit)});
+  hits.filter(e=>!e.b).forEach(addHit);
 }
 const HOTWORDS=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命'];
 const HIST_KEY='ghl_search_hist';
