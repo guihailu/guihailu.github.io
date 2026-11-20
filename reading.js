@@ -173,14 +173,39 @@ document.addEventListener('click',e=>{const c=e.target.closest?e.target.closest(
 const pageSearch=document.querySelector('#search');
 if(pageSearch&&!sInput){const rows=[...document.querySelectorAll('details.entry')];function filter(){let n=0;for(const r of rows){r.hidden=!r.textContent.toLowerCase().includes(pageSearch.value.trim().toLowerCase());if(!r.hidden)n++}const c=document.querySelector('#count');if(c)c.textContent=n+' 篇';const em=document.querySelector('#empty');if(em)em.hidden=n!==0}pageSearch.oninput=filter;filter()}
 ;(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var wrap=document.querySelector('.qchips');if(!wrap)return;var btns=[].slice.call(wrap.querySelectorAll('button[data-q]'));if(!btns.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p.slice(0,btns.length)}function apply(w){btns.forEach(function(b,i){b.textContent=w[i];b.setAttribute('data-q',w[i])})}apply(pick());setInterval(function(){var inp=document.getElementById('search-input');if(inp&&inp.value.trim())return;wrap.classList.add('fading');setTimeout(function(){apply(pick());wrap.classList.remove('fading')},480)},12000)})();
+var GHL_READMAP={"ghl-000001": 4, "ghl-000002": 3, "ghl-000003": 3, "ghl-000004": 1, "ghl-000005": 1, "ghl-000006": 3, "ghl-000007": 1, "ghl-000008": 1, "ghl-000009": 1, "ghl-000010": 3, "ghl-000011": 3, "ghl-000012": 3, "ghl-000013": 1, "ghl-000014": 4, "ghl-000015": 3, "ghl-000016": 2, "ghl-000017": 1, "ghl-000018": 1, "ghl-000019": 1, "ghl-000020": 1, "ghl-000021": 1, "ghl-000022": 1, "ghl-000023": 1, "ghl-000024": 4, "ghl-000025": 1, "ghl-000026": 4, "ghl-000027": 1, "ghl-000028": 1, "ghl-000029": 1, "ghl-000030": 1, "ghl-000031": 2, "ghl-000032": 1, "ghl-000033": 1, "ghl-000034": 1, "ghl-000035": 1, "ghl-000036": 1, "ghl-000037": 3, "ghl-000038": 3, "ghl-000039": 1, "ghl-000040": 3, "ghl-000041": 3, "ghl-000042": 3, "ghl-000043": 3, "ghl-000044": 1, "ghl-000045": 4, "ghl-000046": 4, "ghl-000047": 1, "ghl-000048": 3, "ghl-000049": 3, "ghl-000050": 2, "ghl-000051": 3, "ghl-000052": 3, "ghl-000053": 3, "ghl-000054": 3, "ghl-000055": 4, "ghl-000056": 1, "ghl-000057": 1, "ghl-000058": 1, "ghl-000059": 1, "ghl-000060": 1, "ghl-000061": 1, "ghl-000062": 4, "ghl-000063": 3, "ghl-000064": 1, "ghl-000065": 1, "ghl-000066": 1, "ghl-000067": 1, "ghl-000068": 3, "ghl-000069": 2, "ghl-000070": 2, "ghl-000071": 2, "ghl-000072": 2, "ghl-000073": 2, "ghl-000074": 2, "ghl-000075": 1, "ghl-000076": 4, "ghl-000077": 4, "ghl-000078": 4, "ghl-000079": 3, "ghl-000080": 1, "ghl-000081": 3, "ghl-000082": 3, "ghl-000083": 1, "ghl-000084": 2, "ghl-000085": 1, "ghl-000086": 3, "ghl-000087": 2, "ghl-000088": 2, "ghl-000089": 2, "ghl-000090": 3, "ghl-000091": 2, "ghl-000092": 3, "ghl-000093": 4, "ghl-000094": 3, "ghl-000095": 2, "ghl-000096": 3, "ghl-000097": 3, "ghl-000098": 2, "ghl-000099": 3, "ghl-000100": 1, "ghl-000101": 3, "ghl-000102": 4, "ghl-000103": 2, "ghl-000104": 4, "ghl-000105": 3, "ghl-000106": 2, "ghl-000107": 4, "ghl-000108": 1, "ghl-000109": 2, "ghl-000110": 1, "ghl-000111": 3, "ghl-000112": 1, "ghl-000113": 1, "ghl-000114": 3, "ghl-000115": 1, "ghl-000116": 3, "ghl-000117": 2, "ghl-000118": 3, "ghl-000119": 3, "ghl-000120": 3, "ghl-000121": 1, "ghl-000122": 1, "ghl-000123": 3};
+var GHL_BOARDTOTALS={"1": 48, "2": 20, "3": 40, "4": 15};
 
-/* p32 入门先读：路线打勾复用 ghl_read（与内容线目录同键同格式：JSON 数组，存 ghl 编号）；点路线链接即记已读，跨页导航前同步写入 */
-(function(){var read=[];try{read=JSON.parse(localStorage.getItem('ghl_read')||'[]')}catch(e){}
-document.querySelectorAll('.route-list a[data-route-id]').forEach(function(a){
-  var id=a.getAttribute('data-route-id');
-  if(read.indexOf(id)>-1)a.classList.add('done');
-  a.addEventListener('click',function(){
-    if(read.indexOf(id)<0){read.push(id);try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}
-    a.classList.add('done');
+/* p37 全站已读进度可见化（p32 路线打勾的扩展，同键 ghl_read、同格式 JSON 数组）：
+   点任一篇目链接（板块列表／合集／路线／搜索结果）即记已读；页眉角标＋首页进度块
+   （总数＋四部计数／进度条）实时刷新；已读链接行内打勾（与内容线目录同语义）。 */
+(function(){var read=[];try{read=JSON.parse(localStorage.getItem('ghl_read')||'[]')}catch(e){}read=read.filter(function(id){return GHL_READMAP.hasOwnProperty(id)});
+function save(){try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}
+function refresh(){
+  var chip=document.getElementById('read-chip');
+  if(chip)chip.textContent='已读 '+read.length+'/'+Object.keys(GHL_READMAP).length;
+  var n=document.getElementById('readprog-n');
+  if(n)n.textContent=read.length;
+  document.querySelectorAll('.readprog-row').forEach(function(row){
+    var bn=row.getAttribute('data-board');var tot=GHL_BOARDTOTALS[bn]||0;
+    var c=0;read.forEach(function(id){if(String(GHL_READMAP[id])===bn)c++});
+    var cnt=row.querySelector('.readprog-count');if(cnt)cnt.textContent=c+'/'+tot;
+    var bar=row.querySelector('.readprog-bar i');if(bar)bar.style.width=(tot?Math.round(c/tot*100):0)+'%';
   });
-});})();
+  document.querySelectorAll('a[href*="#ghl-"]').forEach(function(a){
+    var id=(a.getAttribute('href').split('#')[1]||'').split('?')[0];
+    if(id&&read.indexOf(id)>-1)a.classList.add('done');
+  });
+}
+window.__ghlRefreshProgress=refresh;
+document.addEventListener('click',function(e){
+  var a=e.target.closest?e.target.closest('a[href*="#ghl-"]'):null;
+  if(!a)return;
+  var id=(a.getAttribute('href').split('#')[1]||'').split('?')[0];
+  if(!id||!/^ghl-[0-9]+$/.test(id)||!GHL_READMAP.hasOwnProperty(id))return;
+  if(read.indexOf(id)<0){read.push(id);save();}
+  a.classList.add('done');refresh();
+});
+window.addEventListener('storage',function(e){if(e.key==='ghl_read'){try{read=JSON.parse(e.newValue||'[]')}catch(err){read=[]}read=read.filter(function(id){return GHL_READMAP.hasOwnProperty(id)});refresh();}});
+refresh();
+})();

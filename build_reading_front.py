@@ -392,6 +392,18 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .route-num{flex:none;width:26px;height:26px;margin-top:1px;border:1px solid var(--gold);border-radius:999px;color:var(--gold2);font-size:13px;line-height:24px;text-align:center}
 .route-t{font-family:"Songti SC","STSong",SimSun,serif;font-weight:600}
 .route-list a.done .route-t::after{content:" ✓";color:var(--gold2);font-size:13px}
+.alist a.done .tx>span:first-child::after,.coll-list a.done .tx>span:first-child::after{content:" ✓";color:var(--gold2);font-weight:700}
+.read-chip{flex:none;padding:5px 12px;border:1px solid rgba(201,165,95,.85);border-radius:999px;background:rgba(10,20,31,.72);color:#f0d48a;font-size:12px;line-height:1.6;letter-spacing:.12em;font-family:"Songti SC","STSong",SimSun,serif;white-space:nowrap;text-shadow:0 1px 2px rgba(8,12,6,.9)}
+.readprog{max-width:560px;margin:30px auto 0;border:1px solid var(--line);border-radius:16px;background:var(--card);padding:18px 22px 16px;box-shadow:0 12px 30px var(--shadow);text-align:left}
+.readprog-total{margin:0;font-size:16px;line-height:1.8;color:var(--ink)}
+.readprog-total b{color:var(--gold2);font-size:19px}
+.readprog-rows{margin-top:10px;display:grid;gap:8px}
+.readprog-row{display:grid;grid-template-columns:76px minmax(0,1fr) 52px;gap:10px;align-items:center;font-size:13.5px}
+.readprog-name{font-family:"Songti SC","STSong",SimSun,serif;font-weight:700;white-space:nowrap}
+.readprog-bar{display:block;height:6px;border-radius:999px;background:var(--card2);border:1px solid var(--line);overflow:hidden}
+.readprog-bar i{display:block;height:100%;width:0%;background:#c9a55f;border-radius:999px;transition:width .4s ease}
+.readprog-count{text-align:right;color:var(--sub);font-size:12.5px;white-space:nowrap}
+@media(max-width:820px){.read-chip{display:none}.readprog{padding:16px 18px 14px}.readprog-row{grid-template-columns:70px minmax(0,1fr) 48px}}
 @media(max-width:820px){.route{padding:22px 18px 8px}.route-list a{font-size:15px}}
 .colls{margin-top:110px;scroll-margin-top:84px}
 .colls>h2{font-family:"Songti SC","STSong",SimSun,serif;font-size:clamp(24px,3.4vw,32px);text-align:center;margin:0 0 6px}
@@ -492,16 +504,16 @@ def shell(title,body,home=False,sutra=None):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\')document.documentElement.classList.add(\'dark\');else if(t===\'sepia\')document.documentElement.classList.add(\'sepia\');else if(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches)document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261115p11"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261115p12"></head><body>'
  +(sutra_bg(sutra) if sutra else '')+
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理">'+('' if home else '<span class="overseas-mark">海外发布</span>')+'</a>'
- '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><span class="theme-slot" aria-hidden="true"></span></nav></header><button id="theme-toggle" type="button" aria-label="切换晚上模式"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>'
+ '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><span class="read-chip" id="read-chip">已读 0/123</span><span class="theme-slot" aria-hidden="true"></span></nav></header><button id="theme-toggle" type="button" aria-label="切换晚上模式"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>'
  +body+
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理'+('' if not home else '<div class="foot-echo">本站在海外发布。</div>')+'</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
- '<script src="reading.js?v=20261115p11"></script></body></html>')
+ '<script src="reading.js?v=20261115p12"></script></body></html>')
 def alist_rows(es):
  rows=''
  for e in es:
@@ -657,7 +669,14 @@ counts={y:0 for y in ['2026','2025','2024']}
 for e in entries.values():
  if e['date'][:4] in counts:counts[e['date'][:4]]+=1
 total=len(entries)
+# p37 全站已读进度可见化：首页进度块（总数＋四部各自计数／进度条），
+# 数字由 reading.js 按 ghl_read 实时填；未读时 0/123。
+_prog_rows=''.join(
+ f'<div class="readprog-row" data-board="{b["n"]}"><span class="readprog-name">{b["name"]}</span><span class="readprog-bar"><i style="width:0%"></i></span><span class="readprog-count">0/{len(board_entries(b["n"]))}</span></div>'
+ for b in BOARDS)
+readprog=(f'<section class="readprog" id="readprog" aria-label="阅读进度"><p class="readprog-total">你已读过 <b id="readprog-n">0</b> / {total} 篇</p><div class="readprog-rows">{_prog_rows}</div></section>')
 intro=('<section class="intro reveal"><p class="lede">不用从头读起。先挑一部顺眼的，<br>读一则故事、听一段原声，觉得对味，再往深处走。</p>'
+ +readprog+
  '<form class="searchbar" id="search-form"><input id="search-input" type="search" placeholder="搜一搜：天眼、烧纸、轮回…" aria-label="搜索站内文章" autocomplete="off" aria-expanded="false" aria-controls="search-sugg"><button type="submit">搜索</button><div class="sugg" id="search-sugg" role="listbox" aria-label="搜索建议" hidden></div></form><div class="qchips"><span class="qchips-lab">点一下就搜：</span><button type="button" data-q="天眼">天眼</button><button type="button" data-q="烧纸">烧纸</button><button type="button" data-q="福报">福报</button><button type="button" data-q="轮回">轮回</button><button type="button" data-q="改命">改命</button><button type="button" data-q="怎么看人">怎么看人</button></div>'
  '<div class="sresults" id="search-results"></div></section>')
 library=(f'<section class="library reveal" id="library"><div><h2>完整资料库</h2>'
@@ -856,17 +875,43 @@ const pageSearch=document.querySelector('#search');
 if(pageSearch&&!sInput){const rows=[...document.querySelectorAll('details.entry')];function filter(){let n=0;for(const r of rows){r.hidden=!r.textContent.toLowerCase().includes(pageSearch.value.trim().toLowerCase());if(!r.hidden)n++}const c=document.querySelector('#count');if(c)c.textContent=n+' 篇';const em=document.querySelector('#empty');if(em)em.hidden=n!==0}pageSearch.oninput=filter;filter()}
 ;(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var wrap=document.querySelector('.qchips');if(!wrap)return;var btns=[].slice.call(wrap.querySelectorAll('button[data-q]'));if(!btns.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p.slice(0,btns.length)}function apply(w){btns.forEach(function(b,i){b.textContent=w[i];b.setAttribute('data-q',w[i])})}apply(pick());setInterval(function(){var inp=document.getElementById('search-input');if(inp&&inp.value.trim())return;wrap.classList.add('fading');setTimeout(function(){apply(pick());wrap.classList.remove('fading')},480)},12000)})();
 '''
+# p37 全站已读进度：篇目→板块映射（构建期写死，与 board_map 同源）
+js+='var GHL_READMAP='+json.dumps({eid:e['board'] for eid,e in sorted(entries.items())},ensure_ascii=False)+';\n'
+js+='var GHL_BOARDTOTALS='+json.dumps({str(b['n']):len(board_entries(b['n'])) for b in BOARDS})+';\n'
 js+=r'''
-/* p32 入门先读：路线打勾复用 ghl_read（与内容线目录同键同格式：JSON 数组，存 ghl 编号）；点路线链接即记已读，跨页导航前同步写入 */
-(function(){var read=[];try{read=JSON.parse(localStorage.getItem('ghl_read')||'[]')}catch(e){}
-document.querySelectorAll('.route-list a[data-route-id]').forEach(function(a){
-  var id=a.getAttribute('data-route-id');
-  if(read.indexOf(id)>-1)a.classList.add('done');
-  a.addEventListener('click',function(){
-    if(read.indexOf(id)<0){read.push(id);try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}
-    a.classList.add('done');
+/* p37 全站已读进度可见化（p32 路线打勾的扩展，同键 ghl_read、同格式 JSON 数组）：
+   点任一篇目链接（板块列表／合集／路线／搜索结果）即记已读；页眉角标＋首页进度块
+   （总数＋四部计数／进度条）实时刷新；已读链接行内打勾（与内容线目录同语义）。 */
+(function(){var read=[];try{read=JSON.parse(localStorage.getItem('ghl_read')||'[]')}catch(e){}read=read.filter(function(id){return GHL_READMAP.hasOwnProperty(id)});
+function save(){try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}
+function refresh(){
+  var chip=document.getElementById('read-chip');
+  if(chip)chip.textContent='已读 '+read.length+'/'+Object.keys(GHL_READMAP).length;
+  var n=document.getElementById('readprog-n');
+  if(n)n.textContent=read.length;
+  document.querySelectorAll('.readprog-row').forEach(function(row){
+    var bn=row.getAttribute('data-board');var tot=GHL_BOARDTOTALS[bn]||0;
+    var c=0;read.forEach(function(id){if(String(GHL_READMAP[id])===bn)c++});
+    var cnt=row.querySelector('.readprog-count');if(cnt)cnt.textContent=c+'/'+tot;
+    var bar=row.querySelector('.readprog-bar i');if(bar)bar.style.width=(tot?Math.round(c/tot*100):0)+'%';
   });
-});})();
+  document.querySelectorAll('a[href*="#ghl-"]').forEach(function(a){
+    var id=(a.getAttribute('href').split('#')[1]||'').split('?')[0];
+    if(id&&read.indexOf(id)>-1)a.classList.add('done');
+  });
+}
+window.__ghlRefreshProgress=refresh;
+document.addEventListener('click',function(e){
+  var a=e.target.closest?e.target.closest('a[href*="#ghl-"]'):null;
+  if(!a)return;
+  var id=(a.getAttribute('href').split('#')[1]||'').split('?')[0];
+  if(!id||!/^ghl-[0-9]+$/.test(id)||!GHL_READMAP.hasOwnProperty(id))return;
+  if(read.indexOf(id)<0){read.push(id);save();}
+  a.classList.add('done');refresh();
+});
+window.addEventListener('storage',function(e){if(e.key==='ghl_read'){try{read=JSON.parse(e.newValue||'[]')}catch(err){read=[]}read=read.filter(function(id){return GHL_READMAP.hasOwnProperty(id)});refresh();}});
+refresh();
+})();
 '''
 (out/'reading.js').write_text(js,encoding='utf-8')
 (out/'reading_search.json').write_text(json.dumps(search_entries,ensure_ascii=False),encoding='utf-8')

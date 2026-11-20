@@ -121,6 +121,7 @@ aside.toc{position:sticky;top:86px;max-height:calc(100vh - 110px);overflow-y:aut
 .toc a:hover{color:var(--ink)}
 .toc a.here{border-left-color:var(--cin);color:var(--cin);font-weight:700}
 .toc a.done::after{content:" ✓";color:var(--cin);font-size:11px}
+.read-chip{flex:none;padding:4px 11px;border:1px solid rgba(201,165,95,.85);border-radius:999px;background:rgba(10,20,31,.72);color:#f0d48a;font-size:12px;line-height:1.6;letter-spacing:.1em;font-family:"Songti SC","STSong",SimSun,serif;white-space:nowrap}
 main.content{min-width:0;max-width:760px;width:100%;justify-self:center}
 /* ---- 条目（文章） ---- */
 .entry{margin:0 0 16px;background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 30px var(--shadow);scroll-margin-top:86px;overflow:hidden}
@@ -401,6 +402,7 @@ html:not(.dark) .navbtn{background:rgba(255,250,240,.92);color:var(--gold2)}
   .sitebar nav{gap:2px;width:100%;justify-content:space-between;order:2}
   .sitebar nav a{padding:5px 5px;min-width:0}
   .sitebar .navimg{height:17px;max-width:100%}
+  .sitebar .read-chip{display:none}
   .entry{scroll-margin-top:128px}
   .lanchor{scroll-margin-top:128px}
   .fsgrp{margin-left:4px}

@@ -1866,6 +1866,7 @@ aside.toc{position:sticky;top:86px;max-height:calc(100vh - 110px);overflow-y:aut
 .toc a:hover{color:var(--ink)}
 .toc a.here{border-left-color:var(--cin);color:var(--cin);font-weight:700}
 .toc a.done::after{content:" ✓";color:var(--cin);font-size:11px}
+.read-chip{flex:none;padding:4px 11px;border:1px solid rgba(201,165,95,.85);border-radius:999px;background:rgba(10,20,31,.72);color:#f0d48a;font-size:12px;line-height:1.6;letter-spacing:.1em;font-family:"Songti SC","STSong",SimSun,serif;white-space:nowrap}
 main.content{min-width:0;max-width:760px;width:100%;justify-self:center}
 /* ---- 条目（文章） ---- */
 .entry{margin:0 0 16px;background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 30px var(--shadow);scroll-margin-top:86px;overflow:hidden}
@@ -2146,6 +2147,7 @@ html:not(.dark) .navbtn{background:rgba(255,250,240,.92);color:var(--gold2)}
   .sitebar nav{gap:2px;width:100%;justify-content:space-between;order:2}
   .sitebar nav a{padding:5px 5px;min-width:0}
   .sitebar .navimg{height:17px;max-width:100%}
+  .sitebar .read-chip{display:none}
   .entry{scroll-margin-top:128px}
   .lanchor{scroll-margin-top:128px}
   .fsgrp{margin-left:4px}
@@ -2231,10 +2233,17 @@ window.ghlTrack=function(name,data){try{
 }catch(e){}};
 (function(){var p=document.getElementById('progress');function upd(){var h=document.documentElement;var d=h.scrollHeight-h.clientHeight;p.style.width=(d>0?(h.scrollTop/d)*100:0)+'%';}document.addEventListener('scroll',upd,{passive:true});upd();})();
 (function(){var b=document.getElementById('toggle');if(!b)return;var MOON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';var SUN='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.6M12 19.4V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.6M19.4 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';var SEPIA='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="10" r="4.2"/><path d="M4 17h16M7 20.5h10"/></svg>';var ORDER=['light','dark','sepia'];function cur(){var c=document.documentElement.classList;return c.contains('dark')?'dark':(c.contains('sepia')?'sepia':'light')}function apply(t){var c=document.documentElement.classList;c.remove('dark','sepia');if(t!=='light')c.add(t);try{localStorage.setItem('ghl_theme',t)}catch(e){}}function sync(){var nx=ORDER[(ORDER.indexOf(cur())+1)%3];b.innerHTML=nx==='dark'?MOON:(nx==='sepia'?SEPIA:SUN);b.setAttribute('aria-label',nx==='dark'?'切换晚上模式':(nx==='sepia'?'切换米色模式':'切换白天模式'))}try{var st=localStorage.getItem('ghl_theme');if(st==='dark'||st==='sepia')apply(st)}catch(e){}b.addEventListener('click',function(){apply(ORDER[(ORDER.indexOf(cur())+1)%3]);sync()});sync();})();
+var GHL_READIDS=_READIDS_PLACEHOLDER_;
 (function(){var LG=(window.__GHL_LEGACY__||{});var read=[];try{read=JSON.parse(localStorage.getItem('ghl_read')||'[]')}catch(e){}
 /* 已读态一次性迁移（10-14）：旧 sec-NN → ghl；无法映射即丢弃（可接受损失） */
 var mig=[],chg=false;for(var mi=0;mi<read.length;mi++){var mv=read[mi];var nv=/^ghl-[0-9]+$/.test(mv)?mv:(LG[mv]||null);if(nv){mig.push(nv);}if(nv!==mv){chg=true;}}
 if(chg){read=mig;try{localStorage.setItem('ghl_read',JSON.stringify(read))}catch(e){}}
+/* p37 全站已读进度：页眉角标显示已读总数（与阅读线同键 ghl_read；只计库内编号） */
+function refreshProgress(){var c=document.getElementById('read-chip');if(!c)return;var n=0;read.forEach(function(id){if(GHL_READIDS.indexOf(id)>-1)n++});c.textContent='已读 '+n+'/'+GHL_READIDS.length;}
+window.__ghlRefreshProgress=refreshProgress;
+window.addEventListener('storage',function(e){if(e.key==='ghl_read'){try{read=JSON.parse(e.newValue||'[]')}catch(err){read=[]}refreshProgress();}});
+refreshProgress();
+document.addEventListener('click',function(){setTimeout(refreshProgress,0);});
 var cur=null;
 document.querySelectorAll('.toc a[href^="#ghl-"]').forEach(function(a){
   var id=a.getAttribute('href').slice(1);
@@ -2618,6 +2627,7 @@ def _sitebar():
       '<a href="board3.html" aria-label="法界天机"><img class="navimg" src="' + _IMG_NAV3 + '" alt="法界天机"></a>'
       '<a href="board4.html" aria-label="道法自然"><img class="navimg" src="' + _IMG_NAV4 + '" alt="道法自然"></a>'
       '<a href="all.html" aria-label="资料库"><img class="navimg" src="' + _IMG_LIB + '" alt="资料库"></a>'
+      '<span class="read-chip" id="read-chip">已读 0/' + str(len(_entries)) + '</span>'
       '<span class="fsgrp" role="group" aria-label="字号"><button type="button" data-fs="s" aria-pressed="false" aria-label="小字号">A-</button><button type="button" data-fs="" aria-pressed="true" aria-label="标准字号">A</button><button type="button" data-fs="l" aria-pressed="false" aria-label="大字号">A+</button></span>'
       '<button id="toggle" type="button" aria-label="切换深浅色"></button>'
       '<button id="printbtn" type="button" aria-label="打印本文">打印</button>'
@@ -2632,8 +2642,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p15">'
-        js_tag = '<script src="main.v5.js?v=20261113p15" defer></script>'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p16">'
+        js_tag = '<script src="main.v5.js?v=20261113p16" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
                        ';window.__GHL_IDPAGE__=' + _idpage_json +
@@ -2790,6 +2800,8 @@ window.addEventListener('resize',function(){if(card&&!card.hidden)close();});
 js += "\n" + _GLOSSARY_JS
 js += "\n(function(){document.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-ev]'):null;if(b){var f=document.createElement('iframe');f.src='https://www.youtube.com/embed/'+b.getAttribute('data-ev')+'?autoplay=1&playsinline=1';f.title='视频';f.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';b.replaceWith(f);return}var c=e.target.closest?e.target.closest('.qchip'):null;if(c){var q=document.getElementById('q');if(q){q.value=c.getAttribute('data-q');q.dispatchEvent(new Event('input',{bubbles:true}));q.focus()}}});})();\n"
 js += "\n(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var chips=[].slice.call(document.querySelectorAll('.search-hint .qchip'));if(!chips.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p}function apply(){var w=pick();chips.forEach(function(c,i){var v=w[i%w.length];c.textContent=v;c.setAttribute('data-q',v);c.style.opacity=''})}apply();setInterval(function(){var q=document.getElementById('q');if(q&&q.value.trim())return;chips.forEach(function(c){c.style.opacity='0'});setTimeout(apply,480)},12000)})();\n"
+# p37：内容线已读总数用库内编号表过滤（构建期写死，与阅读线同源）
+js = js.replace("_READIDS_PLACEHOLDER_", json.dumps(sorted(e['id'] for e in _entries)), 1)
 (HERE / "main.v5.js").write_text(js, encoding="utf-8", newline="\n")
 
 # 7.5) 全部条目页（10-23 P1）：目录 + 年份/系列/标题筛选 + 阅读时长 + 复制链接
