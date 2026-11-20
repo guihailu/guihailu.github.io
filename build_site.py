@@ -1958,6 +1958,12 @@ html.dark .cat-year-btn.on{background:#243843;color:#f0d48a}
 .cat-list{border-top:1px solid var(--line)}
 .cat-item{display:grid;grid-template-columns:94px minmax(0,1fr) 110px 52px 58px;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--line);font-size:14px}
 .cat-item[hidden]{display:none}
+.cat-group{margin-top:28px}
+.cat-group:first-child{margin-top:8px}
+.cat-group[hidden]{display:none}
+.cat-group-h{margin:0 0 4px;font-family:"Songti SC",SimSun,serif;font-size:20px;color:var(--ink)}
+.cat-group-h .cat-group-n{color:var(--gold2);font-size:14px;margin-left:8px;font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-weight:600}
+.cat-group-note{margin:0 0 10px;color:var(--sub);font-size:13.5px;line-height:1.8}
 .cat-title{font-family:"Songti SC",SimSun,serif;font-size:16.5px;font-weight:600;line-height:1.55}
 .cat-title a{color:var(--ink);text-decoration:none}
 .cat-title a:hover{color:var(--gold2)}
@@ -2642,7 +2648,7 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p16">'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p17">'
         js_tag = '<script src="main.v5.js?v=20261113p16" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
@@ -2817,13 +2823,20 @@ for _y in sorted((y for y in _pages if y != 'NODATE'), reverse=True):
     _year_btns += f'<button type="button" class="cat-year-btn" data-year="{_y}">{_y}</button>'
 if 'NODATE' in _pages:
     _year_btns += '<button type="button" class="cat-year-btn" data-year="NODATE">未编年</button>'
-_cat_rows = []
-for _e in _catalog_items:
+# p37-2 资料库按年份分组＋每组一句：每组一句为本站自己的话、从该年份篇目提炼的概括句，
+# 不贴原文、不编造篇目；分组不改 URL 与锚点结构、不删篇目。文案逐字核对见 verify_p37b.py。
+_YEAR_NOTES = {
+ '2026': '这一年讲得最密：从看人看局的认知，到修仙、轮回、投胎、改命，再到名人的命运起落，都是拿身边的事把道理讲透。',
+ '2025': '这一年多是长谈与答疑：贵人、念经的禁忌、临终、婴灵、算命、教育，问得越具体，答得越实在。',
+ '2024': '这一年以访谈为主：太岁、投胎、香包、法器、夫妻与中年危机，边聊边把看不见的规矩讲明白。',
+ 'NODATE': '没标年份的旧整理与直播答疑：修行自查、箴言、语录、阴债、风水、梦境，想到哪讲到哪，都是能直接拿来用的话。',
+}
+def _cat_item_html(_e):
     _date = _e['date'] or '未编年'
     _href = _e['page'] + '#' + _e['id']
     _link = 'https://guihailu.github.io/' + _href
     _search = _html.escape((_e['title'] + ' ' + _e['series'] + ' ' + _date).lower(), quote=True)
-    _cat_rows.append(
+    return (
         '<div class="cat-item" data-year="' + _e['year'] + '" data-series="' + _html.escape(_e['series'], quote=True) +
         '" data-search="' + _search + '">'
         '<span class="cat-date">' + _html.escape(_date) + '</span>'
@@ -2831,6 +2844,20 @@ for _e in _catalog_items:
         '<span class="cat-series">' + _html.escape(_e['series']) + '</span>'
         '<span class="cat-time">' + str(_e['minutes']) + '′</span>'
         '<button type="button" class="cat-copy" data-link="' + _html.escape(_link, quote=True) + '">复制</button></div>')
+_cat_rows = []
+_year_order = sorted((y for y in _pages if y != 'NODATE'), reverse=True) + (['NODATE'] if 'NODATE' in _pages else [])
+for _y in _year_order:
+    _gitems = [e for e in _catalog_items if e['year'] == _y]
+    assert _gitems, 'empty year group: ' + str(_y)
+    assert _y in _YEAR_NOTES, 'year group missing note: ' + str(_y)
+    _ylabel = _YEAR_LABEL.get(_y, _y)
+    _yhead = _ylabel + ' 年' if _y != 'NODATE' else _ylabel
+    _cat_rows.append(
+        '<section class="cat-group" data-year="' + str(_y) + '">'
+        '<h2 class="cat-group-h">' + _html.escape(_yhead) + ' <span class="cat-group-n">' + str(len(_gitems)) + ' 篇</span></h2>'
+        '<p class="cat-group-note">' + _html.escape(_YEAR_NOTES[_y]) + '</p>'
+        + "".join(_cat_item_html(e) for e in _gitems) + '</section>')
+assert sum(len([e for e in _catalog_items if e['year'] == y]) for y in _year_order) == len(_entries) == 123, 'year group total drift'
 _catalog_tpl = '''<div class="yearhead"><a class="back" href="index.html">← 返回首页</a>
 <h1>全部条目</h1><p>共 __TOTAL__ 篇 · 按标题 / 系列 / 年份筛选</p></div>
 <div class="catalog-wrap">
@@ -2857,6 +2884,12 @@ _catalog_tpl = '''<div class="yearhead"><a class="back" href="index.html">← �
    el.hidden=!ok; if(ok)n++;
   });
   count.textContent=n+' 篇'; empty.hidden=n>0;
+  /* p37-2 年份分组：筛后空组整组隐藏、组头计数改为当前可见数 */
+  document.querySelectorAll('.cat-group').forEach(function(g){
+   var vis=0;g.querySelectorAll('.cat-item').forEach(function(el){if(!el.hidden)vis++;});
+   g.hidden=vis===0;
+   var cn=g.querySelector('.cat-group-n');if(cn)cn.textContent=vis+' 篇';
+  });
  }
  q.addEventListener('input',apply); sel.addEventListener('change',apply);
  [].slice.call(document.querySelectorAll('.cat-year-btn')).forEach(function(b){
