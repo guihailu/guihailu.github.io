@@ -429,6 +429,9 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .topic{margin:46px 0 8px}
 .topic h2{font-family:"Songti SC","STSong",SimSun,serif;font-size:clamp(22px,3vw,28px);margin:0 0 4px}
 .topic .tdesc{color:var(--sub);margin:0 0 8px;line-height:1.8}
+.concept-h{font-family:"Songti SC","STSong",SimSun,serif;font-size:19px;margin:22px 0 2px}
+.concept-h:first-of-type{margin-top:14px}
+.concept-note{color:var(--sub);margin:0 0 4px;line-height:1.8;font-size:14px}
 .board-hero p .nb,.topic .tdesc .nb{white-space:nowrap}
 .board-hero h1{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(46px,7vw,76px);margin:14px 0 8px;letter-spacing:.06em}
 .board-hero .plain{font-size:clamp(18px,2.4vw,23px);color:var(--gold2);font-family:"Songti SC",SimSun,serif;line-height:1.6}
@@ -504,7 +507,7 @@ def shell(title,body,home=False,sutra=None):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\')document.documentElement.classList.add(\'dark\');else if(t===\'sepia\')document.documentElement.classList.add(\'sepia\');else if(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches)document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261115p12"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261115p13"></head><body>'
  +(sutra_bg(sutra) if sutra else '')+
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理">'+('' if home else '<span class="overseas-mark">海外发布</span>')+'</a>'
@@ -636,6 +639,32 @@ def problem_entries(p):
  es=[e for s,d,e in scored]
  es.sort(key=lambda e:0 if 'video' in e else 1)
  return es
+# p37-3 topics 页加核心概念组：8 个站内高频概念，均在 p35 术语小卡 10 词
+# （修行/天道/因果/轮回/福报/前世/法界/功德/投胎/仙家）之外；每概念一句本站自己的话
+# 作引导（指针式、不释义、不贴原文）＋按标题命中优先、再正文提及数、再日期倒序选出的
+# 前 3 篇（要求标题命中或正文提及 ≥2 次；正文提及数已逐项验实，见 verify_p37c.py）。
+# 概念组放在 5 个问题分类之前，现有分类与 URL 一字未动。
+CONCEPTS=[
+ {'name':'天眼','note':'从能不能开、到跟脑机接口的对照，这一门的来龙去脉都在这三篇里。','ids':['ghl-000086','ghl-000002','ghl-000005']},
+ {'name':'阴债','note':'欠下的账怎么算、跟法器仙符是什么关系，先从这三篇看起。','ids':['ghl-000063','ghl-000084','ghl-000101']},
+ {'name':'超度','note':'超度到底是在做什么、谁能做、做错了会怎样，这三篇讲得最直接。','ids':['ghl-000109','ghl-000088','ghl-000111']},
+ {'name':'婴灵','note':'堕胎之后的事、投胎的门票、送走的后果，这三篇是站内讲得最全的。','ids':['ghl-000071','ghl-000089','ghl-000072']},
+ {'name':'太岁','note':'犯太岁到底是怎么回事、那一年要注意什么，先从这篇专讲太岁的访谈看起。','ids':['ghl-000042','ghl-000116','ghl-000063']},
+ {'name':'烧纸','note':'烧纸是招阴还是尽孝、门道在哪，三篇各讲一面。','ids':['ghl-000118','ghl-000051','ghl-000048']},
+ {'name':'风水','note':'从阴宅到阳宅、再到赌场的风水局，风水在这站里是这么讲的。','ids':['ghl-000049','ghl-000043','ghl-000001']},
+ {'name':'冤亲债主','note':'年底要处理的那笔账、跟运势的关系，先从这三篇看起。','ids':['ghl-000038','ghl-000091','ghl-000109']},
+]
+assert all(len(c['ids'])==3 and len(set(c['ids']))==3 for c in CONCEPTS),'concept ids must be 3 distinct'
+assert all(i in entries for c in CONCEPTS for i in c['ids']),'concept id missing from entries'
+assert not ({'修行','天道','因果','轮回','福报','前世','法界','功德','投胎','仙家'} & {c['name'] for c in CONCEPTS}),'concept overlaps p35 glossary'
+def concept_section():
+ blocks=''
+ for c in CONCEPTS:
+  es=[entries[i] for i in c['ids']]
+  blocks+=(f'<h3 class="concept-h">{c["name"]}</h3><p class="concept-note">{c["note"]}</p>'
+  f'<div class="alist">{alist_rows(es)}</div>')
+ return (f'<section class="topic"><h2>核心概念</h2><p class="tdesc"><span class="nb">不知道自己的问题怎么问，</span><span class="nb">先从概念逛进去：</span><span class="nb">每个概念只给三篇，点开就是完整原文。</span></p>'
+  f'{blocks}</section>')
 def topics_page():
  secs=''
  for p in PROBLEMS:
@@ -645,7 +674,7 @@ def topics_page():
   f'<div class="alist">{alist_rows(es)}</div></section>')
  body=('<section class="board-hero"><span class="tag">资料库</span><h1 class="topics-h1">按问题找</h1>'
  '<p><span class="nb">不用先弄懂四部是什么。</span><span class="nb">带着你现在最头疼的问题来，</span><span class="nb">从下面挑一篇开始读，就是入口。</span></p></section>'
- f'<main class="board-main">{secs}'
+ f'<main class="board-main">{concept_section()}{secs}'
  '<p style="margin-top:26px"><a class="more" href="index.html">← 回到首页</a> <a class="more" href="all.html">完整资料库 →</a></p></main>')
  return shell('归海录 · 按问题找',body,sutra='topics')
 search_entries=[]
