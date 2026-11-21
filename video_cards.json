@@ -1,7 +1,7 @@
 {
  "source": "guihailu/muse-backup:handoff/codex/切片链接表.md",
- "source_blob_sha": "f12a360207150a84a00bebdc3529454249ecf2d5",
- "checked_at": "2026-11-17",
+ "source_blob_sha": "38151d689b1689f8957e9a9db9e7c3f612015341",
+ "checked_at": "2026-11-21",
  "cards": [
   {
    "id": "F09",
@@ -239,6 +239,21 @@
   "article_id": "ghl-000105",
   "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
   "published_at": "2026-11-17",
+  "status": "published",
+  "audio_language": "zh",
+  "subtitle_language": "en"
+ },
+ {
+  "id": "F18",
+  "title": "鼻子也通：闻得到法界的气味",
+  "description": "讲鼻子也通：闻得到法界的气味——前世在人身上留下气味，修行人、神佛身上有檀香清香，恶道来的带腐臭尸臭，闻气味能辨来处。",
+  "intro": "本段讲述：讲鼻子也通：闻得到法界的气味——前世在人身上留下气味，修行人、神佛身上有檀香清香，恶道来的带腐臭尸臭，闻气味能辨来处。",
+  "duration_seconds": 41.64,
+  "youtube_url": "https://www.youtube.com/shorts/5y9eqtIeSKw",
+  "poster": "https://i.ytimg.com/vi/5y9eqtIeSKw/hqdefault.jpg",
+  "article_id": "ghl-000105",
+  "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
+  "published_at": "2026-11-21",
   "status": "published",
   "audio_language": "zh",
   "subtitle_language": "en"
