@@ -1,19 +1,19 @@
 {
-  "generated": "ee1f531f0805",
-  "count": 123,
+  "generated": "309f5c09f5ad",
+  "count": 124,
   "shared": "search_shared.json",
   "shards": [
     {
       "file": "search_index_2026.json",
       "page": "2026.html",
       "count": 13,
-      "bytes": 418512
+      "bytes": 405199
     },
     {
       "file": "search_index_2026_2.json",
       "page": "2026.html",
-      "count": 36,
-      "bytes": 378650
+      "count": 37,
+      "bytes": 412177
     },
     {
       "file": "search_index_2025.json",
