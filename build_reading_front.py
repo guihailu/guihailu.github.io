@@ -163,8 +163,13 @@ IMG1=datauri('board1-nixiu.webp','image/webp')
 IMG2=datauri('board2-linghun.webp','image/webp')
 IMG3=datauri('board3-fajie.webp','image/webp')
 IMG4=datauri('board4-daofa.webp','image/webp')
+IMG1B=datauri('board1-nixiu-banner.webp','image/webp')
+IMG2B=datauri('board2-linghun-banner.webp','image/webp')
+IMG3B=datauri('board3-fajie-banner.webp','image/webp')
+IMG4B=datauri('board4-daofa-banner.webp','image/webp')
 HERO_IMG=datauri('hero-fajie.webp','image/webp')
 SEAL_IMG=datauri('seal.png','image/png')
+SEAL_WIDE_IMG=datauri('seal-wide.png','image/png')
 FAVICON=datauri('favicon.png','image/png')
 SITEDESC='志远行空讲课内容的整理站：121 篇讲课整理分成四部——逆修觉者、灵魂觉者、法界天机、道法自然，每部都有故事案例、讲课原声和小动画。'
 TITLE_GUIHAI=datauri('title-guihai.webp','image/webp')
@@ -176,19 +181,19 @@ NAVTITLES={1:datauri('title-nixiu-sm.webp','image/webp'),2:datauri('title-linghu
 NAVLIB=datauri('title-lib-sm.webp','image/webp')
 TITLE_LIB=datauri('title-lib.webp','image/webp')
 BOARDS=[
- {'n':1,'cn':'一','wm':'壹','name':'逆修觉者','img':IMG1,
+ {'n':1,'cn':'一','wm':'壹','name':'逆修觉者','img':IMG1,'banner':IMG1B,
   'plain':'日子照过活法换一种<br>在红尘里把自己修回来',
   'desc':'这一部讲的是普通人的修行：为什么修、修行到底是什么、从哪儿开始。福报怎么做、话怎么说、事怎么做，逆修自查一条条对着自己量。离生活最近的一部，先从这里进门。',
   'first':'ghl-000018'},
- {'n':2,'cn':'二','wm':'貳','name':'灵魂觉者','img':IMG2,
+ {'n':2,'cn':'二','wm':'貳','name':'灵魂觉者','img':IMG2,'banner':IMG2B,
   'plain':'人除了身体还有一个<br>「自己」在水底下',
   'desc':'这一部讲灵魂这一层：灵魂是怎么回事，洗灵有什么用，人在镜子里外是怎样两个样子。听着玄，其实讲的都是为什么你明明想做好、却总是做不到。',
   'first':'ghl-000070'},
- {'n':3,'cn':'三','wm':'叁','name':'法界天机','img':IMG3,
+ {'n':3,'cn':'三','wm':'叁','name':'法界天机','img':IMG3,'banner':IMG3B,
   'plain':'看不见的那一界<br>也有它的规矩和账本',
   'desc':'这一部讲看不见的世界怎么运作：三界是怎么分的，阴间也有经济学，烧纸为什么有讲究、怎么做才对。好奇心最重的人，通常是从这一部被勾住的。',
   'first':'ghl-000051'},
- {'n':4,'cn':'四','wm':'肆','name':'道法自然','img':IMG4,
+ {'n':4,'cn':'四','wm':'肆','name':'道法自然','img':IMG4,'banner':IMG4B,
   'plain':'道理听完要落回<br>一日三餐里',
   'desc':'这一部最落地：前面听懂的道理，怎么用在过日子上——对家人、对工作、对钱、对脾气。修行不在山上，在你每天怎么活。',
   'first':'ghl-000026'},
@@ -243,8 +248,8 @@ nav a:hover{opacity:1;border-color:rgba(201,165,95,.9);background:rgba(201,165,9
 #theme-toggle{position:fixed;top:42px;right:max(4vw,20px);z-index:65;border:1px solid #b6a378;background:transparent;color:var(--ink);border-radius:999px;width:48px;height:32px;display:grid;place-items:center;padding:0;line-height:1;cursor:pointer}#theme-toggle svg{display:block}.theme-slot{width:48px;height:32px;flex:none}
 #to-top{position:fixed;right:22px;bottom:22px;z-index:55;background:#c9a55f;color:#101f2c;border:0;border-radius:999px;padding:12px 17px;font-weight:700;box-shadow:0 10px 26px rgba(0,0,0,.3)}
 .hero{position:relative;min-height:100svh;display:grid;place-items:center;text-align:center;overflow:hidden}
-.hero .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:kb 30s ease-in-out infinite alternate}
-@keyframes kb{from{transform:scale(1.02)}to{transform:scale(1.10)}}
+.hero .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 35%;animation:kb 30s ease-in-out infinite alternate}
+@keyframes kb{from{transform:scale(1.02)}to{transform:scale(1.06)}}
 .hero::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,10,16,.34),rgba(4,10,16,0) 26%),radial-gradient(ellipse at 50% 42%,rgba(0,0,0,0) 30%,rgba(4,10,16,.38) 100%);z-index:1}
 .hero .bg,.hero .rays,.hero .dust,.hero::before{-webkit-mask-image:linear-gradient(180deg,#000 74%,transparent 98%);mask-image:linear-gradient(180deg,#000 74%,transparent 98%)}
 .hero .rays{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;background:conic-gradient(from 180deg at 50% -12%,transparent 40%,rgba(255,214,120,.30) 47%,rgba(255,226,150,.42) 50%,rgba(255,214,120,.30) 53%,transparent 60%),conic-gradient(from 180deg at 50% -12%,transparent 30%,rgba(255,220,140,.20) 36%,transparent 43%),conic-gradient(from 180deg at 50% -12%,transparent 58%,rgba(255,220,140,.20) 64%,transparent 71%),radial-gradient(ellipse 62% 34% at 50% 0%,rgba(255,222,140,.5),transparent 70%);filter:blur(12px);animation:sway 11s ease-in-out infinite alternate,pulse 6.5s ease-in-out infinite alternate;transition:opacity 1.2s}
@@ -363,7 +368,7 @@ html.dark .casewall button.on{background:#243843;color:#f0d48a}
 .rot-open{margin-top:10px;background:none;border:0;color:var(--gold2);font-size:14.5px;padding:0;font-weight:600}
 .doors{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .doors a{border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:13.5px;color:var(--gold2);background:var(--chip);font-weight:600}
-.stage{position:relative;aspect-ratio:16/9;background:#183544;border-radius:10px;overflow:hidden;margin-top:10px}
+.stage{position:relative;aspect-ratio:4/3;background:#183544;border-radius:10px;overflow:hidden;margin-top:10px}
 .stage>button{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:#183544;cursor:pointer}
 .stage>button img{width:100%;height:100%;object-fit:cover;display:block}
 .stage .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;background:rgba(201,165,95,.94);color:#101f2c;display:grid;place-items:center;font-size:20px}
@@ -425,6 +430,7 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .library .years span{font-size:12px;color:var(--sub)}
 .board-hero{max-width:1180px;margin:0 auto;padding:130px 22px 0;text-align:center}
 .board-hero .board-art{background:#0d1826;width:min(880px,100%);max-height:330px;object-fit:cover;border-radius:18px;margin:24px auto 4px;display:block;box-shadow:0 24px 60px var(--shadow)}
+.board-hero picture{display:block}
 .topics-h1{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(42px,6vw,60px);margin:14px 0 6px}
 .topic{margin:46px 0 8px}
 .topic h2{font-family:"Songti SC","STSong",SimSun,serif;font-size:clamp(22px,3vw,28px);margin:0 0 4px}
@@ -507,13 +513,13 @@ def shell(title,body,home=False,sutra=None):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\')document.documentElement.classList.add(\'dark\');else if(t===\'sepia\')document.documentElement.classList.add(\'sepia\');else if(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches)document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261115p13"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261123p40"></head><body>'
  +(sutra_bg(sutra) if sutra else '')+
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理">'+('' if home else '<span class="overseas-mark">海外发布</span>')+'</a>'
  '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><span class="read-chip" id="read-chip">已读 0/123</span><span class="theme-slot" aria-hidden="true"></span></nav></header><button id="theme-toggle" type="button" aria-label="切换晚上模式"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>'
  +body+
- f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理'+('' if not home else '<div class="foot-echo">本站在海外发布。</div>')+'</footer>'
+ f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理'+('' if not home else '<div class="foot-echo">本站在海外发布</div>')+'</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
  '<dialog id="reader"><button id="close" type="button">关闭阅读 ×</button><h2 id="reader-title"></h2><div id="reader-body"></div><p class="src">这里是故事梗概，完整原文在资料库里。</p></dialog>'
  '<script src="reading.js?v=20261115p12"></script></body></html>')
@@ -545,7 +551,7 @@ def poster_of(c):
  v=vid_of(c)
  return c.get('poster') or ('https://i.ytimg.com/vi/'+v+'/hqdefault.jpg')
 # p17 失效兜底：外站海报（i.ytimg.com）加载失败时换成本地归海印章，不留破图；data-fb 防兜底图自身失败时死循环。
-POSTER_FB=' onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+SEAL_IMG+'\'}"'
+POSTER_FB=' onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+SEAL_WIDE_IMG+'\'}"'
 def video_block():
  c=clips[0];v=vid_of(c)
  return ('<div class="lab">讲课原声 · 先听一段</div>'
@@ -614,7 +620,7 @@ def board_page(b):
  assert ''.join(BOARD_DESC_SEGS[b['n']])==b['desc'], 'desc segs drifted'
  es=board_entries(b['n'])
  body=(f'<section class="board-hero"><span class="tag">第{b["cn"]}部</span><h1><img class="title-img" src="{TITLES[b["n"]]}" alt="{b["name"]}"></h1>'
- f'<img class="board-art" src="{b["img"]}" alt="" loading="lazy">'
+ f'<picture><source media="(min-width:821px)" srcset="{b["banner"]}"><img class="board-art" src="{b["img"]}" alt="" loading="lazy"></picture>'
  f'<div class="plain">{b["plain"]}</div><p>{nb_segs(BOARD_DESC_SEGS[b["n"]])}</p>'
  f'<p>本部共 {len(es)} 篇：有视频版的排在前面，其余按时间从新到旧，点开就是完整原文。</p></section>'+ORN_DIV+
  f'<main class="board-main"><div class="alist">{alist_rows(es)}</div>'+route_section(b)+
@@ -691,7 +697,7 @@ hero=('<section class="hero">'
  '<span class="hl">全部内容分成四部&ensp;<span style="white-space:nowrap">逆修觉者</span>&ensp;<span style="white-space:nowrap">灵魂觉者</span>&ensp;<span style="white-space:nowrap">法界天机</span>&ensp;<span style="white-space:nowrap">道法自然</span></span>'
  '<span class="hl">每一部里都有故事案例、讲课原声和小动画，点开就能看</span>'
  '<span class="hl">第一次来，从第一部开始往下看</span></p>'
- '<p class="overseas-note">本站在海外发布。</p>'
+ '<p class="overseas-note">本站在海外发布</p>'
  '<div class="cta"><a class="btn" href="#part1">从第一部开始</a><a class="btn ghost" href="#library">直接查资料库</a></div>'
  '<a class="scrollcue" href="#part1"><span class="arr">↓</span> 向 下 逛 <span class="arr">↓</span></a></div></section>')
 counts={y:0 for y in ['2026','2025','2024']}

@@ -272,6 +272,24 @@ _FEISHU_ALT = {
     "UiImbvHBDo2EiRxIlMujwOKvpJf": "破万法思维模型配图 4：逆行与核心叮嘱示意",
     "ABLhbyfAGohUWkxkKBiju4s6pXF": "破万法思维模型配图 5：信息减法示意",
 }
+# p40：线上年份页的飞书查看页地址当 <img> src 加载失败，改成本地 media/；
+# 命名与 mirror_media.py 一致（media/<sha256(飞书ID)[:20]>.*，单命中才换）。
+def _fix_feishu_src(html):
+    # 与 mirror_media.py 同款输出（src 改本地＋包 <a 打开原图>＋补 loading/decoding），
+    # 只是不下载：未镜像的图留给 mirror_media.py 处理。
+    def _rep(m):
+        _begin, _tok, _end = m.group(1), m.group(2), m.group(3)
+        _stem = hashlib.sha256(_tok.encode('ascii')).hexdigest()[:20]
+        _cand = [p for p in (HERE / "media").glob(_stem + '.*')
+                 if p.suffix.lower() in {'.png', '.jpg', '.jpeg', '.webp', '.gif'}]
+        if len(_cand) != 1:
+            return m.group(0)
+        _path = 'media/' + _cand[0].name
+        if 'loading=' not in _end:
+            _end = _end.replace(' />', ' loading="lazy" decoding="async" />')
+        _img = _begin + _path + _end
+        return f'<a href="{_path}" target="_blank" rel="noopener" aria-label="打开原图">{_img}</a>'
+    return re.sub(r'(<img\b[^>]*?\bsrc=")https://feishu\.cn/file/([A-Za-z0-9]+)("[^>]*>)', _rep, html)
 def _add_img_alt(m):
     tag = m.group(0)
     if re.search(r'\balt=', tag, re.I):
@@ -340,7 +358,7 @@ def _first_para_text(html):
     return ''
 
 # p17 失效兜底：外站海报（i.ytimg.com）加载失败时换成本地归海印章，不留破图；data-fb 防兜底图自身失败时死循环。
-_POSTER_FB = ' onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\'assets/boards/seal.png?v=20261108p4\'}"'
+_POSTER_FB = ' onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\'assets/boards/seal-wide.png?v=20261123p40\'}"'
 
 # ---- Heading typography system (2026-11-13, user-approved combined version) ----
 # Deterministic semantic segmentation for entry titles (h2) and section headings
@@ -1740,6 +1758,9 @@ for _y, _items in _pages.items():
     _yearch_head[_y] = ('<div class="yearhead"><a class="back" href="index.html">← 返回首页</a>'
                         f'<h1>{_label}</h1><p>共 {len(_items)} 篇 · 按时间倒序</p></div>')
     _year_bodies[_y] = _yearch_head[_y] + _month_nav_html(_items) + _layout_html(_items)
+# p40：线上年份页 feishu 图源改本地 media/（离线版另有 feishu→绝对地址解析，不动）
+for _y in _year_bodies:
+    _year_bodies[_y] = _fix_feishu_src(_year_bodies[_y])
 _offline_body = _intro_html + _guide_offline + _layout_html(_entries, _offline_href)
 
 # 5) 组装 index.html（Apple CN 排版 + Medium 阅读 + 侧栏目录）
@@ -1888,8 +1909,8 @@ html.fs-l .entry-body{font-size:18px}
 html.fs-xl .entry-body{font-size:19.5px}
 .entry-body p{margin:0 0 1.1em}
 .evideo{margin:6px 0 20px}
-.evideo-play{position:relative;display:block;width:100%;max-width:560px;aspect-ratio:16/9;padding:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0a141f;cursor:pointer}
-.evideo-play img{display:block;width:100%;height:100%;object-fit:cover;opacity:.92}
+.evideo-play{position:relative;display:block;width:100%;max-width:560px;aspect-ratio:4/3;padding:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0a141f;cursor:pointer}
+.evideo-play img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;opacity:.92}
 .evideo-btn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(10,18,28,.85);color:#f4cf74;border:1px solid rgba(244,207,116,.6);padding:10px 20px;border-radius:999px;font-size:15px;font-weight:600;white-space:nowrap}
 .evideo iframe{display:block;width:100%;max-width:560px;aspect-ratio:16/9;border:0;border-radius:14px}
 .evideo-alt{font-size:13px;color:var(--sub);margin-top:8px}
@@ -2648,7 +2669,7 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261113p17">'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261123p40">'
         js_tag = '<script src="main.v5.js?v=20261113p16" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
