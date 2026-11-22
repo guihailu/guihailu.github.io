@@ -2857,7 +2857,7 @@ for _y in _year_order:
         '<h2 class="cat-group-h">' + _html.escape(_yhead) + ' <span class="cat-group-n">' + str(len(_gitems)) + ' 篇</span></h2>'
         '<p class="cat-group-note">' + _html.escape(_YEAR_NOTES[_y]) + '</p>'
         + "".join(_cat_item_html(e) for e in _gitems) + '</section>')
-assert sum(len([e for e in _catalog_items if e['year'] == y]) for y in _year_order) == len(_entries) == 123, 'year group total drift'
+assert sum(len([e for e in _catalog_items if e['year'] == y]) for y in _year_order) == len(_entries), 'year group total drift'
 _catalog_tpl = '''<div class="yearhead"><a class="back" href="index.html">← 返回首页</a>
 <h1>全部条目</h1><p>共 __TOTAL__ 篇 · 按标题 / 系列 / 年份筛选</p></div>
 <div class="catalog-wrap">
