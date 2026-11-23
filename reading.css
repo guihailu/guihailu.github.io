@@ -34,8 +34,8 @@ nav a:hover{opacity:1;border-color:rgba(201,165,95,.9);background:rgba(201,165,9
 #theme-toggle{position:fixed;top:42px;right:max(4vw,20px);z-index:65;border:1px solid #b6a378;background:transparent;color:var(--ink);border-radius:999px;width:48px;height:32px;display:grid;place-items:center;padding:0;line-height:1;cursor:pointer}#theme-toggle svg{display:block}.theme-slot{width:48px;height:32px;flex:none}
 #to-top{position:fixed;right:22px;bottom:22px;z-index:55;background:#c9a55f;color:#101f2c;border:0;border-radius:999px;padding:12px 17px;font-weight:700;box-shadow:0 10px 26px rgba(0,0,0,.3)}
 .hero{position:relative;min-height:100svh;display:grid;place-items:center;text-align:center;overflow:hidden}
-.hero .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:kb 30s ease-in-out infinite alternate}
-@keyframes kb{from{transform:scale(1.02)}to{transform:scale(1.10)}}
+.hero .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 35%;animation:kb 30s ease-in-out infinite alternate}
+@keyframes kb{from{transform:scale(1.02)}to{transform:scale(1.06)}}
 .hero::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,10,16,.34),rgba(4,10,16,0) 26%),radial-gradient(ellipse at 50% 42%,rgba(0,0,0,0) 30%,rgba(4,10,16,.38) 100%);z-index:1}
 .hero .bg,.hero .rays,.hero .dust,.hero::before{-webkit-mask-image:linear-gradient(180deg,#000 74%,transparent 98%);mask-image:linear-gradient(180deg,#000 74%,transparent 98%)}
 .hero .rays{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;background:conic-gradient(from 180deg at 50% -12%,transparent 40%,rgba(255,214,120,.30) 47%,rgba(255,226,150,.42) 50%,rgba(255,214,120,.30) 53%,transparent 60%),conic-gradient(from 180deg at 50% -12%,transparent 30%,rgba(255,220,140,.20) 36%,transparent 43%),conic-gradient(from 180deg at 50% -12%,transparent 58%,rgba(255,220,140,.20) 64%,transparent 71%),radial-gradient(ellipse 62% 34% at 50% 0%,rgba(255,222,140,.5),transparent 70%);filter:blur(12px);animation:sway 11s ease-in-out infinite alternate,pulse 6.5s ease-in-out infinite alternate;transition:opacity 1.2s}
@@ -154,7 +154,7 @@ html.dark .casewall button.on{background:#243843;color:#f0d48a}
 .rot-open{margin-top:10px;background:none;border:0;color:var(--gold2);font-size:14.5px;padding:0;font-weight:600}
 .doors{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .doors a{border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:13.5px;color:var(--gold2);background:var(--chip);font-weight:600}
-.stage{position:relative;aspect-ratio:16/9;background:#183544;border-radius:10px;overflow:hidden;margin-top:10px}
+.stage{position:relative;aspect-ratio:4/3;background:#183544;border-radius:10px;overflow:hidden;margin-top:10px}
 .stage>button{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:#183544;cursor:pointer}
 .stage>button img{width:100%;height:100%;object-fit:cover;display:block}
 .stage .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;background:rgba(201,165,95,.94);color:#101f2c;display:grid;place-items:center;font-size:20px}
@@ -216,6 +216,7 @@ html.dark .vibechips button.on{background:#243843;color:#f0d48a}
 .library .years span{font-size:12px;color:var(--sub)}
 .board-hero{max-width:1180px;margin:0 auto;padding:130px 22px 0;text-align:center}
 .board-hero .board-art{background:#0d1826;width:min(880px,100%);max-height:330px;object-fit:cover;border-radius:18px;margin:24px auto 4px;display:block;box-shadow:0 24px 60px var(--shadow)}
+.board-hero picture{display:block}
 .topics-h1{font-family:"STXingkai","华文行楷","Xingkai SC","Kaiti SC","STKaiti","KaiTi",serif;font-size:clamp(42px,6vw,60px);margin:14px 0 6px}
 .topic{margin:46px 0 8px}
 .topic h2{font-family:"Songti SC","STSong",SimSun,serif;font-size:clamp(22px,3vw,28px);margin:0 0 4px}
