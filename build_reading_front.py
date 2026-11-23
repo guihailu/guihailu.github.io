@@ -724,7 +724,7 @@ library=(f'<section class="library reveal" id="library"><div><h2>完整资料库
  '<a href="topics.html" style="grid-column:1/-1"><b>按问题找</b><span>钱 · 工作 · 家人 · 身体 · 命运——按你带着来的问题选篇</span></a></div></section>')
 parts_html=''.join(part_section(b)+(part_divider(b) if i<3 else '') for i,b in enumerate(BOARDS))
 index_body=hero+'<main>'+intro+collection_section()+parts_html+ORN_DIV+library+'</main>'
-(out/'index.html').write_text(shell('归海录 · 志远行空讲课整理',index_body,home=True),encoding='utf-8')
+(out/'index.html').write_text(shell('归海录 · 志远行空讲课整理',index_body,home=True,sutra='board1'),encoding='utf-8')
 for b in BOARDS:
  (out/f'board{b["n"]}.html').write_text(board_page(b),encoding='utf-8')
 (out/'topics.html').write_text(topics_page(),encoding='utf-8')
