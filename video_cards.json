@@ -1,7 +1,7 @@
 {
  "source": "guihailu/muse-backup:handoff/codex/切片链接表.md",
- "source_blob_sha": "38151d689b1689f8957e9a9db9e7c3f612015341",
- "checked_at": "2026-11-21",
+ "source_blob_sha": "1a7457dceb5d3cd4f6a6fd07f3914baca8f26954",
+ "checked_at": "2026-11-23",
  "cards": [
   {
    "id": "F09",
@@ -254,6 +254,21 @@
   "article_id": "ghl-000105",
   "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
   "published_at": "2026-11-21",
+  "status": "published",
+  "audio_language": "zh",
+  "subtitle_language": "en"
+ },
+ {
+  "id": "F19",
+  "title": "将军案例一：骷髅头堆成山",
+  "description": "讲将军案例一：前世当将军杀人无数，骷髅头堆成山；今生的遭遇与前世的杀业有关。",
+  "intro": "本段讲述：讲将军案例一：前世当将军杀人无数，骷髅头堆成山；今生的遭遇与前世的杀业有关。",
+  "duration_seconds": 40.88,
+  "youtube_url": "https://www.youtube.com/shorts/2eGYhnlXk5I",
+  "poster": "https://i.ytimg.com/vi/2eGYhnlXk5I/hqdefault.jpg",
+  "article_id": "ghl-000105",
+  "source_video_url": "https://www.youtube.com/watch?v=mooU3r_zFpQ",
+  "published_at": "2026-11-22",
   "status": "published",
   "audio_language": "zh",
   "subtitle_language": "en"
