@@ -517,7 +517,7 @@ def shell(title,body,home=False,sutra=None):
  +(sutra_bg(sutra) if sutra else '')+
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理">'+('' if home else '<span class="overseas-mark">海外发布</span>')+'</a>'
- '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><span class="read-chip" id="read-chip">已读 0/123</span><span class="theme-slot" aria-hidden="true"></span></nav></header><button id="theme-toggle" type="button" aria-label="切换晚上模式"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>'
+ '<nav>'+nav+'<a href="all.html" aria-label="资料库"><img class="navimg" src="'+NAVLIB+'" alt="资料库"></a><span class="read-chip" id="read-chip">已读 0/'+str(len(entries))+'</span><span class="theme-slot" aria-hidden="true"></span></nav></header><button id="theme-toggle" type="button" aria-label="切换晚上模式"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>'
  +body+
  f'<footer><div class="foot-orn"><i></i>'+_LOTUS_CC+'<i></i></div>'+f'<div class="footwm" aria-hidden="true"><img src="{TITLE_GUIHAI}" alt="" width="220" loading="lazy"></div><div class="flinks"><a href="'+LARK+'" target="_blank" rel="noopener">📿 归海录 · Lark 源文档</a></div>归海录 · 志远行空公开分享整理'+('' if not home else '<div class="foot-echo">本站在海外发布</div>')+'</footer>'
  '<button id="to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>'
@@ -705,7 +705,7 @@ for e in entries.values():
  if e['date'][:4] in counts:counts[e['date'][:4]]+=1
 total=len(entries)
 # p37 全站已读进度可见化：首页进度块（总数＋四部各自计数／进度条），
-# 数字由 reading.js 按 ghl_read 实时填；未读时 0/123。
+# 数字由 reading.js 按 ghl_read 实时填；静态初值构建时取 len(entries)。
 _prog_rows=''.join(
  f'<div class="readprog-row" data-board="{b["n"]}"><span class="readprog-name">{b["name"]}</span><span class="readprog-bar"><i style="width:0%"></i></span><span class="readprog-count">0/{len(board_entries(b["n"]))}</span></div>'
  for b in BOARDS)
