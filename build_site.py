@@ -54,6 +54,10 @@ def analytics_head():
                 's.onload=function(){try{if(window.LA&&window.LA.init)'
                 'window.LA.init({id:"' + i + '",ck:"' + ck + '"})}catch(e){}};'
                 'document.head.appendChild(s);})();</script>')
+    if p == "cloudflare":
+        # Cloudflare Web Analytics beacon：token 即站点标识，公开嵌在页面里；与控制台给的代码片段逐字一致
+        return ('<!-- Cloudflare Web Analytics --><script type=\'module\' src=\'https://static.cloudflareinsights.com/beacon.min.js\' data-cf-beacon=\'{"token": "' +
+                _html.escape(i, quote=True) + '"}\'></script><!-- End Cloudflare Web Analytics -->')
     return ""
 
 md = SRC.read_text(encoding="utf-8")

@@ -1,6 +1,1 @@
-{
-  "provider": "51la",
-  "id": "3Rb0SorOly4C8Cts",
-  "ck": "3Rb0SorOly4C8Cts",
-  "note": "C 已启用：51LA（id=ck=3Rb0SorOly4C8Cts）；B GoatCounter guihailu 配置保留在 git 历史/优化台账，当前不加载；B/C 长期二选一"
-}
+{"ck":"3Rb0SorOly4C8Cts","id":"3e183965efe74a718551a0c87250db20","note":"2026-11-25 用户定：51LA 换 Cloudflare（51LA 后台账号找不着、数读不到；Cloudflare 可读、每周简报）。51LA 旧配置：provider 51la，id=ck=3Rb0SorOly4C8Cts（ck 仍留本文件），恢复时只改 provider 回 51la。Cloudflare 站点建于 2026-11-24T16:49:55Z（控制台账号 Hywow108@gmail.com），token 即本文件 id。B GoatCounter 配置保留在 git 历史/优化台账，当前不加载；长期二选一。","provider":"cloudflare"}
