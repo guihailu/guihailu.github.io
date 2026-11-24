@@ -6,6 +6,40 @@ root=Path(__file__).resolve().parent;src=root;out=root
 esc=html.escape
 cases=json.loads((root/'reading_cases.json').read_text(encoding='utf-8'))
 board_map=json.loads((root/'board_map.json').read_text(encoding='utf-8'))
+# 分析服务：与 build_site.py 的 analytics_head() 保持逐字一致（前台外壳首页/板块页亦需统计；改一处须同步另一处）
+ANALYTICS = {}
+try:
+    ANALYTICS = json.loads((root/'analytics.json').read_text(encoding='utf-8'))
+except Exception as _e:
+    print("WARN analytics.json 读取失败，按 none 处理:", _e)
+
+def analytics_head():
+    p = str(ANALYTICS.get("provider", "none")).strip().lower()
+    i = str(ANALYTICS.get("id", "")).strip()
+    if not i or p in ("", "none"):
+        return ""
+    if p == "goatcounter":
+        # 自托管 goatcounter.js：gc.zgo.at 在本机/大陆网络实测连接超时；计数端点仍走官方
+        return ('<script data-goatcounter="https://' + html.escape(i, quote=True) +
+                '.goatcounter.com/count" async src="goatcounter.js"></script>')
+    if p == "umami":
+        return ('<script async src="https://cloud.umami.is/script.js" data-website-id="' +
+                html.escape(i, quote=True) + '"></script>')
+    if p == "baidu":
+        return ('<script>(function(){var hm=document.createElement("script");hm.src="https://hm.baidu.com/hm.js?' +
+                html.escape(i, quote=True) + '";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm,s);})();</script>')
+    if p == "51la":
+        ck = str(ANALYTICS.get("ck") or i).strip()
+        if not re.fullmatch(r"[A-Za-z0-9]+", i) or not re.fullmatch(r"[A-Za-z0-9]+", ck):
+            return ""
+        # 异步加载 + onload 初始化：sdk.51.la 慢/被拦时不阻塞页面、不抛 LA is not defined
+        return ('<script>(function(){var s=document.createElement("script");'
+                's.id="LA_COLLECT";s.charset="UTF-8";s.async=true;'
+                's.src="https://sdk.51.la/js-sdk-pro.min.js";'
+                's.onload=function(){try{if(window.LA&&window.LA.init)'
+                'window.LA.init({id:"' + i + '",ck:"' + ck + '"})}catch(e){}};'
+                'document.head.appendChild(s);})();</script>')
+    return ""
 def _merge_strings(el):
  for ch in list(el.children):
   if isinstance(ch,Tag):_merge_strings(ch)
@@ -513,7 +547,7 @@ def shell(title,body,home=False,sutra=None):
  f'<meta property="og:type" content="website"><meta property="og:site_name" content="归海录"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{SITEDESC}">'
  +seo+
  '<script>try{var t=localStorage.getItem(\'ghl_theme\');if(t===\'dark\')document.documentElement.classList.add(\'dark\');else if(t===\'sepia\')document.documentElement.classList.add(\'sepia\');else if(!t&&window.matchMedia(\'(prefers-color-scheme: dark)\').matches)document.documentElement.classList.add(\'dark\')}catch(e){}</script>'
- '<link rel="stylesheet" href="reading.css?v=20261123p40"></head><body>'
+ '<link rel="stylesheet" href="reading.css?v=20261123p40">'+analytics_head()+'</head><body>'
  +(sutra_bg(sutra) if sutra else '')+
  f'<header><a class="brand" href="index.html" aria-label="归海录 首页"><img class="bimg1" src="{TITLE_GUIHAI}" alt="归海录">'
  f'<img class="bimg2" src="{TITLE_SUB}" alt="志远行空·讲课整理">'+('' if home else '<span class="overseas-mark">海外发布</span>')+'</a>'
