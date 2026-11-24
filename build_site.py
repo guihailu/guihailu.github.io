@@ -794,7 +794,8 @@ def wrap_entries(b):
         ex_html = f'<span class="excerpt">{_html.escape(excerpt)}</span>' if excerpt else ''
         _title_text = _html.unescape(re.sub(r'<[^>]+>', '', title)).strip()
         _fb_url = 'feedback.html?title=' + urllib.parse.quote(_title_text, safe='')
-        chunk += f'<p class="entry-feedback"><a href="{_fb_url}">📮 这篇有错字或问题？反馈一下</a></p>'
+        chunk += (f'<p class="entry-feedback"><a href="{_fb_url}">📮 这篇有错字或问题？反馈一下</a>'
+                  f'<button type="button" class="share-btn" data-share data-title="{_html.escape(_title_text, quote=True)}">🔗 分享这篇</button></p>')
         _vid = _ENTRY_VIDEO.get(sid)
         if _vid:
             chunk = (f'<div class="evideo" id="{sid}-video"><button type="button" class="evideo-play" data-ev="{_vid}" aria-label="播放本篇视频">'
@@ -1932,6 +1933,10 @@ html.fs-xl .entry-body{font-size:19.5px}
 .entry-body th{background:var(--card2);font-family:"Songti SC",SimSun,serif}
 .entry-feedback{padding:0 26px 20px;color:var(--sub);font-size:12.5px}
 .entry-feedback a{color:var(--gold2)}
+/* ---- 分享这篇（p44 清单②）：条目末尾分享钮，金边描金圆角小 pill ---- */
+.entry-feedback{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
+.share-btn{border:1px solid var(--gold);background:transparent;color:var(--gold2);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.share-btn:hover{background:rgba(201,165,95,.18)}
 /* ---- 接着读（p18 清单①）：条目末尾同板块＋同系列后续篇目 ---- */
 .next-read{margin:22px 0 4px;padding:18px 20px 16px;border-top:1px solid var(--line);background:var(--card2);border-radius:14px}
 .entry-body .next-read h3{margin:0 0 4px;font-size:17px;text-align:left;text-wrap-style:auto}
@@ -2669,8 +2674,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261123p40">'
-        js_tag = '<script src="main.v5.js?v=20261113p16" defer></script>'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261124p44">'
+        js_tag = '<script src="main.v5.js?v=20261124p44" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
                        ';window.__GHL_IDPAGE__=' + _idpage_json +
@@ -2826,6 +2831,8 @@ window.addEventListener('resize',function(){if(card&&!card.hidden)close();});
 '''
 js += "\n" + _GLOSSARY_JS
 js += "\n(function(){document.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-ev]'):null;if(b){var f=document.createElement('iframe');f.src='https://www.youtube.com/embed/'+b.getAttribute('data-ev')+'?autoplay=1&playsinline=1';f.title='视频';f.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';b.replaceWith(f);return}var c=e.target.closest?e.target.closest('.qchip'):null;if(c){var q=document.getElementById('q');if(q){q.value=c.getAttribute('data-q');q.dispatchEvent(new Event('input',{bubbles:true}));q.focus()}}});})();\n"
+# p44 清单②：文章页「分享这篇」——有系统分享则调起，无则复制当前篇链接并给「已复制」反馈。
+js += "\n(function(){document.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-share]'):null;if(!b)return;var d=b.closest('details.entry');var sid=d?d.id:'';var url=location.href.split('#')[0]+(sid?'#'+sid:'');var title=b.getAttribute('data-title')||document.title;var done=function(){var t=b.textContent;b.textContent='已复制';setTimeout(function(){b.textContent=t;},1500);};if(navigator.share){navigator.share({title:title,text:title,url:url}).catch(function(){});return;}function fb(){try{var ta=document.createElement('textarea');ta.value=url;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();done();}catch(err){}}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done,fb);}else{fb();}});})();\n"
 js += "\n(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var chips=[].slice.call(document.querySelectorAll('.search-hint .qchip'));if(!chips.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p}function apply(){var w=pick();chips.forEach(function(c,i){var v=w[i%w.length];c.textContent=v;c.setAttribute('data-q',v);c.style.opacity=''})}apply();setInterval(function(){var q=document.getElementById('q');if(q&&q.value.trim())return;chips.forEach(function(c){c.style.opacity='0'});setTimeout(apply,480)},12000)})();\n"
 # p37：内容线已读总数用库内编号表过滤（构建期写死，与阅读线同源）
 js = js.replace("_READIDS_PLACEHOLDER_", json.dumps(sorted(e['id'] for e in _entries)), 1)
