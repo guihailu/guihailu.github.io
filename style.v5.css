@@ -166,6 +166,10 @@ html.fs-xl .entry-body{font-size:19.5px}
 .entry-body th{background:var(--card2);font-family:"Songti SC",SimSun,serif}
 .entry-feedback{padding:0 26px 20px;color:var(--sub);font-size:12.5px}
 .entry-feedback a{color:var(--gold2)}
+/* ---- 分享这篇（p44 清单②）：条目末尾分享钮，金边描金圆角小 pill ---- */
+.entry-feedback{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
+.share-btn{border:1px solid var(--gold);background:transparent;color:var(--gold2);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.share-btn:hover{background:rgba(201,165,95,.18)}
 /* ---- 接着读（p18 清单①）：条目末尾同板块＋同系列后续篇目 ---- */
 .next-read{margin:22px 0 4px;padding:18px 20px 16px;border-top:1px solid var(--line);background:var(--card2);border-radius:14px}
 .entry-body .next-read h3{margin:0 0 4px;font-size:17px;text-align:left;text-wrap-style:auto}
