@@ -2973,6 +2973,7 @@ var nowRate=root.querySelector('.tts-now-rate');
 var sources={female:root.getAttribute('data-female'),male:root.getAttribute('data-male')};
 var labels={female:'女声',male:'男声'};
 var rate=1.25;
+audio.defaultPlaybackRate=rate;
 audio.playbackRate=rate;
 function fmt(s){if(!isFinite(s))return '--:--';s=Math.max(0,Math.floor(s));var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r;}
 function render(){
@@ -3017,7 +3018,8 @@ btn.addEventListener('click',function(){
 var v=btn.getAttribute('data-voice');
 var wasPlaying=!audio.paused;
 audio.src=sources[v];
-audio.playbackRate=rate;
+ audio.defaultPlaybackRate=rate;
+ audio.playbackRate=rate;
 audio.load();
 if(wasPlaying){tryPlay();}
 nowVoice.textContent=labels[v];
@@ -3030,6 +3032,7 @@ render();
 speedBtns.forEach(function(btn){
 btn.addEventListener('click',function(){
 rate=parseFloat(btn.getAttribute('data-rate'));
+ audio.defaultPlaybackRate=rate;
 audio.playbackRate=rate;
 nowRate.textContent=btn.textContent;
 speedBtns.forEach(function(b){b.classList.remove('active');});
