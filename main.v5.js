@@ -182,7 +182,14 @@ function loadRest(){
 }
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 var _t2s=null;
-function norm(s){if(!_t2s){_t2s={};var pr=(idx&&idx.t2s)||'';for(var i=0;i<pr.length;i+=2)_t2s[pr[i]]=pr[i+1];}var o='';for(var j=0;j<s.length;j++){o+=(_t2s[s[j]]||s[j]);}return o;}
+ function norm(s){if(!_t2s){_t2s={};var pr=(idx&&idx.t2s)||'';for(var i=0;i<pr.length;i+=2)_t2s[pr[i]]=pr[i+1];}var o='';for(var j=0;j<s.length;j++){o+=(_t2s[s[j]]||s[j]);}return o;}
+ function langIndex(){var l=document.documentElement.lang||'';if(l==='en')return 2;if(l==='zh-Hans')return 1;return 0;}
+ function copyText(s){var r=window.GHL_COPY&&window.GHL_COPY[s];return Array.isArray(r)?(r[langIndex()]||s):s;}
+ var localeCatalogP=null;
+ function loadLocaleCatalog(){if(localeCatalogP)return localeCatalogP;localeCatalogP=new Promise(function(resolve){if(window.__GHL_ALL_COPY_LOADED__)return resolve();var s=document.createElement('script');s.src='assets/lang/all.js';s.onload=function(){window.__GHL_ALL_COPY_LOADED__=1;resolve();};s.onerror=function(){resolve();};document.head.appendChild(s);});return localeCatalogP;}
+ function localeField(s){var v=copyText(String(s||''));return {raw:v,norm:v.toLowerCase()};}
+ function shownTitle(e){return copyText(String(e.title||''));}
+ function shownText(e){return copyText(String(e.text||''));}
 function cnt(h,n){var c=0,i=0;if(!n)return 0;for(;;){i=h.indexOf(n,i);if(i<0)return c;c++;i+=n.length;}}
 function has4(a,b){if(a.length<4||b.length<4)return false;for(var i=0;i+4<=a.length;i++){if(b.indexOf(a.slice(i,i+4))>-1)return true;}return false;}
 function thit(qs,s){if(!s||s.length<2||qs.length<2)return false;if(s.indexOf(qs)>-1)return true;if(qs.indexOf(s)>-1)return true;return has4(qs,s);}
@@ -191,15 +198,15 @@ function snipH(orig,nq,lw){var i=nq.indexOf(lw);var s=i<0?0:Math.max(0,i-15);var
 function prep(){if(!idx)return;var es=idx.entries||[];for(var i=0;i<es.length;i++){var e=es[i];if(e._warmed)continue;var bt=String(e.title||''),bx=String(e.text||'');
 if(e.titleN)bt=e.titleN;else if(e.titleP){var at=bt.split('');for(var p=0;p<e.titleP.length;p++){at[e.titleP[p][0]]=e.titleP[p][1];}bt=at.join('');}
 if(e.textN)bx=e.textN;else if(e.textP){var ax=bx.split('');for(var q=0;q<e.textP.length;q++){ax[e.textP[q][0]]=e.textP[q][1];}bx=ax.join('');}
-e._tl=bt.toLowerCase();e._xl=bx.toLowerCase();e._warmed=1;}}
+ var te=localeField(bt),xe=localeField(bx);e._tl=bt.toLowerCase();e._xl=bx.toLowerCase();e._tle=te.norm;e._xle=xe.norm;e._warmed=1;}}
 function renderNow(q,pending){
  active=-1;
  if(idx&&idx.err){res.innerHTML='<div class="qnone">检索数据加载失败，刷新页面重试</div>';res.classList.add('on');box.setAttribute('aria-expanded','true');return;}
  prep();var es=(idx&&idx.entries)||[];var qs=norm(q).toLowerCase();if(!qs)return;
  var i,k,out=[],byId={};
  for(i=0;i<es.length;i++){var e=es[i];byId[e.id]=e;e._s=0;e._bg=null;
-  if(e._tl.indexOf(qs)>-1)e._s+=120;
-  var c=cnt(e._xl,qs);if(c)e._s+=Math.min(c,12)*4;
+   if(e._tl.indexOf(qs)>-1||e._tle.indexOf(qs)>-1)e._s+=120;
+   var c=cnt(e._xl,qs)+cnt(e._xle,qs);if(c)e._s+=Math.min(c,12)*4;
   if(e.aliases){for(k=0;k<e.aliases.length;k++){if(thit(qs,String(e.aliases[k]).toLowerCase()))e._s+=180;}}
  }
  var gh=(idx&&idx.guide)||[];
@@ -244,13 +251,14 @@ function renderNow(q,pending){
  if(soft)h+='<div class="qnote">没有与「'+esc(q)+'」完全匹配的内容，以下按关键词近似检索：</div>';
  h+='<div class="qcount">'+out.length+' 条结果'+(soft?'（近似）':'')+'</div>';
  for(i=0;i<out.length;i++){var e3=out[i];var lw=(soft&&e3._bg)?e3._bg:qs;
-  h+='<div class="qitem" role="option" tabindex="-1" aria-selected="false" data-id="'+e3.id+'" data-page="'+esc(e3.page||'')+'"><div class="qhead"><span class="qt">'+hl(String(e3.title||''),e3._tl,lw)+'</span><span class="qd">'+esc(e3.date||'')+'</span></div><div class="qs">'+snipH(String(e3.text||''),e3._xl,lw)+'</div></div>';
+   var st=shownTitle(e3),sx=shownText(e3),stn=st.toLowerCase(),sxn=sx.toLowerCase();
+   h+='<div class="qitem" role="option" tabindex="-1" aria-selected="false" data-id="'+e3.id+'" data-page="'+esc(e3.page||'')+'"><div class="qhead"><span class="qt">'+hl(st,stn,lw)+'</span><span class="qd">'+esc(e3.date||'')+'</span></div><div class="qs">'+snipH(sx,sxn,lw)+'</div></div>';
  }
  res.innerHTML=h;res.classList.add('on');box.setAttribute('aria-expanded','true');
 }
 function render(q){q=q.trim();if(!q){res.classList.remove('on');res.innerHTML='';box.setAttribute('aria-expanded','false');return;}
  var myq=q;
- getIdx().then(function(j){if(j)idx=j;
+  loadLocaleCatalog().then(function(){return getIdx();}).then(function(j){if(j)idx=j;
   if(idx&&idx.err){renderNow(myq,false);return;}
   var pending=!!(idx&&idx._rest&&idx._rest.length);
   renderNow(myq,pending);
@@ -259,6 +267,7 @@ function render(q){q=q.trim();if(!q){res.classList.remove('on');res.innerHTML=''
 }
 box.addEventListener('input',function(){render(box.value)});
 box.addEventListener('focus',function(){if(box.value.trim())render(box.value)});
+ document.addEventListener('ghl-language-changed',function(){if(box.value.trim())render(box.value);});
 box.addEventListener('keydown',function(e){
  var a=[].slice.call(res.querySelectorAll('.qitem'));
  if(e.key==='ArrowDown'){if(!a.length)return;e.preventDefault();active=active+1>=a.length?0:active+1;}
@@ -381,6 +390,7 @@ var nowRate=root.querySelector('.tts-now-rate');
 var sources={female:root.getAttribute('data-female'),male:root.getAttribute('data-male')};
 var labels={female:'女声',male:'男声'};
 var rate=1.25;
+audio.defaultPlaybackRate=rate;
 audio.playbackRate=rate;
 function fmt(s){if(!isFinite(s))return '--:--';s=Math.max(0,Math.floor(s));var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r;}
 function render(){
@@ -425,7 +435,8 @@ btn.addEventListener('click',function(){
 var v=btn.getAttribute('data-voice');
 var wasPlaying=!audio.paused;
 audio.src=sources[v];
-audio.playbackRate=rate;
+ audio.defaultPlaybackRate=rate;
+ audio.playbackRate=rate;
 audio.load();
 if(wasPlaying){tryPlay();}
 nowVoice.textContent=labels[v];
@@ -438,6 +449,7 @@ render();
 speedBtns.forEach(function(btn){
 btn.addEventListener('click',function(){
 rate=parseFloat(btn.getAttribute('data-rate'));
+ audio.defaultPlaybackRate=rate;
 audio.playbackRate=rate;
 nowRate.textContent=btn.textContent;
 speedBtns.forEach(function(b){b.classList.remove('active');});

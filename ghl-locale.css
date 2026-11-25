@@ -1,0 +1,20 @@
+.ghl-locale{display:inline-flex;align-items:center;margin-inline:auto .65rem;color:inherit}
+.ghl-locale-select{box-sizing:border-box;min-height:32px;max-width:7rem;font:500 .87rem/1.2 system-ui,sans-serif;border:1px solid currentColor;border-radius:2rem;color:inherit;background:transparent;padding:.25rem .45rem;cursor:pointer}
+.ghl-locale-select option{background:Canvas;color:CanvasText}.ghl-locale-select:focus-visible{outline:2px solid #b59241;outline-offset:2px}
+.ghl-img-label,.ghl-translation-notice[hidden]{display:none!important}
+html[lang=en] header nav a:has(.ghl-img-label) img{display:none}
+html[lang=en] .ghl-img-label{display:inline!important;white-space:nowrap;font:600 clamp(.72rem,1.1vw,1rem)/1.2 system-ui,sans-serif;letter-spacing:0}
+.ghl-translation-notice{position:relative;max-width:54rem;margin:.7rem auto;padding:.4rem .8rem;font:500 .83rem/1.45 system-ui,sans-serif;text-align:center;color:inherit}
+.hero .ghl-translation-notice{background:rgba(18,23,30,.86);color:#fff1cf;border-radius:.5rem;z-index:2}
+html[lang=en] :is(.paper, main, footer, .hero) {overflow-wrap:break-word}
+@media(max-width:820px){header:not(.sitebar) .ghl-locale{order:1;margin-inline:auto 58px}}
+@media(max-width:680px){.sitebar .ghl-locale{order:1;margin-inline:auto .2rem}}
+@media print{.ghl-locale,.ghl-translation-notice{display:none!important}}
+
+@media(max-width:680px){
+ html[lang=en] .hero{grid-template-columns:minmax(0,1fr)}
+ html[lang=en] .hero .inner{box-sizing:border-box;min-width:0;width:100%}
+ html[lang=en] .hero .hl{overflow-wrap:anywhere}
+ html[lang=en] .part{grid-template-columns:minmax(0,1fr)}
+ html[lang=en] .part .txt{min-width:0;overflow-wrap:anywhere}
+}
