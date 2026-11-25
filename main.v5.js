@@ -362,3 +362,88 @@ window.addEventListener('resize',function(){if(card&&!card.hidden)close();});
 (function(){document.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-share]'):null;if(!b)return;var d=b.closest('details.entry');var sid=d?d.id:'';var url=location.href.split('#')[0]+(sid?'#'+sid:'');var title=b.getAttribute('data-title')||document.title;var done=function(){var t=b.textContent;b.textContent='已复制';setTimeout(function(){b.textContent=t;},1500);};if(navigator.share){navigator.share({title:title,text:title,url:url}).catch(function(){});return;}function fb(){try{var ta=document.createElement('textarea');ta.value=url;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();done();}catch(err){}}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done,fb);}else{fb();}});})();
 
 (function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var chips=[].slice.call(document.querySelectorAll('.search-hint .qchip'));if(!chips.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p}function apply(){var w=pick();chips.forEach(function(c,i){var v=w[i%w.length];c.textContent=v;c.setAttribute('data-q',v);c.style.opacity=''})}apply();setInterval(function(){var q=document.getElementById('q');if(q&&q.value.trim())return;chips.forEach(function(c){c.style.opacity='0'});setTimeout(apply,480)},12000)})();
+
+(function(){
+document.querySelectorAll('.tts-player').forEach(function(root){
+var audio=root.querySelector('audio');
+var playBtn=root.querySelector('.tts-play');
+var progress=root.querySelector('.tts-progress');
+var trackwrap=root.querySelector('.tts-trackwrap');
+var fill=root.querySelector('.tts-fill');
+var thumb=root.querySelector('.tts-thumb');
+var curEl=root.querySelector('.tts-cur');
+var durEl=root.querySelector('.tts-dur');
+var voiceBtns=root.querySelectorAll('.tts-voice-btn');
+var voiceBox=root.querySelector('.tts-voice');
+var speedBtns=root.querySelectorAll('.tts-speed');
+var nowVoice=root.querySelector('.tts-now-voice');
+var nowRate=root.querySelector('.tts-now-rate');
+var sources={female:root.getAttribute('data-female'),male:root.getAttribute('data-male')};
+var labels={female:'女声',male:'男声'};
+var rate=1.25;
+audio.playbackRate=rate;
+function fmt(s){if(!isFinite(s))return '--:--';s=Math.max(0,Math.floor(s));var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r;}
+function render(){
+durEl.textContent=fmt(audio.duration);
+var ratio=(isFinite(audio.duration)&&audio.duration>0)?(audio.currentTime/audio.duration):0;
+fill.style.width=(ratio*100)+'%';
+thumb.style.left=(ratio*100)+'%';
+curEl.textContent=fmt(audio.currentTime);
+progress.setAttribute('aria-valuenow',Math.round(ratio*100));
+}
+function tryPlay(){var p=audio.play();if(p&&p.catch){p.catch(function(){});}}
+audio.addEventListener('loadedmetadata',render);
+audio.addEventListener('timeupdate',render);
+audio.addEventListener('ended',function(){root.classList.remove('is-playing');});
+playBtn.addEventListener('click',function(){
+if(audio.paused){tryPlay();root.classList.add('is-playing');}
+else{audio.pause();root.classList.remove('is-playing');}
+});
+function seekFromEvent(e){
+var rect=trackwrap.getBoundingClientRect();
+var ratio=(e.clientX-rect.left)/rect.width;
+ratio=Math.max(0,Math.min(1,ratio));
+if(isFinite(audio.duration)){audio.currentTime=ratio*audio.duration;}
+render();
+}
+progress.addEventListener('pointerdown',function(e){
+progress.setPointerCapture(e.pointerId);
+seekFromEvent(e);
+function move(ev){seekFromEvent(ev);}
+function up(){progress.removeEventListener('pointermove',move);progress.removeEventListener('pointerup',up);progress.removeEventListener('pointercancel',up);}
+progress.addEventListener('pointermove',move);
+progress.addEventListener('pointerup',up);
+progress.addEventListener('pointercancel',up);
+});
+progress.addEventListener('keydown',function(e){
+if(!isFinite(audio.duration))return;
+if(e.key==='ArrowRight'){audio.currentTime=Math.min(audio.duration,audio.currentTime+5);e.preventDefault();}
+if(e.key==='ArrowLeft'){audio.currentTime=Math.max(0,audio.currentTime-5);e.preventDefault();}
+});
+voiceBtns.forEach(function(btn){
+btn.addEventListener('click',function(){
+var v=btn.getAttribute('data-voice');
+var wasPlaying=!audio.paused;
+audio.src=sources[v];
+audio.playbackRate=rate;
+audio.load();
+if(wasPlaying){tryPlay();}
+nowVoice.textContent=labels[v];
+voiceBox.setAttribute('data-active',v);
+voiceBtns.forEach(function(b){b.classList.remove('active');});
+btn.classList.add('active');
+render();
+});
+});
+speedBtns.forEach(function(btn){
+btn.addEventListener('click',function(){
+rate=parseFloat(btn.getAttribute('data-rate'));
+audio.playbackRate=rate;
+nowRate.textContent=btn.textContent;
+speedBtns.forEach(function(b){b.classList.remove('active');});
+btn.classList.add('active');
+});
+});
+render();
+});
+})();

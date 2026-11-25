@@ -51,8 +51,14 @@ def patch_file(path: Path) -> bool:
     """Apply the correct block once; return whether the file changed."""
     name = path.name
     source = path.read_text(encoding="utf-8")
-    if 'id="t50-contact-style"' in source:
+    markers = {
+        "index.html": ("t50-home-body", "t50-home-footer"),
+        "newcomer.html": ("t50-newcomer",),
+    }[name]
+    if 'id="t50-contact-style"' in source and all(f'id="{marker}"' in source for marker in markers):
         return False
+    if 'id="t50-contact-style"' in source:
+        raise ValueError(f"Partial T50 contact patch in {name}")
     updated = render(name, source)
     path.write_text(updated, encoding="utf-8", newline="\n")
     return True
