@@ -1,5 +1,8 @@
-.ghl-locale{display:inline-flex;align-items:center;margin-inline:auto .65rem;color:inherit}
-.ghl-locale-select{box-sizing:border-box;min-height:32px;max-width:7rem;font:500 .87rem/1.2 system-ui,sans-serif;border:1px solid currentColor;border-radius:2rem;color:inherit;background:transparent;padding:.25rem .45rem;cursor:pointer}
+.ghl-locale{display:inline-flex;align-items:center;gap:.35rem;margin-inline:auto .65rem;color:inherit}
+.ghl-locale-globe{display:inline-flex;align-items:center;color:inherit}
+.ghl-locale-globe svg{display:block}
+.ghl-locale-word{font:600 .87rem/1.2 system-ui,sans-serif;letter-spacing:.02em;color:inherit;white-space:nowrap}
+.ghl-locale-select{box-sizing:border-box;min-height:32px;max-width:7.5rem;font:500 .87rem/1.2 system-ui,sans-serif;border:1px solid currentColor;border-radius:2rem;color:inherit;background:transparent;padding:.25rem .45rem;cursor:pointer;text-align:center;text-align-last:center}
 .ghl-locale-select option{background:Canvas;color:CanvasText}.ghl-locale-select:focus-visible{outline:2px solid #b59241;outline-offset:2px}
 .ghl-img-label,.ghl-translation-notice[hidden]{display:none!important}
 html[lang=en] header nav a:has(.ghl-img-label) img{display:none}
@@ -9,6 +12,7 @@ html[lang=en] .ghl-img-label{display:inline!important;white-space:nowrap;font:60
 html[lang=en] :is(.paper, main, footer, .hero) {overflow-wrap:break-word}
 @media(max-width:820px){header:not(.sitebar) .ghl-locale{order:1;margin-inline:auto 58px}}
 @media(max-width:680px){.sitebar .ghl-locale{order:1;margin-inline:auto .2rem}}
+@media(max-width:480px){.ghl-locale{gap:.3rem}.ghl-locale-word{font-size:.8rem}}
 @media print{.ghl-locale,.ghl-translation-notice{display:none!important}}
 
 @media(max-width:680px){

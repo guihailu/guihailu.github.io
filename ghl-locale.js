@@ -116,13 +116,23 @@
     const wrapper = document.createElement('label');
     wrapper.className = 'ghl-locale';
     wrapper.dataset.ghlUi = '';
+    // Globe + "Language": discoverable in any language (Airbnb/Wikipedia pattern).
+    // A bare "繁體" is unreadable to a foreigner and to a Traditional-only reader.
+    const globe = document.createElement('span');
+    globe.className = 'ghl-locale-globe';
+    globe.setAttribute('aria-hidden', 'true');
+    globe.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>';
+    const word = document.createElement('span');
+    word.className = 'ghl-locale-word';
+    word.textContent = 'Language';
     picker = document.createElement('select');
     picker.className = 'ghl-locale-select';
-    picker.setAttribute('aria-label', '語言 / 语言 / Language');
-    ['繁體','简体','English'].forEach((label,i) => {
+    picker.setAttribute('aria-label', 'Language');
+    // Full native names (best practice: a reader recognises their own language instantly).
+    ['繁體中文','简体中文','English'].forEach((label,i) => {
       const option = new Option(label, languages[i]); option.lang=languages[i]; picker.add(option);
     });
-    wrapper.append(picker);
+    wrapper.append(globe, word, picker);
     header.insertBefore(wrapper, header.querySelector('nav'));
     notice = document.createElement('p');
     notice.className = 'ghl-translation-notice';
