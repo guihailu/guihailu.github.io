@@ -1007,4 +1007,6 @@ for page in ['index.html','board1.html','board2.html','board3.html','board4.html
   s=im['src'].split('?')[0]
   if s.startswith('http') or s.startswith('data:'):continue
   assert (out/s).exists(),page+' -> missing img '+s
+from t50_contacts import patch_file as _patch_t50_file
+_patch_t50_file(out / 'index.html')
 print('PASS: boards cover all',len(entries),'articles; all local links and images exist; no Douyin links')

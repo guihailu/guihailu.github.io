@@ -3005,6 +3005,8 @@ print(f"OK: all.html {(HERE/'all.html').stat().st_size} B ({len(_entries)} 条)"
     _render_page("newcomer.html", "新人入口 · 归海录", "看完志远行空视频后的下一站：10 篇试点新人页，每页约 3 分钟。",
                  _newcomer_index_body()),
     encoding="utf-8", newline="\n")
+from t50_contacts import patch_file as _patch_t50_file
+_patch_t50_file(HERE / "newcomer.html")
 print(f"OK: newcomer.html {(HERE/'newcomer.html').stat().st_size} B")
 for _i, _p in enumerate(_NEWCOMER_PAGES):
     _fn = f"newcomer-{_i + 1:02d}.html"
