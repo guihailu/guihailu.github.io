@@ -62,28 +62,7 @@ document.querySelectorAll('[data-vibe]').forEach(ch=>{
   };
 });
 const sForm=document.getElementById('search-form'),sInput=document.getElementById('search-input'),sBox=document.getElementById('search-results');
-const searchLanguages = new Map();
-function searchKey(value){
-  if(!searchLanguages.has(value)){
-    const variants = window.GHL_COPY && window.GHL_COPY[value.trim().replace(/\s+/g,' ')];
-    searchLanguages.set(value, [value, ...(variants || [])].join(' ').toLowerCase());
-  }
-  return searchLanguages.get(value);
-}
-function searchQueries(query) {
-  const queries = [query];
-  const topics = ['天眼','轮回','因果','改命','福报','阴债','超度','烧纸','菩萨','风水','灵魂','祖先','投胎','修行','婚姻','犯太岁'];
-  for (const topic of topics) {
-    const versions = window.GHL_COPY && window.GHL_COPY[topic];
-    if (versions && versions.some(word => word && (word.toLowerCase() === query ||
-        (query.length >= 3 && /^[a-z ]+$/i.test(query) && word.toLowerCase().includes(query))))) {
-      queries.push(topic, versions[0], versions[1]);
-    }
-  }
-  return queries;
-}
-function searchLabel(value){return window.GHL_PHRASE ? window.GHL_PHRASE(value) : value}
-function ensureSearch(){if(!SEARCH && location.protocol==='file:' && window.GHL_LOCAL_SEARCH) SEARCH=window.GHL_LOCAL_SEARCH;if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p7').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
+function ensureSearch(){if(SEARCH)return Promise.resolve(SEARCH);if(!searchPromise){searchPromise=fetch('reading_search.json?v=20261115p7').then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()}).then(d=>{SEARCH=d;return d}).catch(()=>{SEARCH=[];return SEARCH})}return searchPromise}
 function hlText(el,text,q){
   if(!q){el.textContent=text;return;}
   const low=text.toLowerCase();let i=0;
@@ -98,8 +77,7 @@ function doSearch(rec){
   if(!q){sBox.replaceChildren();return;}
   if(!SEARCH){ensureSearch().then(()=>{doSearch(rec)});return;}
   sBox.replaceChildren();
-  const queries=searchQueries(q);
-  const hits=SEARCH.filter(e=>{const text=searchKey(e.t)+' '+searchKey(e.x);return queries.some(term=>text.includes(term))}).slice(0,8);
+  const hits=SEARCH.filter(e=>(e.t+' '+e.x).toLowerCase().includes(q)).slice(0,8);
   if(!hits.length){
     const d=document.createElement('div');d.className='none';d.textContent='没找到「'+q+'」';sBox.appendChild(d);
     const POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];
@@ -117,7 +95,7 @@ function doSearch(rec){
     sBox.appendChild(sg);return;
   }
   if(rec&&hits.length)saveHist(raw);
-  const addHit=e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');hlText(b,searchLabel(e.t),q);const s=document.createElement('span');hlText(s,(e.d?e.d+' · ':'')+searchLabel(e.x),q);a.append(b,s);sBox.appendChild(a)};
+  const addHit=e=>{const a=document.createElement('a');a.className='hit';a.href=e.p+'#'+e.id;const b=document.createElement('b');hlText(b,e.t,q);const s=document.createElement('span');hlText(s,(e.d?e.d+' · ':'')+e.x,q);a.append(b,s);sBox.appendChild(a)};
   if(!hits.some(e=>e.b)){hits.forEach(addHit);return;}
   [1,2,3,4].forEach(bn=>{const g=hits.filter(e=>e.b===bn);if(!g.length)return;const h=document.createElement('div');h.className='hit-group-h';const nm=document.createElement('span');nm.textContent=BOARD_NAMES[bn];const ct=document.createElement('span');ct.className='hit-group-n';ct.textContent=g.length+' 篇';h.append(nm,ct);sBox.appendChild(h);g.forEach(addHit)});
   hits.filter(e=>!e.b).forEach(addHit);
@@ -141,7 +119,7 @@ function suggList(){
   if(!q){hist.forEach(push);for(const w of HOTWORDS){if(out.length>=5)break;if(hitW(w))push(w);}return out;}
   hist.filter(h=>h.toLowerCase().includes(q)).slice(0,2).forEach(push);
   for(const w of HOTWORDS){if(out.length>=5)break;if(w.toLowerCase().includes(q)&&hitW(w))push(w);}
-  if(SEARCH){for(const e of SEARCH){if(out.length>=5)break;if(searchKey(e.t).includes(q))push(searchLabel(e.t));}}
+  if(SEARCH){for(const e of SEARCH){if(out.length>=5)break;if(e.t.toLowerCase().includes(q))push(e.t);}}
   return out;
 }
 function renderSugg(){
@@ -171,7 +149,6 @@ function renderSugg(){
 }
 function hideSugg(){if(!sPanel)return;sPanel.hidden=true;sgHi=-1;if(sInput)sInput.setAttribute('aria-expanded','false');}
 function refreshSugg(){if(document.activeElement===sInput)renderSugg();}
-document.addEventListener('ghl-language-changed',()=>{if(sInput&&sInput.value)doSearch(false)});
 if(sForm){
   sForm.addEventListener('submit',ev=>{ev.preventDefault();hideSugg();doSearch(true)});
   sInput.addEventListener('input',()=>{doSearch(false);refreshSugg()});
