@@ -52,6 +52,12 @@ def check_release_gate(base):
     # 1) 新版条数不得低于上一版（以 search_manifest.json 的 count 为准）
     new_count = _read_manifest_count(base / "search_manifest.json")
     try:
+        homepage = json.loads((base / "reading_search.json").read_text(encoding="utf-8"))
+        if len(homepage) != new_count or len({item["id"] for item in homepage}) != new_count:
+            _gate_fail("首页搜索条目数或唯一文章数与全文索引不一致，拒绝提交")
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        _gate_fail(f"无法读取首页搜索索引：{exc}")
+    try:
         old_data = json.loads(_git_show_text("search_manifest.json"))
         old_count = int(old_data["count"])
     except SystemExit:
@@ -108,7 +114,7 @@ _page_files = (["index.html", "domestic.html", "undated.html", "404.html", "feed
                sorted(p.name for p in HERE.glob("20[0-9][0-9].html")) +
                sorted(p.name for p in HERE.glob("newcomer-*.html")) +
                sorted(p.name for p in HERE.glob("board[0-9].html")))
-_index_files = (["search_shared.json", "search_manifest.json"] +
+_index_files = (["reading_search.json", "search_shared.json", "search_manifest.json"] +
                 sorted(p.name for p in HERE.glob("search_index_*.json")))
 _aux_files = ["sitemap.xml", "robots.txt", "favicon.svg", "favicon.ico", "manifest.json", "feed.xml", "cover.jpg", "goatcounter.js"]
 run(["git", "add", "-A", "--", *_page_files,

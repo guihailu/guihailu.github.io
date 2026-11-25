@@ -209,7 +209,7 @@ HERO_IMG=datauri('hero-fajie.webp','image/webp')
 SEAL_IMG=datauri('seal.png','image/png')
 SEAL_WIDE_IMG=datauri('seal-wide.png','image/png')
 FAVICON=datauri('favicon.png','image/png')
-SITEDESC='志远行空讲课内容的整理站：121 篇讲课整理分成四部——逆修觉者、灵魂觉者、法界天机、道法自然，每部都有故事案例、讲课原声和小动画。'
+SITEDESC=f'志远行空讲课内容的整理站：{len(entries)} 篇讲课整理分成四部——逆修觉者、灵魂觉者、法界天机、道法自然，每部都有故事案例、讲课原声和小动画。'
 TITLE_GUIHAI=datauri('title-guihai.webp','image/webp')
 TITLE_SUB=datauri('title-brandsub.webp','image/webp')
 TITLE_ZHE=datauri('title-zhe.webp','image/webp')
@@ -738,9 +738,7 @@ hero=('<section class="hero">'
  '<p class="overseas-note">本站在海外发布</p>'
  '<div class="cta"><a class="btn" href="#part1">从第一部开始</a><a class="btn ghost" href="#library">直接查资料库</a></div>'
  '<a class="scrollcue" href="#part1"><span class="arr">↓</span> 向 下 逛 <span class="arr">↓</span></a></div></section>')
-counts={y:0 for y in ['2026','2025','2024']}
-for e in entries.values():
- if e['date'][:4] in counts:counts[e['date'][:4]]+=1
+counts={y:sum(e['page']==y+'.html' for e in entries.values()) for y in ['2026','2025','2024']}
 total=len(entries)
 # p37 全站已读进度可见化：首页进度块（总数＋四部各自计数／进度条），
 # 数字由 reading.js 按 ghl_read 实时填；静态初值构建时取 len(entries)。
