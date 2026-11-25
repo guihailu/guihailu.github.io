@@ -771,6 +771,49 @@ def segment_heading_html(inner):
         gi += len(val)
     return ''.join(out), segs
 
+# TTS 朗读播放器（2026-11-25）：莲花只留轮廓线（细描边、淡金、小而简），共两处——标题旁点缀＋进度条滑块。
+_TTS_LOTUS_SVG = ('<svg viewBox="0 0 48 30" fill="none" stroke="currentColor" stroke-width="1.8" '
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+    '<path d="M24 2.5 C27.6 7.5 28 12.5 26 17.2 C25.2 18.9 24.6 19.9 24 20.6 C23.4 19.9 22.8 18.9 22 17.2 C20 12.5 20.4 7.5 24 2.5 Z"/>'
+    '<path d="M13.2 5.2 C17.8 7.2 20.6 11 21.2 15.4 C21.4 17 21.2 18.4 20.7 19.6 C19.2 19.1 17.6 18 16.3 16.4 C13.6 13.3 12.4 9.4 13.2 5.2 Z"/>'
+    '<path d="M34.8 5.2 C30.2 7.2 27.4 11 26.8 15.4 C26.6 17 26.8 18.4 27.3 19.6 C28.8 19.1 30.4 18 31.7 16.4 C34.4 13.3 35.6 9.4 34.8 5.2 Z"/>'
+    '<path d="M4.2 13 C8.4 13.3 12 15.3 13.8 18.6 C14.5 20 14.7 21.3 14.5 22.5 C12.8 22.4 11 21.7 9.6 20.5 C7 18.4 5.4 15.9 4.2 13 Z"/>'
+    '<path d="M43.8 13 C39.6 13.3 36 15.3 34.2 18.6 C33.5 20 33.3 21.3 33.5 22.5 C35.2 22.4 37 21.7 38.4 20.5 C41 18.4 42.6 15.9 43.8 13 Z"/>'
+    '<path d="M9 25 C13.8 27.4 18.8 28.5 24 28.5 C29.2 28.5 34.2 27.4 39 25"/>'
+    '</svg>')
+
+def _tts_player_html(sid):
+    return (
+        f'<div class="tts-player" data-female="audio/{sid}_female.mp3" data-male="audio/{sid}_male.mp3">'
+        '<div class="tts-topword" aria-hidden="true">歸海錄</div>'
+        f'<div class="tts-kicker">{_TTS_LOTUS_SVG}<span>文章朗读</span></div>'
+        '<div class="tts-transport">'
+        '<button class="tts-play" type="button" aria-label="播放朗读">'
+        '<svg class="tts-ic-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>'
+        '<svg class="tts-ic-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>'
+        '</button>'
+        '<div class="tts-progress" role="slider" aria-label="播放进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">'
+        f'<div class="tts-trackwrap"><div class="tts-track"></div><div class="tts-fill"></div><div class="tts-thumb">{_TTS_LOTUS_SVG}</div></div>'
+        '</div>'
+        '<span class="tts-time"><span class="tts-cur">0:00</span> / <span class="tts-dur">--:--</span></span>'
+        '</div>'
+        '<div class="tts-emblem"><div class="tts-buddha" aria-hidden="true"></div></div>'
+        '<div class="tts-row"><span class="tts-label">声音</span>'
+        '<div class="tts-voice" data-active="female"><div class="tts-slider"></div>'
+        '<button class="tts-voice-btn active" data-voice="female" type="button">女声</button>'
+        '<button class="tts-voice-btn" data-voice="male" type="button">男声</button>'
+        '</div></div>'
+        '<div class="tts-row"><span class="tts-label">倍速</span>'
+        '<button class="tts-speed" data-rate="0.75" type="button">0.75×</button>'
+        '<button class="tts-speed" data-rate="1" type="button">1×</button>'
+        '<button class="tts-speed active" data-rate="1.25" type="button">1.25×</button>'
+        '<button class="tts-speed" data-rate="1.5" type="button">1.5×</button>'
+        '<button class="tts-speed" data-rate="2" type="button">2×</button>'
+        '</div>'
+        '<div class="tts-now">当前：<span class="tts-now-voice">女声</span> · <span class="tts-now-rate">1.25×</span></div>'
+        f'<audio preload="metadata" src="audio/{sid}_female.mp3"></audio>'
+        '</div>')
+
 def wrap_entries(b):
     pat = re.compile(r'<h([23])\s+id="(ghl-\d+)">(.*?)</h\1>\n', re.S)
     matches = list(pat.finditer(b))
@@ -805,6 +848,9 @@ def wrap_entries(b):
             chunk = (f'<div class="evideo" id="{sid}-video"><button type="button" class="evideo-play" data-ev="{_vid}" aria-label="播放本篇视频">'
                      f'<img src="https://i.ytimg.com/vi/{_vid}/hqdefault.jpg" alt="" loading="lazy"{_POSTER_FB}><span class="evideo-btn">▶ 播放本篇视频</span></button>'
                      f'<p class="evideo-alt">看不了内嵌播放？<a href="https://www.youtube.com/watch?v={_vid}" target="_blank" rel="noopener">在 YouTube 打开 ↗</a></p></div>') + chunk
+        # TTS 朗读播放器（2026-11-25）：仅当该篇女声音频文件已存在时注入，置于 entry-body 顶部；无音频不注入。
+        if (HERE / 'audio' / f'{sid}_female.mp3').is_file():
+            chunk = _tts_player_html(sid) + chunk
         chunk = _HEAD_RE.sub(lambda m: '<h%s%s>%s</h%s>' % (m.group(1), m.group(2), segment_heading_html(m.group(3))[0], m.group(1)), chunk)
         if re.search(r'<[a-zA-Z/]', title):
             print(f"WARN title contains tags, left unsegmented: {sid}")
@@ -1151,6 +1197,10 @@ for _bn, _ids in _ROUTE_MAP.items():
         _ROUTE_POS[_rid] = (_bn, _i + 1, _ids[_i + 1] if _i + 1 < 10 else None)
 assert len(_ROUTE_POS) == 40, 'route map must hold 40 distinct articles'
 
+# p47 搜索升级方案 A：破万法认知引擎外链（2026-11-17 评估结论，只挂 ghl-000033 文末「接着读」位置）。
+# 数据字段：篇 id → (链接, 文案)。素净外链，新标签页打开，不嵌 iframe。只此一篇，不扩到别处。
+_EXT_LINKS = {}  # p49: p47 外链不进活站（云端样稿保留）
+
 def _route_title(t):
     _m = re.match(r'^EP\s?\d+\s+(.{1,14}?)·\s*(.+)$', t)
     if _m:
@@ -1223,10 +1273,15 @@ def _next_read_html(e, href_for):
                                         e['board_name']] if p])
         _lis += ('<li><a href="' + href_for(r['id']) + '">' + _html.escape(r['title']) + '</a>'
                  '<span>' + _html.escape(_meta) + '</span></li>')
+    _ext = ''
+    if e['id'] in _EXT_LINKS:
+        _url, _label = _EXT_LINKS[e['id']]
+        _ext = ('<p class="next-read-ext"><a href="' + _url + '" target="_blank" rel="noopener">'
+                + _html.escape(_label) + ' →</a></p>')
     return ('<div class="next-read"><h3>接着读</h3>'
             '<p class="next-read-note">同属「' + _html.escape(e['board_name']) + '」的后续篇目</p><ul>' + _lis + '</ul>'
             '<p class="next-read-more"><a href="board' + str(e['board']) + '.html">看「'
-            + _html.escape(e['board_name']) + '」全部文章 →</a></p></div>')
+            + _html.escape(e['board_name']) + '」全部文章 →</a></p>' + _ext + '</div>')
 
 def _with_next_read(block, e, href_for):
     _nr = _next_read_html(e, href_for)
@@ -2210,13 +2265,73 @@ html:not(.dark) .navbtn{background:rgba(255,250,240,.92);color:var(--gold2)}
 :root,html.dark,html.sepia{--bg:#fff;--ink:#111;--sub:#333;--card:#fff;--card2:#fff;--line:#bbb;--gold:#555;--gold2:#333;--chip:#fff;--shadow:none;--paper:#fff;--paper2:#fff;--muted:#333;--link:#111;--quote:#333;--cin:#111;--red:#111}
 html,body{background:#fff!important;color:#111!important}
 body{background-image:none!important}
-.sitebar,#progress,.skip,.searchbar,.toc,.tocm,.month-nav,.next-read,.route-next,footer,.fbtn,.yearhead .back,.intro-toggle,.gcard,button{display:none!important}
+.sitebar,#progress,.skip,.searchbar,.toc,.tocm,.month-nav,.next-read,.route-next,footer,.fbtn,.yearhead .back,.intro-toggle,.gcard,.tts-player,button{display:none!important}
 .gterm{border-bottom:0!important}
 .layout{grid-template-columns:1fr!important}
 h1,h2,h3,.entry>summary{break-after:avoid;break-inside:avoid}
 p{orphans:3;widows:3}
 img,figure,blockquote,table{break-inside:avoid;max-width:100%}
 }
+/* TTS 朗读播放器（2026-11-25）：简约素雅，莲花只两处（标题旁＋进度滑块轮廓线），金色贴合站点暖金；光晕极轻、悬停只浮 1px */
+:root{--tts-glow:rgba(138,106,36,.16);--tts-glow-soft:rgba(138,106,36,0)}
+html.dark{--tts-glow:rgba(201,165,95,.18);--tts-glow-soft:rgba(201,165,95,0)}
+.tts-player{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 20px 16px;margin:0 0 22px;box-shadow:0 4px 16px var(--shadow)}
+.tts-kicker{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.35em;color:var(--gold2);margin-bottom:14px;font-family:"Songti SC",SimSun,serif}
+.tts-kicker svg{width:20px;height:13px;color:var(--gold);flex:none}
+.tts-transport{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.tts-play{width:44px;height:44px;flex:none;border-radius:50%;border:1px solid var(--gold);background:var(--gold);color:var(--card);display:grid;place-items:center;cursor:pointer;padding:0;transition:transform .12s ease,box-shadow .2s ease}
+.tts-play:active{transform:scale(.94)}
+.tts-play svg{width:20px;height:20px;display:block}
+.tts-play .tts-ic-pause{display:none}
+.tts-player.is-playing .tts-play .tts-ic-play{display:none}
+.tts-player.is-playing .tts-play .tts-ic-pause{display:block}
+.tts-progress{position:relative;flex:1;min-width:0;height:28px;cursor:pointer;touch-action:pan-y}
+.tts-trackwrap{position:absolute;left:13px;right:13px;top:0;bottom:0}
+.tts-track{position:absolute;left:0;right:0;top:50%;height:3px;margin-top:-1.5px;background:var(--line);border-radius:999px}
+.tts-fill{position:absolute;left:0;top:50%;height:3px;margin-top:-1.5px;background:var(--gold);border-radius:999px;width:0}
+.tts-thumb{position:absolute;left:0;top:50%;width:26px;color:var(--gold);transform:translate(-50%,-50%);pointer-events:none;line-height:0}
+.tts-thumb svg{width:26px;height:17px;display:block}
+.tts-time{font-size:13px;color:var(--sub);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tts-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tts-label{font-size:14px;color:var(--sub);margin-right:2px;min-width:36px}
+.tts-voice{position:relative;display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:transparent;overflow:hidden}
+.tts-voice .tts-slider{position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:999px;background:var(--gold);transition:transform .35s cubic-bezier(.34,1.4,.64,1);z-index:0}
+.tts-voice[data-active="male"] .tts-slider{transform:translateX(100%)}
+.tts-voice-btn{position:relative;z-index:1;font-family:inherit;font-size:15px;line-height:1;min-height:44px;min-width:76px;padding:12px 20px;border:none;border-radius:999px;background:transparent;color:var(--ink);cursor:pointer;transition:color .25s ease,transform .12s ease}
+.tts-voice-btn:active{transform:scale(.94)}
+.tts-voice-btn.active{color:var(--card);animation:tts-pop .35s ease,tts-glow 2.4s ease-in-out infinite}
+.tts-speed{font-family:inherit;font-size:15px;line-height:1;min-height:44px;padding:12px 16px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--ink);cursor:pointer;transition:background .2s ease,border-color .2s ease,color .2s ease,transform .12s ease}
+.tts-speed:active{transform:scale(.94)}
+.tts-speed:hover{border-color:var(--gold)}
+.tts-speed.active{background:var(--gold);border-color:var(--gold);color:var(--card);animation:tts-pop .35s ease,tts-glow 2.4s ease-in-out infinite}
+.tts-now{font-size:13px;color:var(--sub);margin-top:2px}
+@keyframes tts-pop{0%{transform:scale(.88)}55%{transform:scale(1.07)}100%{transform:scale(1)}}
+@keyframes tts-glow{0%,100%{box-shadow:0 0 0 0 var(--tts-glow-soft)}50%{box-shadow:0 0 10px 1px var(--tts-glow)}}
+@media (hover:hover){
+.tts-voice-btn:hover,.tts-speed:hover{transform:translateY(-1px);box-shadow:0 3px 10px var(--tts-glow);border-color:var(--gold)}
+.tts-play:hover{transform:translateY(-1px);box-shadow:0 3px 10px var(--tts-glow)}
+}
+@media (max-width:480px){
+.tts-player{padding:16px 14px 14px;border-radius:14px}
+.tts-voice-btn{min-height:46px;min-width:84px}
+.tts-speed{min-height:46px}
+.tts-time{font-size:12px}
+}
+/* TTS 播放器美化 C11「一笔佛·歸海錄」（2026-11-25）：顶部「歸海錄」淡影＋佛像正中居中 30px＋右下角莲台；佛像 base64 内联，不另建资产文件 */
+/* === 变体 C「淡莲」开始：卡片右下角极淡大莲花水印，标题换更优雅衬线 === */
+.tts-player{position:relative;overflow:hidden}
+.tts-player::after{content:"";position:absolute;right:-66px;bottom:-20px;width:200px;height:150px;transform:rotate(-45deg);background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2048%2036%27%20fill%3D%27none%27%20stroke%3D%27%238a6a24%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M24%202.5%20C27.6%207.5%2028%2012.5%2026%2017.2%20C25.2%2018.9%2024.6%2019.9%2024%2020.6%20C23.4%2019.9%2022.8%2018.9%2022%2017.2%20C20%2012.5%2020.4%207.5%2024%202.5%20Z%27%2F%3E%3Cpath%20d%3D%27M13.2%205.2%20C17.8%207.2%2020.6%2011%2021.2%2015.4%20C21.4%2017%2021.2%2018.4%2020.7%2019.6%20C19.2%2019.1%2017.6%2018%2016.3%2016.4%20C13.6%2013.3%2012.4%209.4%2013.2%205.2%20Z%27%2F%3E%3Cpath%20d%3D%27M34.8%205.2%20C30.2%207.2%2027.4%2011%2026.8%2015.4%20C26.6%2017%2026.8%2018.4%2027.3%2019.6%20C28.8%2019.1%2030.4%2018%2031.7%2016.4%20C34.4%2013.3%2035.6%209.4%2034.8%205.2%20Z%27%2F%3E%3Cpath%20d%3D%27M4.2%2013%20C8.4%2013.3%2012%2015.3%2013.8%2018.6%20C14.5%2020%2014.7%2021.3%2014.5%2022.5%20C12.8%2022.4%2011%2021.7%209.6%2020.5%20C7%2018.4%205.4%2015.9%204.2%2013%20Z%27%2F%3E%3Cpath%20d%3D%27M43.8%2013%20C39.6%2013.3%2036%2015.3%2034.2%2018.6%20C33.5%2020%2033.3%2021.3%2033.5%2022.5%20C35.2%2022.4%2037%2021.7%2038.4%2020.5%20C41%2018.4%2042.6%2015.9%2043.8%2013%20Z%27%2F%3E%3Cpath%20d%3D%27M9%2025%20C13.8%2027.4%2018.8%2028.5%2024%2028.5%20C29.2%2028.5%2034.2%2027.4%2039%2025%27%2F%3E%3Cpath%20d%3D%27M12%2029%20C16.5%2030.8%2031.5%2030.8%2036%2029%27%2F%3E%3Cpath%20d%3D%27M17.5%2031.5%20C20.5%2032.6%2027.5%2032.6%2030.5%2031.5%27%2F%3E%3Cpath%20d%3D%27M14%2034%20C18.5%2035.4%2029.5%2035.4%2034%2034%27%2F%3E%3C%2Fsvg%3E");background-size:contain;background-repeat:no-repeat;opacity:.04;pointer-events:none;z-index:0}
+html.dark .tts-player::after{opacity:.05;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2048%2036%27%20fill%3D%27none%27%20stroke%3D%27%23c9a55f%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M24%202.5%20C27.6%207.5%2028%2012.5%2026%2017.2%20C25.2%2018.9%2024.6%2019.9%2024%2020.6%20C23.4%2019.9%2022.8%2018.9%2022%2017.2%20C20%2012.5%2020.4%207.5%2024%202.5%20Z%27%2F%3E%3Cpath%20d%3D%27M13.2%205.2%20C17.8%207.2%2020.6%2011%2021.2%2015.4%20C21.4%2017%2021.2%2018.4%2020.7%2019.6%20C19.2%2019.1%2017.6%2018%2016.3%2016.4%20C13.6%2013.3%2012.4%209.4%2013.2%205.2%20Z%27%2F%3E%3Cpath%20d%3D%27M34.8%205.2%20C30.2%207.2%2027.4%2011%2026.8%2015.4%20C26.6%2017%2026.8%2018.4%2027.3%2019.6%20C28.8%2019.1%2030.4%2018%2031.7%2016.4%20C34.4%2013.3%2035.6%209.4%2034.8%205.2%20Z%27%2F%3E%3Cpath%20d%3D%27M4.2%2013%20C8.4%2013.3%2012%2015.3%2013.8%2018.6%20C14.5%2020%2014.7%2021.3%2014.5%2022.5%20C12.8%2022.4%2011%2021.7%209.6%2020.5%20C7%2018.4%205.4%2015.9%204.2%2013%20Z%27%2F%3E%3Cpath%20d%3D%27M43.8%2013%20C39.6%2013.3%2036%2015.3%2034.2%2018.6%20C33.5%2020%2033.3%2021.3%2033.5%2022.5%20C35.2%2022.4%2037%2021.7%2038.4%2020.5%20C41%2018.4%2042.6%2015.9%2043.8%2013%20Z%27%2F%3E%3Cpath%20d%3D%27M9%2025%20C13.8%2027.4%2018.8%2028.5%2024%2028.5%20C29.2%2028.5%2034.2%2027.4%2039%2025%27%2F%3E%3Cpath%20d%3D%27M12%2029%20C16.5%2030.8%2031.5%2030.8%2036%2029%27%2F%3E%3Cpath%20d%3D%27M17.5%2031.5%20C20.5%2032.6%2027.5%2032.6%2030.5%2031.5%27%2F%3E%3Cpath%20d%3D%27M14%2034%20C18.5%2035.4%2029.5%2035.4%2034%2034%27%2F%3E%3C%2Fsvg%3E")}
+.tts-player>*{position:relative;z-index:1}
+.tts-kicker{font-family:"Noto Serif SC","Songti SC","STSong",serif;font-size:13px;letter-spacing:.45em}
+/* === 变体 C「淡莲」结束 === */
+/* === 变体 C11「一笔佛·歸海錄」开始：佛像放回独立徽标行、正中居中（C10 声音行版在用户手机上偏位，改回居中）；徽标行极紧凑（30px 佛像、上下共 6px），卡片不显空；右下角莲台保持 C7/C8 原样 === */
+.tts-topword{display:block;text-align:center;font-family:"Noto Serif SC","Songti SC","STSong",serif;font-size:16px;line-height:1.2;letter-spacing:.35em;text-indent:.35em;white-space:nowrap;color:var(--ink);opacity:.1;pointer-events:none;margin-bottom:12px}
+html.dark .tts-topword{color:var(--gold)}
+.tts-emblem{display:flex;justify-content:center;padding:2px 0 4px}
+.tts-buddha{width:30px;height:38px;flex:none;background:url("data:image/png;base64,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") center/contain no-repeat;opacity:.85;pointer-events:none}
+html.dark .tts-buddha{background-image:url("data:image/png;base64,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");opacity:.9}
+/* === 变体 C11「一笔佛·歸海錄」结束 === */
 """
 
 js = """
@@ -2678,8 +2793,8 @@ def _render_page(page_name, page_title, page_desc, body, *, compact=False, inlin
         dl_tag = '<span class="fbtn">📥 本页即离线版</span>'
         globals_tag = ''
     else:
-        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261124p44">'
-        js_tag = '<script src="main.v5.js?v=20261124p44" defer></script>'
+        css_tag = '<link rel="stylesheet" href="style.v5.css?v=20261125p49">'
+        js_tag = '<script src="main.v5.js?v=20261125p49" defer></script>'
         dl_tag = '<a class="fbtn" href="归海录_离线版.html" download>📥 离线版下载</a>'
         globals_tag = ('<script>window.__GHL_PAGE__=' + json.dumps(page_name, ensure_ascii=False) +
                        ';window.__GHL_IDPAGE__=' + _idpage_json +
@@ -2838,6 +2953,93 @@ js += "\n(function(){document.addEventListener('click',function(e){var b=e.targe
 # p44 清单②：文章页「分享这篇」——有系统分享则调起，无则复制当前篇链接并给「已复制」反馈。
 js += "\n(function(){document.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-share]'):null;if(!b)return;var d=b.closest('details.entry');var sid=d?d.id:'';var url=location.href.split('#')[0]+(sid?'#'+sid:'');var title=b.getAttribute('data-title')||document.title;var done=function(){var t=b.textContent;b.textContent='已复制';setTimeout(function(){b.textContent=t;},1500);};if(navigator.share){navigator.share({title:title,text:title,url:url}).catch(function(){});return;}function fb(){try{var ta=document.createElement('textarea');ta.value=url;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();done();}catch(err){}}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done,fb);}else{fb();}});})();\n"
 js += "\n(function(){var POOL=['修行','因果','福报','轮回','孩子','菩萨','鬼','投胎','灵魂','事业','父母','健康','去世','财运','婚姻','天眼','超度','阴债','烧纸','风水','祖先','冤亲','改命','做梦'];var chips=[].slice.call(document.querySelectorAll('.search-hint .qchip'));if(!chips.length)return;function pick(){var p=POOL.slice();for(var i=p.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=p[i];p[i]=p[j];p[j]=t}return p}function apply(){var w=pick();chips.forEach(function(c,i){var v=w[i%w.length];c.textContent=v;c.setAttribute('data-q',v);c.style.opacity=''})}apply();setInterval(function(){var q=document.getElementById('q');if(q&&q.value.trim())return;chips.forEach(function(c){c.style.opacity='0'});setTimeout(apply,480)},12000)})();\n"
+# TTS 朗读播放器（2026-11-25）：自定义播放器，莲花进度滑块（可点可拖，键盘左右键 ±5 秒）；仅有音频的条目才有播放器。
+js += '''
+(function(){
+document.querySelectorAll('.tts-player').forEach(function(root){
+var audio=root.querySelector('audio');
+var playBtn=root.querySelector('.tts-play');
+var progress=root.querySelector('.tts-progress');
+var trackwrap=root.querySelector('.tts-trackwrap');
+var fill=root.querySelector('.tts-fill');
+var thumb=root.querySelector('.tts-thumb');
+var curEl=root.querySelector('.tts-cur');
+var durEl=root.querySelector('.tts-dur');
+var voiceBtns=root.querySelectorAll('.tts-voice-btn');
+var voiceBox=root.querySelector('.tts-voice');
+var speedBtns=root.querySelectorAll('.tts-speed');
+var nowVoice=root.querySelector('.tts-now-voice');
+var nowRate=root.querySelector('.tts-now-rate');
+var sources={female:root.getAttribute('data-female'),male:root.getAttribute('data-male')};
+var labels={female:'女声',male:'男声'};
+var rate=1.25;
+audio.playbackRate=rate;
+function fmt(s){if(!isFinite(s))return '--:--';s=Math.max(0,Math.floor(s));var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r;}
+function render(){
+durEl.textContent=fmt(audio.duration);
+var ratio=(isFinite(audio.duration)&&audio.duration>0)?(audio.currentTime/audio.duration):0;
+fill.style.width=(ratio*100)+'%';
+thumb.style.left=(ratio*100)+'%';
+curEl.textContent=fmt(audio.currentTime);
+progress.setAttribute('aria-valuenow',Math.round(ratio*100));
+}
+function tryPlay(){var p=audio.play();if(p&&p.catch){p.catch(function(){});}}
+audio.addEventListener('loadedmetadata',render);
+audio.addEventListener('timeupdate',render);
+audio.addEventListener('ended',function(){root.classList.remove('is-playing');});
+playBtn.addEventListener('click',function(){
+if(audio.paused){tryPlay();root.classList.add('is-playing');}
+else{audio.pause();root.classList.remove('is-playing');}
+});
+function seekFromEvent(e){
+var rect=trackwrap.getBoundingClientRect();
+var ratio=(e.clientX-rect.left)/rect.width;
+ratio=Math.max(0,Math.min(1,ratio));
+if(isFinite(audio.duration)){audio.currentTime=ratio*audio.duration;}
+render();
+}
+progress.addEventListener('pointerdown',function(e){
+progress.setPointerCapture(e.pointerId);
+seekFromEvent(e);
+function move(ev){seekFromEvent(ev);}
+function up(){progress.removeEventListener('pointermove',move);progress.removeEventListener('pointerup',up);progress.removeEventListener('pointercancel',up);}
+progress.addEventListener('pointermove',move);
+progress.addEventListener('pointerup',up);
+progress.addEventListener('pointercancel',up);
+});
+progress.addEventListener('keydown',function(e){
+if(!isFinite(audio.duration))return;
+if(e.key==='ArrowRight'){audio.currentTime=Math.min(audio.duration,audio.currentTime+5);e.preventDefault();}
+if(e.key==='ArrowLeft'){audio.currentTime=Math.max(0,audio.currentTime-5);e.preventDefault();}
+});
+voiceBtns.forEach(function(btn){
+btn.addEventListener('click',function(){
+var v=btn.getAttribute('data-voice');
+var wasPlaying=!audio.paused;
+audio.src=sources[v];
+audio.playbackRate=rate;
+audio.load();
+if(wasPlaying){tryPlay();}
+nowVoice.textContent=labels[v];
+voiceBox.setAttribute('data-active',v);
+voiceBtns.forEach(function(b){b.classList.remove('active');});
+btn.classList.add('active');
+render();
+});
+});
+speedBtns.forEach(function(btn){
+btn.addEventListener('click',function(){
+rate=parseFloat(btn.getAttribute('data-rate'));
+audio.playbackRate=rate;
+nowRate.textContent=btn.textContent;
+speedBtns.forEach(function(b){b.classList.remove('active');});
+btn.classList.add('active');
+});
+});
+render();
+});
+})();
+'''
 # p37：内容线已读总数用库内编号表过滤（构建期写死，与阅读线同源）
 js = js.replace("_READIDS_PLACEHOLDER_", json.dumps(sorted(e['id'] for e in _entries)), 1)
 (HERE / "main.v5.js").write_text(js, encoding="utf-8", newline="\n")
