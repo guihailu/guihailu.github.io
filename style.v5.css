@@ -183,6 +183,8 @@ html.fs-xl .entry-body{font-size:19.5px}
 .next-read li span{display:block;margin-top:2px;color:var(--sub);font-size:12.5px;line-height:1.7}
 .next-read-more{font-size:13.5px}
 .next-read-more a{color:var(--gold2);font-weight:600}
+.next-read-ext{font-size:13.5px;margin-top:10px}
+.next-read-ext a{color:var(--gold2)}
 /* ---- 入门先读路线行（p32）：条目末尾路线进度＋下一篇链，贴在接着读之上 ---- */
 .route-next{margin:22px 0 0;padding:13px 20px;border:1px solid var(--line);border-left:3px solid #c9a55f;border-radius:12px;background:var(--card);display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
 .route-next-label{color:var(--gold2);font-size:13px;letter-spacing:2px;font-weight:600;white-space:nowrap}
