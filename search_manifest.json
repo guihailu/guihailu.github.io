@@ -1,5 +1,5 @@
 {
-  "generated": "516a1b87baff",
+  "generated": "be686419b086",
   "count": 125,
   "shared": "search_shared.json",
   "shards": [
@@ -25,7 +25,7 @@
       "file": "search_index_2025.json",
       "page": "2025.html",
       "count": 12,
-      "bytes": 204225
+      "bytes": 204374
     },
     {
       "file": "search_index_2024.json",
@@ -37,13 +37,13 @@
       "file": "search_index_undated.json",
       "page": "undated.html",
       "count": 31,
-      "bytes": 402709
+      "bytes": 402858
     },
     {
       "file": "search_index_undated_2.json",
       "page": "undated.html",
       "count": 10,
-      "bytes": 334696
+      "bytes": 334845
     }
   ]
 }
